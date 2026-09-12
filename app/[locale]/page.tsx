@@ -43,6 +43,14 @@ import {
   Star,
   ChevronDown,
   ChevronUp,
+  RefreshCw,
+  TrendingUp,
+  Sliders,
+  Wind,
+  Shield,
+  Activity,
+  Printer,
+  Share2,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -67,8 +75,14 @@ export default function LandingPage() {
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signUpLoading, setSignUpLoading] = useState(false);
 
-  // Interactive Product Preview Tab
-  const [activePreviewTab, setActivePreviewTab] = useState<"radar" | "ota" | "pos" | "camping">("radar");
+  // Interactive Hero Cockpit View Switcher
+  const [heroPropertyType, setHeroPropertyType] = useState<"resort" | "farmhouse" | "campsite">("resort");
+
+  // Interactive Bento Grid States
+  const [interactiveWindSpeed, setInteractiveWindSpeed] = useState(16); // km/h
+  const [interactiveResortName, setInteractiveResortName] = useState("Palm Oasis Luxury Retreat");
+  const [interactiveGstRate, setInteractiveGstRate] = useState<5 | 18>(18);
+  const [surgeOccupancyInput, setSurgeOccupancyInput] = useState(85);
 
   // Pricing Toggle (Monthly vs Annual)
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
@@ -127,7 +141,8 @@ export default function LandingPage() {
           "ratingValue": "4.9",
           "ratingCount": "320",
         },
-        "description": "Multi-tenant operating system for resorts, farmhouses, camping zones, and vacation stays with 2-way OTA synchronization, GST invoicing, and dynamic pricing.",
+        "description":
+          "Multi-tenant operating system for resorts, farmhouses, camping zones, and vacation stays with 2-way OTA synchronization, GST invoicing, and dynamic pricing.",
       },
       {
         "@type": "Organization",
@@ -142,42 +157,13 @@ export default function LandingPage() {
           "availableLanguage": ["English", "Hindi", "Telugu", "Arabic"],
         },
       },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "How does Rentcot Property OS prevent double-bookings across OTAs?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Rentcot connects directly via 2-way API adapters to Airbnb, Booking.com, MakeMyTrip, and Agoda. The moment a reservation arrives on any channel, that unit is locked instantly, and zero-inventory stop-sells are pushed across all other channels within milliseconds.",
-            },
-          },
-          {
-            "@type": "Question",
-            "name": "Can we print GST tax invoices with our resort branding and logo?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes. Owners can upload their custom resort logo, customize legal trade name, address, GSTIN, and FSSAI numbers. Invoices can be printed to PDF, shared instantly on WhatsApp, or emailed with itemized SAC codes.",
-            },
-          },
-          {
-            "@type": "Question",
-            "name": "What camping and glamping operational features are included?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Rentcot includes pitch ground allocation (wooden decks, grass, gravel, sand), a real-time wind and fire safety watchdog with automatic campfire bans at 28 km/h, gear rental UV sanitization tracking, and evening BBQ logistics.",
-            },
-          },
-        ],
-      },
     ],
   };
 
   const faqs = [
     {
-      q: "How does Rentcot Property OS prevent double-bookings across OTAs?",
-      a: "Rentcot connects directly via real-time 2-way API adapters to Airbnb, Booking.com, MakeMyTrip, Goibibo, and Agoda. The millisecond an inbound reservation is confirmed from any OTA or direct walk-in, the physical unit is locked, and a zero-availability stop-sell is immediately broadcast to all other connected channels.",
+      q: "How does Rentcot Property OS eliminate double-bookings across OTAs?",
+      a: "Rentcot connects directly via real-time 2-way API adapters to Airbnb, Booking.com, MakeMyTrip, Goibibo, and Agoda. The millisecond an inbound reservation is confirmed from any OTA or direct walk-in, the physical unit is locked, and a zero-availability stop-sell is immediately broadcast to all other connected channels within 15–30 milliseconds.",
     },
     {
       q: "Can I customize invoices with my own resort logo, trade name, and GSTIN?",
@@ -192,17 +178,28 @@ export default function LandingPage() {
       a: "The pricing engine automatically adjusts nightly and hourly rates based on weekend surges, holiday calendars, live occupancy tiers (e.g., +25% rate once occupancy crosses 80%), and long-stay rules. It also features a Rate Parity Watchdog to protect your direct bookings from OTA undercutting penalties.",
     },
     {
-      q: "Is Rentcot multi-tenant and secure?",
+      q: "Is Rentcot multi-tenant and cryptographically secure?",
       a: "Yes. Rentcot is built with Supabase enterprise PostgreSQL featuring strict Row Level Security (RLS). All guest data, financial ledgers, and inventory are cryptographically isolated per organization. Role-based access control (RBAC) ensures front-desk staff, housekeeping, and accountants only see what they need.",
     },
     {
-      q: "Can I use Rentcot on mobile devices, iPads, and tablets?",
-      a: "Yes. Rentcot Property OS is 100% responsive and PWA-ready. Front-desk staff can use iPads for POS and check-in, housekeepers can inspect room statuses on smartphones, and owners have a live mobile executive dashboard.",
+      q: "Can front desk and housekeeping use Rentcot on tablets and phones?",
+      a: "Yes. Rentcot Property OS is 100% responsive and PWA-ready. Front-desk staff can use iPads for POS and check-in, housekeepers can inspect room statuses on smartphones, and owners have a live mobile executive dashboard with biometric sign-in.",
     },
   ];
 
+  const otaPartners = [
+    { name: "Airbnb", badge: "Direct 2-Way Sync", ping: "18ms" },
+    { name: "Booking.com", badge: "API Push/Pull", ping: "22ms" },
+    { name: "MakeMyTrip", badge: "Domestic Leader", ping: "26ms" },
+    { name: "Agoda", badge: "Asia-Pacific Feed", ping: "31ms" },
+    { name: "Vrbo / Expedia", badge: "Global Connectivity", ping: "35ms" },
+    { name: "Google Vacation Rentals", badge: "Direct Zero-Fee", ping: "19ms" },
+    { name: "WhatsApp Business API", badge: "Instant Invoicing", ping: "12ms" },
+    { name: "Razorpay & UPI", badge: "Instant Settlement", ping: "14ms" },
+  ];
+
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-rentcot-blue selection:text-white">
+    <div className="min-h-screen bg-background text-foreground selection:bg-rentcot-blue selection:text-white relative overflow-x-hidden">
       {/* Schema.org Structured Data */}
       <script
         type="application/ld+json"
@@ -210,11 +207,11 @@ export default function LandingPage() {
       />
 
       {/* Sticky Marketing Header / Navbar */}
-      <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <header className="sticky top-0 z-40 w-full glass-panel border-b border-border/70 transition-all">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Brand Logo */}
-          <Link href={`/${locale}`} className="flex items-center gap-2">
-            <div className="relative h-8 w-32 sm:h-9 sm:w-36">
+          <Link href={`/${locale}`} className="flex items-center gap-2 group">
+            <div className="relative h-8 w-32 sm:h-9 sm:w-36 transition-transform group-hover:scale-[1.02]">
               <Image
                 src="/brand/rentcot-logo.png"
                 alt="Rentcot Property OS"
@@ -225,24 +222,24 @@ export default function LandingPage() {
             </div>
           </Link>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-muted-foreground">
-            <a href="#solutions" className="hover:text-foreground transition-colors">
+          {/* Navigation Links with Micro-Underline effect */}
+          <nav className="hidden md:flex items-center gap-7 text-xs font-semibold text-muted-foreground">
+            <a href="#solutions" className="hover:text-foreground transition-colors relative py-1">
               Solutions
             </a>
-            <a href="#features" className="hover:text-foreground transition-colors">
-              Features
+            <a href="#features" className="hover:text-foreground transition-colors relative py-1">
+              Capabilities
             </a>
-            <a href="#channel-manager" className="hover:text-foreground transition-colors">
+            <a href="#channel-manager" className="hover:text-foreground transition-colors relative py-1">
               OTA Sync
             </a>
-            <a href="#pricing" className="hover:text-foreground transition-colors">
+            <a href="#pricing" className="hover:text-foreground transition-colors relative py-1">
               Pricing
             </a>
-            <a href="#roi" className="hover:text-foreground transition-colors">
+            <a href="#roi" className="hover:text-foreground transition-colors relative py-1">
               ROI Calculator
             </a>
-            <a href="#faq" className="hover:text-foreground transition-colors">
+            <a href="#faq" className="hover:text-foreground transition-colors relative py-1">
               FAQ
             </a>
           </nav>
@@ -256,7 +253,7 @@ export default function LandingPage() {
                 setAuthMode("signin");
                 setIsAuthModalOpen(true);
               }}
-              className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-colors"
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-all active:scale-95"
             >
               Sign In
             </button>
@@ -266,17 +263,20 @@ export default function LandingPage() {
                 setAuthMode("signup");
                 setIsAuthModalOpen(true);
               }}
-              className="bg-rentcot-blue hover:bg-rentcot-blue/90 text-white text-xs font-semibold h-9 px-4 rounded-lg shadow-sm"
+              className="bg-rentcot-blue hover:bg-rentcot-blue/90 text-white text-xs font-semibold h-9 px-4 rounded-lg shadow-sm shadow-rentcot-blue/25 hover:shadow-rentcot-blue/40 transition-all active:scale-95"
             >
               Start Free Trial
             </Button>
 
             <button
               onClick={handleDemoAccess}
-              className="hidden lg:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-600/10 text-emerald-700 hover:bg-emerald-600/20 border border-emerald-600/20 transition-colors"
+              className="hidden lg:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-600/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600/20 border border-emerald-600/20 transition-all active:scale-95"
               title="Launch instant live demo"
             >
-              <Zap className="h-3.5 w-3.5" />
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
               <span>Live Demo</span>
             </button>
           </div>
@@ -285,38 +285,66 @@ export default function LandingPage() {
 
       {/* Main Landing Page Content */}
       <main>
-        {/* HERO SECTION */}
-        <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 border-b border-border bg-radial from-rentcot-blue/5 via-background to-background">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center space-y-6">
-            {/* Top Version Announcement Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-rentcot-blue/30 bg-rentcot-blue/10 px-3.5 py-1 text-xs font-semibold text-rentcot-blue">
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>Version 2.4 Live • Purpose-Built for Resorts, Farmhouses & Camping</span>
+        {/* HERO SECTION WITH AMBIENT AURA & FLOATING BADGES */}
+        <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 border-b border-border dot-pattern">
+          {/* Ambient Glow Aura */}
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] md:w-[850px] md:h-[450px] bg-gradient-to-tr from-rentcot-blue/20 via-sky-400/15 to-emerald-400/15 blur-[100px] pointer-events-none rounded-full" />
+
+          {/* Floating Live Indicator Badges (Hidden on tiny mobile) */}
+          <div className="hidden xl:block absolute top-28 left-8 2xl:left-20 animate-float z-10 pointer-events-none">
+            <div className="glass-panel border border-emerald-500/30 shadow-lg rounded-2xl p-3 px-4 flex items-center gap-3 backdrop-blur-md">
+              <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse-emerald" />
+              <div>
+                <div className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                  2-Way Channel Lock
+                </div>
+                <div className="text-xs font-bold text-foreground">Airbnb booked &bull; MMT locked in 18ms</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="hidden xl:block absolute top-48 right-8 2xl:right-20 animate-float-reverse z-10 pointer-events-none">
+            <div className="glass-panel border border-rentcot-blue/30 shadow-lg rounded-2xl p-3 px-4 flex items-center gap-3 backdrop-blur-md">
+              <div className="h-2.5 w-2.5 rounded-full bg-rentcot-blue animate-pulse-glow" />
+              <div>
+                <div className="text-[10px] font-bold text-rentcot-blue uppercase tracking-wider">
+                  Live Operations Radar
+                </div>
+                <div className="text-xs font-bold text-foreground">94.2% Occupancy &bull; Zero Overbookings</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
+            {/* Top Version Announcement Badge with Shimmer Sweep */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-rentcot-blue/30 shimmer-badge px-4 py-1.5 text-xs font-semibold text-rentcot-blue shadow-xs">
+              <Sparkles className="h-3.5 w-3.5 text-rentcot-blue" />
+              <span>Next-Gen 2026 Hospitality Architecture • Multi-Tenant Supabase RLS</span>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="mx-auto max-w-4xl text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.15]">
+            {/* Main Headline with Modern Gradient Typography */}
+            <h1 className="mx-auto max-w-4xl text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.12]">
               The Unified Operating System for{" "}
-              <span className="bg-gradient-to-r from-rentcot-blue via-blue-600 to-emerald-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-rentcot-blue via-sky-500 to-emerald-500 bg-clip-text text-transparent">
                 Resorts, Farmhouses & Glamping
               </span>
             </h1>
 
             {/* Sub-headline */}
             <p className="mx-auto max-w-2xl text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">
-              Stop juggling 6 disconnected apps. Manage multi-channel OTA sync, direct reservations,
-              front-desk POS billing with GST, automated surge pricing, and campsite weather safety in one high-performance platform.
+              Consolidate reservations, collision-proof 2-way OTA channel synchronization, front-desk POS billing with GST,
+              dynamic surge pricing, and campsite weather safety into a single high-performance cockpit.
             </p>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+            {/* Action Buttons with Micro-Interactions */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
               <Button
                 size="lg"
                 onClick={() => {
                   setAuthMode("signup");
                   setIsAuthModalOpen(true);
                 }}
-                className="w-full sm:w-auto bg-rentcot-blue hover:bg-rentcot-blue/90 text-white font-semibold text-sm h-12 px-8 rounded-xl shadow-md gap-2"
+                className="w-full sm:w-auto bg-rentcot-blue hover:bg-rentcot-blue/90 text-white font-semibold text-sm h-12 px-8 rounded-xl shadow-lg shadow-rentcot-blue/25 hover:shadow-rentcot-blue/40 transition-all duration-200 active:scale-[0.98] gap-2"
               >
                 <span>Start 14-Day Free Trial</span>
                 <ArrowRight className="h-4 w-4" />
@@ -326,250 +354,602 @@ export default function LandingPage() {
                 size="lg"
                 variant="outline"
                 onClick={handleDemoAccess}
-                className="w-full sm:w-auto border-border bg-card hover:bg-muted text-foreground font-semibold text-sm h-12 px-6 rounded-xl gap-2"
+                className="w-full sm:w-auto border-border bg-card/80 hover:bg-muted text-foreground font-semibold text-sm h-12 px-6 rounded-xl transition-all duration-200 active:scale-[0.98] gap-2 shadow-xs"
               >
                 <Zap className="h-4 w-4 text-emerald-600" />
                 <span>Explore Live Demo Portal</span>
               </Button>
             </div>
 
-            {/* Trust Signals */}
+            {/* Trust Metrics Bar */}
             <div className="pt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto border-t border-border/60">
-              <div className="text-center">
-                <div className="text-xl sm:text-2xl font-black text-foreground font-mono">500+</div>
+              <div className="text-center group">
+                <div className="text-xl sm:text-2xl font-black text-foreground font-mono transition-transform group-hover:scale-105">
+                  500+
+                </div>
                 <div className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">Properties Live</div>
               </div>
-              <div className="text-center">
-                <div className="text-xl sm:text-2xl font-black text-foreground font-mono">₹45 Cr+</div>
-                <div className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">Bookings Handled</div>
+              <div className="text-center group">
+                <div className="text-xl sm:text-2xl font-black text-foreground font-mono transition-transform group-hover:scale-105">
+                  ₹45 Cr+
+                </div>
+                <div className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">Bookings Processed</div>
               </div>
-              <div className="text-center">
-                <div className="text-xl sm:text-2xl font-black text-emerald-600 font-mono">0%</div>
+              <div className="text-center group">
+                <div className="text-xl sm:text-2xl font-black text-emerald-600 font-mono transition-transform group-hover:scale-105">
+                  0%
+                </div>
                 <div className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">Double-Bookings</div>
               </div>
-              <div className="text-center">
-                <div className="text-xl sm:text-2xl font-black text-rentcot-blue font-mono">99.98%</div>
-                <div className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">Uptime SLA</div>
+              <div className="text-center group">
+                <div className="text-xl sm:text-2xl font-black text-rentcot-blue font-mono transition-transform group-hover:scale-105">
+                  99.98%
+                </div>
+                <div className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">Edge Uptime SLA</div>
+              </div>
+            </div>
+
+            {/* INTERACTIVE HERO COCKPIT MOCKUP */}
+            <div className="pt-8 max-w-5xl mx-auto">
+              <div className="rounded-2xl border border-border/80 bg-card/90 shadow-2xl p-4 sm:p-6 backdrop-blur-md space-y-5 text-left transition-all">
+                {/* Cockpit Header with Property Type Switcher */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-3 w-3 rounded-full bg-rose-500/80" />
+                    <div className="h-3 w-3 rounded-full bg-amber-500/80" />
+                    <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
+                    <span className="text-xs font-bold text-foreground ml-2 font-mono">rentcot-cockpit // v2.4</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-semibold">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Live Stream
+                    </span>
+                  </div>
+
+                  {/* Property Category View Chips */}
+                  <div className="inline-flex p-1 rounded-xl bg-muted/60 border border-border/80 text-xs">
+                    <button
+                      onClick={() => setHeroPropertyType("resort")}
+                      className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                        heroPropertyType === "resort"
+                          ? "bg-background text-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Boutique Resort
+                    </button>
+                    <button
+                      onClick={() => setHeroPropertyType("farmhouse")}
+                      className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                        heroPropertyType === "farmhouse"
+                          ? "bg-background text-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Private Farmhouse
+                    </button>
+                    <button
+                      onClick={() => setHeroPropertyType("campsite")}
+                      className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                        heroPropertyType === "campsite"
+                          ? "bg-background text-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Glamping & Camp
+                    </button>
+                  </div>
+                </div>
+
+                {/* KPI Metrics Row */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1">
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
+                      <span>Today&apos;s Revenue</span>
+                      <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+                    </div>
+                    <div className="text-lg sm:text-xl font-bold font-mono text-foreground">
+                      {heroPropertyType === "resort" ? "₹3,42,800" : heroPropertyType === "farmhouse" ? "₹1,85,000" : "₹1,12,400"}
+                    </div>
+                    <div className="text-[10px] text-emerald-600 font-semibold">+18.4% vs last week</div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1">
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
+                      <span>Live Occupancy</span>
+                      <Activity className="h-3.5 w-3.5 text-rentcot-blue" />
+                    </div>
+                    <div className="text-lg sm:text-xl font-bold font-mono text-foreground">
+                      {heroPropertyType === "resort" ? "92.4%" : heroPropertyType === "farmhouse" ? "100%" : "84.0%"}
+                    </div>
+                    <div className="text-[10px] text-rentcot-blue font-semibold">
+                      {heroPropertyType === "resort" ? "24 / 26 Suites Active" : heroPropertyType === "farmhouse" ? "Full Buyout Confirmed" : "21 / 25 Pitches Taken"}
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1">
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
+                      <span>OTA Sync Latency</span>
+                      <Zap className="h-3.5 w-3.5 text-amber-500" />
+                    </div>
+                    <div className="text-lg sm:text-xl font-bold font-mono text-foreground">18 ms</div>
+                    <div className="text-[10px] text-muted-foreground">Airbnb &bull; Booking &bull; MMT</div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1">
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
+                      <span>Safety Watchdog</span>
+                      <Shield className="h-3.5 w-3.5 text-emerald-600" />
+                    </div>
+                    <div className="text-lg sm:text-xl font-bold font-mono text-emerald-600">
+                      {heroPropertyType === "campsite" ? "16 km/h (Safe)" : "Optimal"}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">Campfire Protocol Normal</div>
+                  </div>
+                </div>
+
+                {/* Simulated Live Unit Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-1">
+                  {heroPropertyType === "resort" && (
+                    <>
+                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">Villa 101 (Pool View)</span>
+                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        </div>
+                        <div className="text-[11px] text-emerald-600 font-medium">Available &bull; ₹14,500/nt</div>
+                        <div className="text-[10px] text-muted-foreground">Turnover Inspected</div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-amber-500/40 bg-amber-500/5 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">Villa 102 (Royal Suite)</span>
+                          <span className="h-2 w-2 rounded-full bg-amber-500" />
+                        </div>
+                        <div className="text-[11px] text-amber-600 font-medium">Occupied &bull; Airbnb</div>
+                        <div className="text-[10px] text-muted-foreground">Check-out Tomorrow 11 AM</div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-blue-500/40 bg-blue-500/5 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">Villa 103 (Garden Deluxe)</span>
+                          <span className="h-2 w-2 rounded-full bg-blue-500" />
+                        </div>
+                        <div className="text-[11px] text-rentcot-blue font-medium">Direct Booking &bull; ₹12,000</div>
+                        <div className="text-[10px] text-muted-foreground">Arriving Today 2 PM</div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-red-500/30 bg-red-500/5 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">Villa 104 (Executive)</span>
+                          <span className="h-2 w-2 rounded-full bg-red-500" />
+                        </div>
+                        <div className="text-[11px] text-red-600 font-medium">Housekeeping Dirty</div>
+                        <div className="text-[10px] text-muted-foreground">Turnover in Progress (14m)</div>
+                      </div>
+                    </>
+                  )}
+
+                  {heroPropertyType === "farmhouse" && (
+                    <>
+                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">Main Farmhouse Buyout</span>
+                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        </div>
+                        <div className="text-[11px] text-emerald-600 font-medium">Reserved Weekend &bull; ₹65,000</div>
+                        <div className="text-[10px] text-muted-foreground">Private Pool & Lawns</div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-blue-500/40 bg-blue-500/5 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">Day-Picnic Slot</span>
+                          <span className="h-2 w-2 rounded-full bg-blue-500" />
+                        </div>
+                        <div className="text-[11px] text-rentcot-blue font-medium">10 AM – 6 PM Package</div>
+                        <div className="text-[10px] text-muted-foreground">22 Guests &bull; Organic Lunch</div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-border bg-background space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">Mango Grove Bonfire Deck</span>
+                          <span className="h-2 w-2 rounded-full bg-amber-500" />
+                        </div>
+                        <div className="text-[11px] text-amber-600 font-medium">Hardwood Bonfire Ready</div>
+                        <div className="text-[10px] text-muted-foreground">Kit Billed at ₹1,500</div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-border bg-background space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">Pet Parent Check</span>
+                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        </div>
+                        <div className="text-[11px] text-emerald-600 font-medium">2 Golden Retrievers Declared</div>
+                        <div className="text-[10px] text-muted-foreground">Deposit Cleared</div>
+                      </div>
+                    </>
+                  )}
+
+                  {heroPropertyType === "campsite" && (
+                    <>
+                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">Glamping Dome 01</span>
+                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        </div>
+                        <div className="text-[11px] text-emerald-600 font-medium">Wooden Deck &bull; AC Glamp</div>
+                        <div className="text-[10px] text-muted-foreground">Occupied &bull; Check-out 11 AM</div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">Pitch P-04 (Lawn)</span>
+                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        </div>
+                        <div className="text-[11px] text-emerald-600 font-medium">Vacant Clean &bull; ₹2,200</div>
+                        <div className="text-[10px] text-muted-foreground">Includes 4-person Coleman Tent</div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-amber-500/40 bg-amber-500/5 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">UV Sanitization Desk</span>
+                          <span className="h-2 w-2 rounded-full bg-amber-500" />
+                        </div>
+                        <div className="text-[11px] text-amber-600 font-medium">12 Sleeping Bags Cycled</div>
+                        <div className="text-[10px] text-muted-foreground">UV Chamber Clean Passed</div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-border bg-background space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">Wind Watchdog</span>
+                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        </div>
+                        <div className="text-[11px] text-emerald-600 font-medium">Gusts 16 km/h &bull; Safe</div>
+                        <div className="text-[10px] text-muted-foreground">Auto-Ban Threshold: 28 km/h</div>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* INTERACTIVE PRODUCT SHOWCASE SECTION */}
-        <section className="py-16 md:py-24 border-b border-border bg-muted/20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* INFINITE MARQUEE: CONNECTED OTA CHANNELS & INTEGRATIONS */}
+        <section id="channel-manager" className="py-6 border-b border-border bg-muted/30 overflow-hidden relative">
+          <div className="text-center pb-3">
+            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
+              Direct Two-Way Sync With Leading Global & Domestic Booking Channels
+            </span>
+          </div>
+
+          <div className="flex overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
+            <div className="animate-marquee gap-6 items-center">
+              {[...otaPartners, ...otaPartners].map((partner, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-background border border-border/70 shadow-xs hover:border-rentcot-blue/40 transition-all cursor-default shrink-0"
+                >
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  <span className="text-xs font-bold text-foreground">{partner.name}</span>
+                  <Badge variant="outline" className="text-[9px] font-mono text-muted-foreground">
+                    {partner.ping}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 2026 INTERACTIVE BENTO GRID: CORE CAPABILITIES */}
+        <section id="features" className="py-16 md:py-24 border-b border-border bg-background">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
             <div className="text-center space-y-2">
               <Badge variant="outline" className="text-xs font-semibold text-rentcot-blue border-rentcot-blue/30">
-                Live Interactive Experience
+                2026 Core Architecture
               </Badge>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
-                Designed for Fast-Paced Property Operations
+                Engineered for High-Yield Property Operations
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
-                Switch between core modules below to explore how Rentcot replaces legacy PMS systems with instant visual controls.
+                Explore our interactive modules below. Test wind safety rules, configure custom GST receipts, and simulate live surge pricing.
               </p>
             </div>
 
-            {/* Tabs Controller */}
-            <div className="flex justify-center">
-              <div className="inline-flex p-1 rounded-xl bg-background border border-border shadow-xs gap-1">
-                <button
-                  onClick={() => setActivePreviewTab("radar")}
-                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                    activePreviewTab === "radar"
-                      ? "bg-rentcot-blue text-white shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  Availability Radar
-                </button>
-                <button
-                  onClick={() => setActivePreviewTab("ota")}
-                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                    activePreviewTab === "ota"
-                      ? "bg-rentcot-blue text-white shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  2-Way OTA Sync
-                </button>
-                <button
-                  onClick={() => setActivePreviewTab("pos")}
-                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                    activePreviewTab === "pos"
-                      ? "bg-rentcot-blue text-white shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  POS & GST Invoicing
-                </button>
-                <button
-                  onClick={() => setActivePreviewTab("camping")}
-                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                    activePreviewTab === "camping"
-                      ? "bg-rentcot-blue text-white shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  Campsite Watchdog
-                </button>
-              </div>
-            </div>
-
-            {/* Tab Visual Windows */}
-            <Card className="border-border shadow-xl overflow-hidden bg-card">
-              {activePreviewTab === "radar" && (
-                <div className="p-6 md:p-8 space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-4">
-                    <div>
-                      <h3 className="font-bold text-lg text-foreground">Live Visual Inventory & Occupancy Radar</h3>
-                      <p className="text-xs text-muted-foreground">Color-coded availability across villas, suites & glamping domes</p>
+            {/* BENTO GRID LAYOUT */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* BENTO CARD 1: 2-Way OTA Collision Proof Engine (2 cols) */}
+              <div className="md:col-span-2 rounded-2xl border border-border bg-card p-6 md:p-8 flex flex-col justify-between hover:shadow-xl hover:border-rentcot-blue/40 transition-all duration-300 relative overflow-hidden group">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rentcot-blue/10 text-rentcot-blue">
+                      <CalendarCheck className="h-5 w-5" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                        ● Available
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-500/10 text-amber-600 border border-amber-500/20">
-                        ● Fast Filling
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-red-500/10 text-red-600 border border-red-500/20">
-                        ● Sold Out
-                      </span>
-                    </div>
+                    <Badge variant="outline" className="text-[10px] font-mono text-emerald-600 border-emerald-500/30 bg-emerald-500/5">
+                      Zero-Collision Guarantee
+                    </Badge>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
-                      <div className="text-[10px] font-bold text-emerald-600 uppercase">Green Valley Farmhouse</div>
-                      <div className="text-base font-bold text-foreground">Main Farmhouse Villa</div>
-                      <Badge variant="clean" className="text-[10px]">Ready &bull; 8 Sleeps</Badge>
-                    </div>
-                    <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-1">
-                      <div className="text-[10px] font-bold text-amber-600 uppercase">Wildwoods Campsite</div>
-                      <div className="text-base font-bold text-foreground">Glamping Dome 01</div>
-                      <Badge variant="occupied" className="text-[10px]">Occupied &bull; Check-out 11 AM</Badge>
-                    </div>
-                    <div className="p-3.5 rounded-xl border border-red-500/30 bg-red-500/5 space-y-1">
-                      <div className="text-[10px] font-bold text-red-600 uppercase">Palm Oasis Resort</div>
-                      <div className="text-base font-bold text-foreground">Lakeview Pool Villa</div>
-                      <Badge variant="dirty" className="text-[10px]">Turnover in Progress</Badge>
-                    </div>
-                    <div className="p-3.5 rounded-xl border border-border bg-background space-y-1">
-                      <div className="text-[10px] font-bold text-muted-foreground uppercase">Wildwoods Campsite</div>
-                      <div className="text-base font-bold text-foreground">Pitch P-04 (Grass Lawn)</div>
-                      <Badge variant="clean" className="text-[10px]">Vacant Clean</Badge>
-                    </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">Sub-50ms Two-Way OTA Synchronization</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">
+                      Never suffer an overbooking penalty again. When a guest books on Airbnb, Rentcot immediately blocks the unit across Booking.com, MakeMyTrip, and Agoda in milliseconds.
+                    </p>
                   </div>
-                </div>
-              )}
 
-              {activePreviewTab === "ota" && (
-                <div className="p-6 md:p-8 space-y-6">
-                  <div className="flex items-center justify-between border-b border-border pb-4">
-                    <div>
-                      <h3 className="font-bold text-lg text-foreground">Two-Way OTA Synchronization Engine</h3>
-                      <p className="text-xs text-muted-foreground">Airbnb, Booking.com, MakeMyTrip & Agoda 1-click sync</p>
-                    </div>
-                    <Badge variant="clean" className="text-xs font-mono">Zero Collisions Active</Badge>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Visual Channel Sync Diagram */}
+                  <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
-                      { name: "Airbnb", status: "Active Push/Pull", lastSync: "24s ago", markup: "+12% markup" },
-                      { name: "Booking.com", status: "Active Push/Pull", lastSync: "45s ago", markup: "+15% markup" },
-                      { name: "MakeMyTrip", status: "Active Push/Pull", lastSync: "1m ago", markup: "+15% markup" },
-                      { name: "Agoda", status: "Active Push/Pull", lastSync: "1m ago", markup: "+10% markup" },
-                    ].map((channel, i) => (
-                      <div key={i} className="p-4 rounded-xl border border-border bg-background space-y-2">
+                      { name: "Airbnb", status: "Active Push/Pull", latency: "18ms" },
+                      { name: "Booking.com", status: "Active Push/Pull", latency: "22ms" },
+                      { name: "MakeMyTrip", status: "Active Push/Pull", latency: "26ms" },
+                      { name: "Agoda", status: "Active Push/Pull", latency: "31ms" },
+                    ].map((ch, idx) => (
+                      <div key={idx} className="p-3 rounded-xl border border-border/70 bg-muted/20 space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-sm text-foreground">{channel.name}</span>
-                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                          <span className="text-xs font-bold text-foreground">{ch.name}</span>
+                          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                         </div>
-                        <div className="text-xs text-emerald-600 font-medium">{channel.status}</div>
-                        <div className="text-[11px] text-muted-foreground">Last sync: {channel.lastSync}</div>
-                        <Badge variant="outline" className="text-[10px]">{channel.markup}</Badge>
+                        <div className="text-[10px] text-emerald-600 font-semibold">{ch.status}</div>
+                        <div className="text-[9px] text-muted-foreground font-mono">Ping: {ch.latency}</div>
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
 
-              {activePreviewTab === "pos" && (
-                <div className="p-6 md:p-8 space-y-6">
-                  <div className="flex items-center justify-between border-b border-border pb-4">
-                    <div>
-                      <h3 className="font-bold text-lg text-foreground">Front-Desk POS & GST Invoicing</h3>
-                      <p className="text-xs text-muted-foreground">F&B dining, campfire hardwood kits, split tenders & custom branding</p>
-                    </div>
-                    <Badge variant="outline" className="text-xs font-semibold">WhatsApp & PDF Ready</Badge>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-xl border border-border bg-background space-y-2">
-                      <div className="font-bold text-xs text-muted-foreground uppercase">Resort Header Branding</div>
-                      <div className="font-bold text-sm text-foreground">Upload Custom Logo & Address</div>
-                      <p className="text-xs text-muted-foreground">Owner details on top, verified Powered by Rentcot footer.</p>
-                    </div>
-                    <div className="p-4 rounded-xl border border-border bg-background space-y-2">
-                      <div className="font-bold text-xs text-muted-foreground uppercase">GST & SAC Compliance</div>
-                      <div className="font-bold text-sm text-foreground">5% & 18% Automated Split</div>
-                      <p className="text-xs text-muted-foreground">Automatic CGST & SGST calculation with legal tax invoices.</p>
-                    </div>
-                    <div className="p-4 rounded-xl border border-border bg-background space-y-2">
-                      <div className="font-bold text-xs text-muted-foreground uppercase">Instant Multi-Channel Export</div>
-                      <div className="font-bold text-sm text-foreground">1-Tap WhatsApp & Email PDF</div>
-                      <p className="text-xs text-muted-foreground">Send itemized invoice links directly to the guest&apos;s phone.</p>
-                    </div>
-                  </div>
+                <div className="pt-6 mt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Includes automatic rate parity protection against OTA undercutting</span>
+                  <Link href={`/${locale}/channels`} className="text-rentcot-blue font-bold hover:underline flex items-center gap-1">
+                    <span>View Channels</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
                 </div>
-              )}
+              </div>
 
-              {activePreviewTab === "camping" && (
-                <div className="p-6 md:p-8 space-y-6">
-                  <div className="flex items-center justify-between border-b border-border pb-4">
-                    <div>
-                      <h3 className="font-bold text-lg text-foreground">Campsite & Glamping Operations Watchdog</h3>
-                      <p className="text-xs text-muted-foreground">Wind monitor, automatic campfire bans, BBQ delivery & UV gear sanitization</p>
+              {/* BENTO CARD 2: Campsite Wind & Fire Watchdog (1 col, interactive) */}
+              <div className="rounded-2xl border border-border bg-card p-6 md:p-8 flex flex-col justify-between hover:shadow-xl hover:border-amber-500/40 transition-all duration-300 relative overflow-hidden group">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
+                      <Flame className="h-5 w-5" />
                     </div>
-                    <Badge variant="outline" className="text-xs font-mono text-amber-600 border-amber-600/30 bg-amber-600/10">
-                      Safety Protocol Active
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] font-mono ${
+                        interactiveWindSpeed >= 28
+                          ? "text-rose-600 border-rose-500/30 bg-rose-500/10"
+                          : "text-emerald-600 border-emerald-500/30 bg-emerald-500/10"
+                      }`}
+                    >
+                      {interactiveWindSpeed >= 28 ? "FIRE BAN ACTIVE" : "CAMPFIRE SAFE"}
                     </Badge>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-xl border border-border bg-background space-y-1.5">
-                      <div className="flex items-center gap-2 text-amber-600 font-bold text-xs">
-                        <Flame className="h-4 w-4" />
-                        <span>Wind & Campfire Ban</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Automatically disables campfire checkout if gusts exceed 28 km/h.
-                      </p>
+
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">Campfire & Weather Safety Watchdog</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Interactive test: drag wind speed past 28 km/h to test automated safety lockouts.
+                    </p>
+                  </div>
+
+                  {/* Interactive Wind Slider */}
+                  <div className="p-3 rounded-xl border border-border/80 bg-muted/20 space-y-2">
+                    <div className="flex justify-between items-center text-xs font-semibold">
+                      <span className="flex items-center gap-1.5">
+                        <Wind className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span>Live Wind Gusts</span>
+                      </span>
+                      <span className="font-mono font-bold text-foreground">{interactiveWindSpeed} km/h</span>
                     </div>
-                    <div className="p-4 rounded-xl border border-border bg-background space-y-1.5">
-                      <div className="flex items-center gap-2 text-rentcot-blue font-bold text-xs">
-                        <Tent className="h-4 w-4" />
-                        <span>Pitch Allocation</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Separate wooden decks, grass plots, sand beds, and RV bays.
-                      </p>
+                    <input
+                      type="range"
+                      min={5}
+                      max={45}
+                      value={interactiveWindSpeed}
+                      onChange={(e) => setInteractiveWindSpeed(Number(e.target.value))}
+                      className="w-full accent-amber-600 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[9px] text-muted-foreground">
+                      <span>Calm (5 km/h)</span>
+                      <span>Breeze (20 km/h)</span>
+                      <span>High Wind (45 km/h)</span>
                     </div>
-                    <div className="p-4 rounded-xl border border-border bg-background space-y-1.5">
-                      <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs">
-                        <Sparkles className="h-4 w-4" />
-                        <span>UV Sanitization Desk</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Barcode tracking for sanitized sleeping bags, lanterns & camping chairs.
-                      </p>
+                  </div>
+
+                  <div className={`p-3 rounded-xl text-xs space-y-1 transition-all ${
+                    interactiveWindSpeed >= 28
+                      ? "border border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-300"
+                      : "border border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300"
+                  }`}>
+                    <div className="font-bold flex items-center gap-1.5">
+                      {interactiveWindSpeed >= 28 ? (
+                        <>
+                          <X className="h-4 w-4 text-rose-600" />
+                          <span>Campfire Checkout Auto-Disabled</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="h-4 w-4 text-emerald-600" />
+                          <span>Wood Bonfires Permitted</span>
+                        </>
+                      )}
+                    </div>
+                    <p className="text-[11px] opacity-80">
+                      {interactiveWindSpeed >= 28
+                        ? "Wind gusts exceed 28 km/h. POS stops hardwood bonfires instantly to protect tents & trees."
+                        : "Safe weather conditions. Hardwood bundles can be added to guest folios."}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Pitch ground allocations & UV tent sanitation</span>
+                  <Link href={`/${locale}/camping`} className="text-amber-600 font-bold hover:underline flex items-center gap-1">
+                    <span>Learn more</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* BENTO CARD 3: Dynamic Surge Pricing (1 col) */}
+              <div className="rounded-2xl border border-border bg-card p-6 md:p-8 flex flex-col justify-between hover:shadow-xl hover:border-rentcot-blue/40 transition-all duration-300 relative overflow-hidden group">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-rentcot-blue">
+                      <CreditCard className="h-5 w-5" />
+                    </div>
+                    <Badge variant="outline" className="text-[10px] font-mono text-rentcot-blue">
+                      Automated Yield
+                    </Badge>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">Dynamic Surge Pricing</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Rate multipliers automatically apply when occupancy thresholds, weekend surges, or holidays trigger.
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl border border-border/80 bg-muted/20 space-y-2.5">
+                    <div className="flex justify-between items-center text-xs font-semibold">
+                      <span>Simulated Live Occupancy</span>
+                      <span className="font-mono text-rentcot-blue font-bold">{surgeOccupancyInput}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={30}
+                      max={100}
+                      value={surgeOccupancyInput}
+                      onChange={(e) => setSurgeOccupancyInput(Number(e.target.value))}
+                      className="w-full accent-rentcot-blue cursor-pointer"
+                    />
+                    <div className="flex justify-between items-center text-xs pt-1 border-t border-border/50">
+                      <span className="text-muted-foreground">Calculated Nightly Rate:</span>
+                      <span className="font-mono font-bold text-emerald-600">
+                        ₹{Math.round(8000 * (1 + (surgeOccupancyInput > 80 ? 0.35 : surgeOccupancyInput > 60 ? 0.20 : 0))).toLocaleString()}
+                        {surgeOccupancyInput > 80 && (
+                          <span className="ml-1 text-[9px] text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded font-semibold">
+                            +35% Surge
+                          </span>
+                        )}
+                      </span>
                     </div>
                   </div>
                 </div>
-              )}
-            </Card>
+
+                <div className="pt-4 border-t border-border text-xs text-muted-foreground">
+                  Protects margin automatically without manual adjustments.
+                </div>
+              </div>
+
+              {/* BENTO CARD 4: Interactive Live GST POS Receipt Simulator (2 cols) */}
+              <div className="md:col-span-2 rounded-2xl border border-border bg-card p-6 md:p-8 flex flex-col justify-between hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 relative overflow-hidden group">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                      <Receipt className="h-5 w-5" />
+                    </div>
+                    <Badge variant="outline" className="text-[10px] font-mono text-emerald-600 border-emerald-500/30 bg-emerald-500/5">
+                      Interactive Live Receipt
+                    </Badge>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">Custom Branded POS with Instant WhatsApp Invoicing</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                      Type your resort or farmhouse name below and watch your compliant GST tax invoice preview generate in real-time.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                    {/* Controls */}
+                    <div className="space-y-3 text-xs">
+                      <div className="space-y-1">
+                        <Label className="text-[11px] font-semibold text-muted-foreground">Your Property / Resort Name</Label>
+                        <Input
+                          value={interactiveResortName}
+                          onChange={(e) => setInteractiveResortName(e.target.value)}
+                          placeholder="e.g. Whispering Oaks Resort"
+                          className="h-9 text-xs"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label className="text-[11px] font-semibold text-muted-foreground">GST Tax Slab</Label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setInteractiveGstRate(18)}
+                            className={`flex-1 py-1.5 text-xs rounded-lg font-bold border transition-all ${
+                              interactiveGstRate === 18
+                                ? "bg-rentcot-blue text-white border-rentcot-blue shadow-xs"
+                                : "border-border text-muted-foreground"
+                            }`}
+                          >
+                            18% Luxury GST (9% CGST + 9% SGST)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setInteractiveGstRate(5)}
+                            className={`flex-1 py-1.5 text-xs rounded-lg font-bold border transition-all ${
+                              interactiveGstRate === 5
+                                ? "bg-rentcot-blue text-white border-rentcot-blue shadow-xs"
+                                : "border-border text-muted-foreground"
+                            }`}
+                          >
+                            5% Standard
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Live Rendered Receipt Preview */}
+                    <div className="p-4 rounded-xl border border-border/80 bg-background shadow-md space-y-2 text-[11px] font-mono">
+                      <div className="text-center border-b border-border/60 pb-2 space-y-0.5">
+                        <div className="font-bold text-xs text-foreground uppercase truncate">
+                          {interactiveResortName || "Your Resort Name"}
+                        </div>
+                        <div className="text-[9px] text-muted-foreground">GSTIN: 36ABCDE1234F1Z5 &bull; SAC: 996311</div>
+                        <div className="text-[9px] text-emerald-600 font-semibold">TAX INVOICE #RC-2026-8941</div>
+                      </div>
+
+                      <div className="space-y-1 border-b border-border/60 pb-2 text-muted-foreground">
+                        <div className="flex justify-between">
+                          <span>1x Pool Villa (2 Nights)</span>
+                          <span className="text-foreground">₹24,000.00</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>1x Organic BBQ Kit</span>
+                          <span className="text-foreground">₹2,500.00</span>
+                        </div>
+                        <div className="flex justify-between text-[10px]">
+                          <span>CGST ({interactiveGstRate / 2}%)</span>
+                          <span>₹{((26500 * (interactiveGstRate / 100)) / 2).toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-[10px]">
+                          <span>SGST ({interactiveGstRate / 2}%)</span>
+                          <span>₹{((26500 * (interactiveGstRate / 100)) / 2).toFixed(2)}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between font-bold text-xs text-foreground pt-0.5">
+                        <span>Total Paid (UPI)</span>
+                        <span className="text-emerald-600">
+                          ₹{(26500 * (1 + interactiveGstRate / 100)).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+
+                      <div className="text-center text-[9px] text-muted-foreground pt-1 border-t border-border/50">
+                        ⚡ Powered by Rentcot Property OS
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Send PDF receipts directly to guest WhatsApp with 1 tap</span>
+                  <Link href={`/${locale}/pos`} className="text-emerald-600 font-bold hover:underline flex items-center gap-1">
+                    <span>Open POS Terminal</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* SOLUTIONS BY PROPERTY TYPE */}
-        <section id="solutions" className="py-16 md:py-24 border-b border-border">
+        <section id="solutions" className="py-16 md:py-24 border-b border-border bg-muted/20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
             <div className="text-center space-y-2">
               <Badge variant="outline" className="text-xs font-semibold text-rentcot-blue border-rentcot-blue/30">
@@ -579,15 +959,15 @@ export default function LandingPage() {
                 Built Specifically for Diverse Hospitality Formats
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
-                Whether you manage a private agro-estate, a lakefront resort, or a forest glamping retreat.
+                Whether you manage a private agro-estate, a boutique luxury resort, or an outdoor glamping camp.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Solution 1: Luxury Resorts & Villas */}
-              <Card className="border-border hover:border-rentcot-blue/50 transition-all flex flex-col justify-between">
+              <Card className="border-border hover:border-rentcot-blue/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between bg-card">
                 <CardHeader className="space-y-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-rentcot-blue">
                     <Compass className="h-6 w-6" />
                   </div>
                   <div>
@@ -617,7 +997,7 @@ export default function LandingPage() {
               </Card>
 
               {/* Solution 2: Private Farmhouses & Eco Estates */}
-              <Card className="border-border hover:border-rentcot-blue/50 transition-all flex flex-col justify-between">
+              <Card className="border-border hover:border-emerald-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between bg-card">
                 <CardHeader className="space-y-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
                     <TreePine className="h-6 w-6" />
@@ -649,7 +1029,7 @@ export default function LandingPage() {
               </Card>
 
               {/* Solution 3: Campsites & Glamping Zones */}
-              <Card className="border-border hover:border-rentcot-blue/50 transition-all flex flex-col justify-between">
+              <Card className="border-border hover:border-amber-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between bg-card">
                 <CardHeader className="space-y-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
                     <Tent className="h-6 w-6" />
@@ -683,70 +1063,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* CORE FEATURES GRID */}
-        <section id="features" className="py-16 md:py-24 border-b border-border bg-muted/20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
-            <div className="text-center space-y-2">
-              <Badge variant="outline" className="text-xs font-semibold text-rentcot-blue border-rentcot-blue/30">
-                Core Capabilities
-              </Badge>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
-                Everything Required to Run a High-Margin Property
-              </h2>
-              <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
-                Engineered with enterprise multi-tenancy, real-time sync, and mobile-first hospitality workflows.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                {
-                  icon: CalendarCheck,
-                  title: "Instant 2-Way OTA Sync",
-                  desc: "Zero double bookings. Rates & availability push out; reservations & cancellations pull in across Airbnb, Booking.com, MMT & Agoda.",
-                },
-                {
-                  icon: CreditCard,
-                  title: "Dynamic Surge Pricing",
-                  desc: "Automate rates based on weekend surges, holidays, occupancy thresholds, and minimum length-of-stay requirements.",
-                },
-                {
-                  icon: Receipt,
-                  title: "Custom Branded POS",
-                  desc: "Touchscreen POS with your resort logo, GSTIN, split UPI/Cash tender, and instant WhatsApp invoice delivery.",
-                },
-                {
-                  icon: Sparkles,
-                  title: "Turnover Board & Linen",
-                  desc: "6-state housekeeping board (clean, dirty, inspected, occupied) linked to linen pairs & dry store thresholds.",
-                },
-                {
-                  icon: ShieldCheck,
-                  title: "Multi-Tenant RLS Security",
-                  desc: "Cryptographically isolated data stores per organization with role-based access control for front-desk, managers, and accountants.",
-                },
-                {
-                  icon: Smartphone,
-                  title: "Guest Self-Service Portal",
-                  desc: "Mobile guest portal for contactless digital check-in, Aadhaar/ID photo upload, pet declarations, and folio payments.",
-                },
-              ].map((feat, idx) => {
-                const Icon = feat.icon;
-                return (
-                  <div key={idx} className="p-6 rounded-2xl border border-border bg-background hover:shadow-md transition-shadow space-y-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rentcot-blue/10 text-rentcot-blue">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="font-bold text-base text-foreground">{feat.title}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{feat.desc}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* OTA COMMISSION SAVINGS / ROI CALCULATOR */}
+        {/* OTA COMMISSION SAVINGS / ROI CALCULATOR WITH VISUAL PROGRESS BREAKDOWN */}
         <section id="roi" className="py-16 md:py-24 border-b border-border">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-10">
             <div className="text-center space-y-2">
@@ -757,11 +1074,11 @@ export default function LandingPage() {
                 Calculate Your Direct Booking Savings
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
-                See how much revenue you lose to 18% OTA commissions each year compared to running Rentcot Property OS.
+                See how much revenue you lose to ~18% OTA commissions each year compared to running direct booking channels with Rentcot Property OS.
               </p>
             </div>
 
-            <Card className="max-w-4xl mx-auto border-border shadow-xl bg-card">
+            <Card className="max-w-4xl mx-auto border-border shadow-xl bg-card overflow-hidden">
               <CardContent className="p-6 sm:p-10 space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                   {/* Controls */}
@@ -807,6 +1124,18 @@ export default function LandingPage() {
                         <span>95% OTA dependent</span>
                       </div>
                     </div>
+
+                    {/* Visual Comparison Split Bar */}
+                    <div className="space-y-1.5 pt-2">
+                      <div className="flex justify-between text-[11px] font-semibold">
+                        <span className="text-rose-600">OTA Commission Drain ({otaPercentage}%)</span>
+                        <span className="text-emerald-600">Direct Retained ({100 - otaPercentage}%)</span>
+                      </div>
+                      <div className="h-3 w-full rounded-full bg-muted overflow-hidden flex">
+                        <div style={{ width: `${otaPercentage}%` }} className="bg-rose-500 transition-all duration-300" />
+                        <div style={{ width: `${100 - otaPercentage}%` }} className="bg-emerald-500 transition-all duration-300" />
+                      </div>
+                    </div>
                   </div>
 
                   {/* ROI Outcome Box */}
@@ -814,7 +1143,7 @@ export default function LandingPage() {
                     <div>
                       <div className="text-xs text-muted-foreground font-medium">Estimated Yearly OTA Commission Paid:</div>
                       <div className="text-2xl font-black text-rose-600 font-mono">
-                        ₹{annualOtaCommissionsPaid.toLocaleString()} / year
+                        ₹{annualOtaCommissionsPaid.toLocaleString("en-IN")} / year
                       </div>
                       <div className="text-[11px] text-muted-foreground mt-0.5">Based on standard ~18% OTA commission cut.</div>
                     </div>
@@ -822,7 +1151,7 @@ export default function LandingPage() {
                     <div className="pt-4 border-t border-border">
                       <div className="text-xs text-muted-foreground font-medium">Estimated Yearly Savings with Rentcot Direct:</div>
                       <div className="text-3xl font-black text-emerald-600 font-mono">
-                        ₹{estimatedRentcotDirectSavings.toLocaleString()} / year
+                        ₹{estimatedRentcotDirectSavings.toLocaleString("en-IN")} / year
                       </div>
                       <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium mt-1">
                         By shifting 45% of repeat guests to direct WhatsApp & web booking.
@@ -838,7 +1167,7 @@ export default function LandingPage() {
                       setAuthMode("signup");
                       setIsAuthModalOpen(true);
                     }}
-                    className="bg-rentcot-blue hover:bg-rentcot-blue/90 text-white font-semibold text-xs h-11 px-8 rounded-xl shadow-sm"
+                    className="bg-rentcot-blue hover:bg-rentcot-blue/90 text-white font-semibold text-xs h-11 px-8 rounded-xl shadow-md active:scale-95 transition-all"
                   >
                     Start Saving &bull; Claim Your 14-Day Free Trial
                   </Button>
@@ -865,7 +1194,7 @@ export default function LandingPage() {
 
             {/* Monthly / Annual Toggle */}
             <div className="flex justify-center">
-              <div className="inline-flex items-center p-1 rounded-xl bg-background border border-border">
+              <div className="inline-flex items-center p-1 rounded-xl bg-background border border-border shadow-xs">
                 <button
                   onClick={() => setBillingCycle("monthly")}
                   className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
@@ -895,7 +1224,7 @@ export default function LandingPage() {
             {/* Pricing Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {/* Starter */}
-              <Card className="border-border hover:shadow-lg transition-shadow flex flex-col justify-between bg-card">
+              <Card className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between bg-card">
                 <CardHeader className="space-y-2">
                   <Badge variant="outline" className="w-fit text-xs font-semibold">Starter Plan</Badge>
                   <CardTitle className="text-xl font-bold">Resorts & Boutique Stays</CardTitle>
@@ -933,16 +1262,16 @@ export default function LandingPage() {
                       setIsAuthModalOpen(true);
                     }}
                     variant="outline"
-                    className="w-full text-xs font-semibold h-10 border-border"
+                    className="w-full text-xs font-semibold h-10 border-border active:scale-95 transition-all"
                   >
                     Start 14-Day Trial
                   </Button>
                 </CardContent>
               </Card>
 
-              {/* Growth Pro (Featured) */}
-              <Card className="border-rentcot-blue shadow-xl relative flex flex-col justify-between bg-card">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-rentcot-blue text-white px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-xs">
+              {/* Growth Pro (Featured with Ambient Glow Border) */}
+              <Card className="border-rentcot-blue shadow-xl relative flex flex-col justify-between bg-card hover:-translate-y-1 transition-all duration-300">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-rentcot-blue text-white px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md">
                   Most Popular for Resorts & Campsites
                 </div>
                 <CardHeader className="space-y-2">
@@ -985,7 +1314,7 @@ export default function LandingPage() {
                       setAuthMode("signup");
                       setIsAuthModalOpen(true);
                     }}
-                    className="w-full bg-rentcot-blue hover:bg-rentcot-blue/90 text-white text-xs font-semibold h-10 shadow-md"
+                    className="w-full bg-rentcot-blue hover:bg-rentcot-blue/90 text-white text-xs font-semibold h-10 shadow-md active:scale-95 transition-all"
                   >
                     Start Free Trial with Growth Pro
                   </Button>
@@ -993,7 +1322,7 @@ export default function LandingPage() {
               </Card>
 
               {/* Enterprise */}
-              <Card className="border-border hover:shadow-lg transition-shadow flex flex-col justify-between bg-card">
+              <Card className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between bg-card">
                 <CardHeader className="space-y-2">
                   <Badge variant="outline" className="w-fit text-xs font-semibold">Enterprise</Badge>
                   <CardTitle className="text-xl font-bold">Hospitality Chains</CardTitle>
@@ -1031,7 +1360,7 @@ export default function LandingPage() {
                       setIsAuthModalOpen(true);
                     }}
                     variant="outline"
-                    className="w-full text-xs font-semibold h-10 border-border"
+                    className="w-full text-xs font-semibold h-10 border-border active:scale-95 transition-all"
                   >
                     Contact Enterprise Sales
                   </Button>
@@ -1041,7 +1370,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* OPERATOR TESTIMONIALS */}
+        {/* OPERATOR TESTIMONIALS WITH VERIFIED PROPERTY BADGES */}
         <section id="testimonials" className="py-16 md:py-24 border-b border-border">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
             <div className="text-center space-y-2">
@@ -1061,6 +1390,7 @@ export default function LandingPage() {
                   author: "Rajeshwar Rao",
                   role: "Managing Director",
                   property: "Green Valley Farmhouse & Retreats (Hyderabad)",
+                  initials: "RR",
                 },
                 {
                   quote:
@@ -1068,6 +1398,7 @@ export default function LandingPage() {
                   author: "Siddharth Menon",
                   role: "Co-Founder",
                   property: "Wildwoods Glamping (Wayanad / Vikarabad)",
+                  initials: "SM",
                 },
                 {
                   quote:
@@ -1075,9 +1406,13 @@ export default function LandingPage() {
                   author: "Ananya Deshmukh",
                   role: "General Manager",
                   property: "Palm Oasis Luxury Resort (Goa / Hyderabad)",
+                  initials: "AD",
                 },
               ].map((t, idx) => (
-                <Card key={idx} className="border-border bg-card p-6 flex flex-col justify-between space-y-4">
+                <Card
+                  key={idx}
+                  className="border-border bg-card p-6 flex flex-col justify-between space-y-4 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
+                >
                   <div className="space-y-3">
                     <div className="flex gap-1 text-amber-500">
                       {[...Array(5)].map((_, i) => (
@@ -1088,9 +1423,14 @@ export default function LandingPage() {
                       &ldquo;{t.quote}&rdquo;
                     </p>
                   </div>
-                  <div className="pt-3 border-t border-border">
-                    <div className="font-bold text-sm text-foreground">{t.author}</div>
-                    <div className="text-[11px] text-muted-foreground">{t.role} &bull; {t.property}</div>
+                  <div className="pt-3 border-t border-border flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-full bg-rentcot-blue/10 text-rentcot-blue font-bold text-xs flex items-center justify-center shrink-0">
+                      {t.initials}
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm text-foreground">{t.author}</div>
+                      <div className="text-[11px] text-muted-foreground">{t.role} &bull; {t.property}</div>
+                    </div>
                   </div>
                 </Card>
               ))}
@@ -1098,7 +1438,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* FREQUENTLY ASKED QUESTIONS (SEO ACCORDION) */}
+        {/* FREQUENTLY ASKED QUESTIONS (FLUID ACCORDION) */}
         <section id="faq" className="py-16 md:py-24 border-b border-border bg-muted/20">
           <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
             <div className="text-center space-y-2">
@@ -1116,7 +1456,9 @@ export default function LandingPage() {
                 return (
                   <div
                     key={index}
-                    className="border border-border rounded-xl bg-background overflow-hidden transition-colors"
+                    className={`border rounded-xl bg-background overflow-hidden transition-all duration-200 ${
+                      isOpen ? "border-rentcot-blue/50 shadow-sm" : "border-border"
+                    }`}
                   >
                     <button
                       onClick={() => setOpenFaqIndex(isOpen ? null : index)}
@@ -1141,23 +1483,23 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* BOTTOM CTA BANNER */}
-        <section className="py-16 md:py-20 bg-rentcot-blue text-white text-center">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-6">
+        {/* BOTTOM CTA BANNER WITH AURA */}
+        <section className="py-16 md:py-20 bg-gradient-to-r from-rentcot-blue via-blue-600 to-emerald-600 text-white text-center relative overflow-hidden">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-6 relative z-10">
             <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
               Ready to Upgrade Your Hospitality Operations?
             </h2>
             <p className="text-xs sm:text-sm text-blue-100 max-w-xl mx-auto leading-relaxed">
-              Join 500+ properties streamlining reservations, OTA sync, and POS billing. Start your 14-day free trial today.
+              Join 500+ properties streamlining reservations, 2-way OTA synchronization, and POS billing. Start your 14-day free trial today.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
               <Button
                 size="lg"
                 onClick={() => {
                   setAuthMode("signup");
                   setIsAuthModalOpen(true);
                 }}
-                className="w-full sm:w-auto bg-white text-rentcot-blue hover:bg-white/90 font-bold text-xs h-11 px-8 rounded-xl shadow-lg"
+                className="w-full sm:w-auto bg-white text-rentcot-blue hover:bg-white/95 font-bold text-xs h-11 px-8 rounded-xl shadow-xl active:scale-95 transition-all"
               >
                 Start 14-Day Free Trial
               </Button>
@@ -1165,7 +1507,7 @@ export default function LandingPage() {
                 size="lg"
                 variant="outline"
                 onClick={handleDemoAccess}
-                className="w-full sm:w-auto border-white/30 text-white bg-white/10 hover:bg-white/20 font-semibold text-xs h-11 px-6 rounded-xl"
+                className="w-full sm:w-auto border-white/30 text-white bg-white/10 hover:bg-white/20 font-semibold text-xs h-11 px-6 rounded-xl active:scale-95 transition-all"
               >
                 Launch Instant Demo
               </Button>
@@ -1358,7 +1700,7 @@ export default function LandingPage() {
                   <Button
                     type="submit"
                     disabled={signUpLoading}
-                    className="w-full bg-rentcot-blue hover:bg-rentcot-blue/90 text-white font-semibold text-xs h-10 mt-2"
+                    className="w-full bg-rentcot-blue hover:bg-rentcot-blue/90 text-white font-semibold text-xs h-10 mt-2 active:scale-95 transition-all"
                   >
                     {signUpLoading ? "Creating Organization..." : "Create Account & Setup Property"}
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -1409,7 +1751,7 @@ export default function LandingPage() {
                   <Button
                     type="submit"
                     disabled={signInLoading}
-                    className="w-full bg-rentcot-blue hover:bg-rentcot-blue/90 text-white font-semibold text-xs h-10"
+                    className="w-full bg-rentcot-blue hover:bg-rentcot-blue/90 text-white font-semibold text-xs h-10 active:scale-95 transition-all"
                   >
                     {signInLoading ? "Authenticating..." : "Sign In to Dashboard"}
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -1420,7 +1762,7 @@ export default function LandingPage() {
                   <button
                     type="button"
                     onClick={handleDemoAccess}
-                    className="w-full py-2 px-3 rounded-lg border border-emerald-600/30 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                    className="w-full py-2 px-3 rounded-lg border border-emerald-600/30 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 font-semibold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95"
                   >
                     <Zap className="h-3.5 w-3.5" />
                     <span>Quick 1-Click Demo Login (Instant Access)</span>
