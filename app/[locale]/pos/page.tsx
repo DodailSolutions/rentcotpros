@@ -44,10 +44,15 @@ import {
   DollarSign,
   Briefcase,
   Store,
+  Users,
+  Baby,
+  UserPlus,
+  IndianRupee,
 } from "lucide-react";
 import {
   POSItem,
   POSCategory,
+  POSGuestProfile,
   SplitTenderDetails,
   B2BBillingDetails,
   ResortBranding,
@@ -163,6 +168,8 @@ const initialCatalog: POSItem[] = [
     name: "Farmhouse Telangana Non-Veg Thali",
     category: "food",
     price: 450,
+    kidPrice: 225,
+    isPerPerson: true,
     taxRate: 0.05,
     sacCode: "996331",
     available: true,
@@ -174,6 +181,8 @@ const initialCatalog: POSItem[] = [
     name: "Royal South Indian Veg Thali",
     category: "food",
     price: 350,
+    kidPrice: 175,
+    isPerPerson: true,
     taxRate: 0.05,
     sacCode: "996331",
     available: true,
@@ -196,6 +205,8 @@ const initialCatalog: POSItem[] = [
     name: "Country Chicken (Natu Kodi) Pulao",
     category: "food",
     price: 420,
+    kidPrice: 210,
+    isPerPerson: true,
     taxRate: 0.05,
     sacCode: "996331",
     available: true,
@@ -474,69 +485,217 @@ const initialCatalog: POSItem[] = [
     description: "Harvested today: spinach, bottle gourd, tomatoes, ridge gourd, green chilies",
     unit: "hamper",
   },
+  // 6. Curated Per-Person Resort & Campsite Headcount Packages (All in INR ₹)
+  {
+    id: "pos-29",
+    name: "Farmhouse Breakfast & Hi-Tea Buffet",
+    category: "food",
+    price: 250,
+    kidPrice: 125,
+    isPerPerson: true,
+    taxRate: 0.05,
+    sacCode: "996331",
+    available: true,
+    description: "Unlimited hot idli, vada, dosa, upma, poori, seasonal fruits, fresh juice & filter coffee",
+    unit: "per person",
+  },
+  {
+    id: "pos-30",
+    name: "Campfire & BBQ Dinner Feast Pass",
+    category: "bbq_campfire",
+    price: 800,
+    kidPrice: 400,
+    isPerPerson: true,
+    taxRate: 0.18,
+    sacCode: "999699",
+    available: true,
+    description: "Evening private bonfire pit, marinated grill skewers, dinner buffet & acoustic campfire music",
+    unit: "per person",
+  },
+  {
+    id: "pos-31",
+    name: "Day-Picnic & Swimming Pool Day Pass",
+    category: "activities",
+    price: 600,
+    kidPrice: 300,
+    isPerPerson: true,
+    taxRate: 0.18,
+    sacCode: "999699",
+    available: true,
+    description: "10 AM - 6 PM full retreat access, swimming pool, rain dance, lunch thali & hi-tea snacks",
+    unit: "per person",
+  },
 ];
 
-// Active in-house reservations for Green Valley Farmhouse
-const inHouseReservations = [
+// Active guest profiles for Green Valley Farmhouse with verified adult & kid headcounts
+const initialGuestProfiles: POSGuestProfile[] = [
   {
-    room: "Heritage Pool Villa 1",
-    guest: "Aditya Verma",
-    phone: "+91 98480 12345",
+    id: "gst-1",
+    roomOrPitch: "Heritage Pool Villa 1",
+    guestName: "Aditya Verma",
+    guestPhone: "+91 98480 12345",
     folio: "FOL-901",
-    checkIn: "11 Sep 2026",
+    checkInDate: "11 Sep 2026",
+    adultsCount: 2,
+    kidsCount: 1,
     isCorporate: false,
-    company: "",
-    gstin: "",
+    type: "in_house",
   },
   {
-    room: "Heritage Villa 2",
-    guest: "Sneha Reddy",
-    phone: "+91 98765 43210",
+    id: "gst-2",
+    roomOrPitch: "Heritage Villa 2",
+    guestName: "Sneha Reddy",
+    guestPhone: "+91 98765 43210",
     folio: "FOL-902",
-    checkIn: "12 Sep 2026",
+    checkInDate: "12 Sep 2026",
+    adultsCount: 4,
+    kidsCount: 2,
     isCorporate: false,
-    company: "",
-    gstin: "",
+    type: "in_house",
   },
   {
-    room: "Grand Royal Lawn & Pavilion",
-    guest: "Vikram Malhotra (TechCorp)",
-    phone: "+91 98200 99881",
+    id: "gst-3",
+    roomOrPitch: "Grand Royal Lawn & Pavilion",
+    guestName: "Vikram Malhotra (TechCorp)",
+    guestPhone: "+91 98200 99881",
     folio: "FOL-903",
-    checkIn: "12 Sep 2026",
+    checkInDate: "12 Sep 2026",
+    adultsCount: 25,
+    kidsCount: 0,
     isCorporate: true,
-    company: "TechCorp Solutions India Pvt Ltd",
-    gstin: "36AAACT9482P1Z6",
+    companyName: "TechCorp Solutions India Pvt Ltd",
+    companyGstin: "36AAACT9482P1Z6",
+    type: "in_house",
   },
   {
-    room: "Luxury Glamping Dome 01",
-    guest: "Rohan Mehra",
-    phone: "+91 94401 77654",
+    id: "gst-4",
+    roomOrPitch: "Luxury Glamping Dome 01",
+    guestName: "Rohan Mehra",
+    guestPhone: "+91 94401 77654",
     folio: "FOL-904",
-    checkIn: "12 Sep 2026",
+    checkInDate: "12 Sep 2026",
+    adultsCount: 2,
+    kidsCount: 0,
     isCorporate: false,
-    company: "",
-    gstin: "",
+    type: "in_house",
   },
   {
-    room: "Family Farm Cottage B",
-    guest: "Rajesh Kumar",
-    phone: "+91 97000 44551",
+    id: "gst-5",
+    roomOrPitch: "Family Farm Cottage B",
+    guestName: "Rajesh Kumar",
+    guestPhone: "+91 97000 44551",
     folio: "FOL-905",
-    checkIn: "13 Sep 2026",
+    checkInDate: "13 Sep 2026",
+    adultsCount: 3,
+    kidsCount: 2,
     isCorporate: false,
-    company: "",
-    gstin: "",
+    type: "in_house",
   },
   {
-    room: "Eco Campsite Pitch C4",
-    guest: "Vikram Kulkarni",
-    phone: "+91 91234 56780",
+    id: "gst-6",
+    roomOrPitch: "Eco Campsite Pitch C4",
+    guestName: "Vikram Kulkarni",
+    guestPhone: "+91 91234 56780",
     folio: "FOL-906",
-    checkIn: "13 Sep 2026",
+    checkInDate: "13 Sep 2026",
+    adultsCount: 2,
+    kidsCount: 1,
     isCorporate: false,
-    company: "",
-    gstin: "",
+    type: "in_house",
+  },
+  {
+    id: "gst-7",
+    roomOrPitch: "Dining Table 04 (Lawn Gazebo)",
+    guestName: "Pooja Hegde & Family",
+    guestPhone: "+91 98850 77123",
+    folio: "WALK-401",
+    checkInDate: "13 Sep 2026",
+    adultsCount: 4,
+    kidsCount: 2,
+    isCorporate: false,
+    type: "walk_in_dining",
+  },
+  {
+    id: "gst-8",
+    roomOrPitch: "Poolside Cabana 2",
+    guestName: "Anand Sundaram (Day Picnic)",
+    guestPhone: "+91 97011 22334",
+    folio: "DP-802",
+    checkInDate: "13 Sep 2026",
+    adultsCount: 6,
+    kidsCount: 3,
+    isCorporate: false,
+    type: "day_picnic",
+  },
+];
+
+// Curated Per-Head Packages for Quick Billing in Indian Rupees (INR ₹)
+const headcountPackages = [
+  {
+    id: "pkg-1",
+    name: "Royal South Indian Veg Thali",
+    category: "food" as POSCategory,
+    adultRate: 350,
+    kidRate: 175,
+    sacCode: "996331",
+    taxRate: 0.05,
+    description: "Unlimited Pappu, sambar, 3 farm curries, poori, rice, curd, papad & payasam",
+    badge: "Bestseller Lunch",
+  },
+  {
+    id: "pkg-2",
+    name: "Farmhouse Telangana Non-Veg Thali",
+    category: "food" as POSCategory,
+    adultRate: 450,
+    kidRate: 225,
+    sacCode: "996331",
+    taxRate: 0.05,
+    description: "Natu kodi pulusu, mutton sukka, ragi mudde, steamed rice & payasam",
+    badge: "Chef Special",
+  },
+  {
+    id: "pkg-3",
+    name: "Farmhouse Breakfast & Hi-Tea Buffet",
+    category: "food" as POSCategory,
+    adultRate: 250,
+    kidRate: 125,
+    sacCode: "996331",
+    taxRate: 0.05,
+    description: "Unlimited idli, vada, dosa, upma, poori, seasonal fruits, fresh juice & filter coffee",
+    badge: "Buffet Spread",
+  },
+  {
+    id: "pkg-4",
+    name: "Campfire & BBQ Dinner Feast Pass",
+    category: "bbq_campfire" as POSCategory,
+    adultRate: 800,
+    kidRate: 400,
+    sacCode: "999699",
+    taxRate: 0.18,
+    description: "Evening bonfire pit, marinated skewers grill, dinner buffet & acoustic campfire music",
+    badge: "Night Experience",
+  },
+  {
+    id: "pkg-5",
+    name: "Day-Picnic & Swimming Pool Day Pass",
+    category: "activities" as POSCategory,
+    adultRate: 600,
+    kidRate: 300,
+    sacCode: "999699",
+    taxRate: 0.18,
+    description: "10 AM - 6 PM access, swimming pool, rain dance, lunch thali & hi-tea snacks",
+    badge: "Full Day Pass",
+  },
+  {
+    id: "pkg-6",
+    name: "Guided Farm Walk & Harvest Tour",
+    category: "activities" as POSCategory,
+    adultRate: 300,
+    kidRate: 150,
+    sacCode: "9983",
+    taxRate: 0.05,
+    description: "Agronomist-led tour of drip irrigation, hydroponics, tractor ride & harvest basket",
+    badge: "Eco Tour",
   },
 ];
 
@@ -551,11 +710,32 @@ export default function POSPage() {
   // Cart state
   const [cart, setCart] = useState<{ item: POSItem; quantity: number }[]>([]);
 
+  // Registered Guest Profiles with Headcount Tracking (Adults & Kids)
+  const [registeredGuests, setRegisteredGuests] = useState<POSGuestProfile[]>(initialGuestProfiles);
+  const [selectedGuestId, setSelectedGuestId] = useState<string>(initialGuestProfiles[0].id);
+
   // Invoicing target: Charge to in-house room folio vs direct counter settlement
   const [chargeTarget, setChargeTarget] = useState<"room" | "direct">("room");
-  const [selectedRoom, setSelectedRoom] = useState<string>(inHouseReservations[0].room);
-  const [guestName, setGuestName] = useState<string>(inHouseReservations[0].guest);
-  const [guestPhone, setGuestPhone] = useState<string>(inHouseReservations[0].phone);
+  const [selectedRoom, setSelectedRoom] = useState<string>(initialGuestProfiles[0].roomOrPitch);
+  const [guestName, setGuestName] = useState<string>(initialGuestProfiles[0].guestName);
+  const [guestPhone, setGuestPhone] = useState<string>(initialGuestProfiles[0].guestPhone);
+
+  // Guest Headcount (Number of Guests / Adults and Number of Kids / Children)
+  const [adultsCount, setAdultsCount] = useState<number>(initialGuestProfiles[0].adultsCount);
+  const [kidsCount, setKidsCount] = useState<number>(initialGuestProfiles[0].kidsCount);
+
+  // Add / Register Guest Modal State
+  const [isAddGuestModalOpen, setIsAddGuestModalOpen] = useState<boolean>(false);
+  const [newGuestName, setNewGuestName] = useState<string>("");
+  const [newGuestPhone, setNewGuestPhone] = useState<string>("");
+  const [newGuestEmail, setNewGuestEmail] = useState<string>("");
+  const [newGuestType, setNewGuestType] = useState<"in_house" | "walk_in_dining" | "day_picnic">("in_house");
+  const [newGuestRoomOrTable, setNewGuestRoomOrTable] = useState<string>("");
+  const [newGuestAdults, setNewGuestAdults] = useState<number>(2);
+  const [newGuestKids, setNewGuestKids] = useState<number>(0);
+  const [newGuestIsCorporate, setNewGuestIsCorporate] = useState<boolean>(false);
+  const [newGuestCompany, setNewGuestCompany] = useState<string>("");
+  const [newGuestGstin, setNewGuestGstin] = useState<string>("");
 
   // Corporate B2B details
   const [isB2B, setIsB2B] = useState<boolean>(false);
@@ -580,12 +760,14 @@ export default function POSPage() {
   const [isCustomModalOpen, setIsCustomModalOpen] = useState<boolean>(false);
   const [customItemName, setCustomItemName] = useState<string>("");
   const [customItemCategory, setCustomItemCategory] = useState<POSCategory>("food");
-  const [customItemPrice, setCustomItemPrice] = useState<number>(200);
+  const [customPricingMode, setCustomPricingMode] = useState<"flat" | "per_person">("flat");
+  const [customItemPrice, setCustomItemPrice] = useState<number>(200); // Adult price in INR
+  const [customItemKidPrice, setCustomItemKidPrice] = useState<number>(100); // Kid price in INR
   const [customItemTaxRate, setCustomItemTaxRate] = useState<number>(0.05);
   const [customItemSac, setCustomItemSac] = useState<string>("996331");
   const [customItemUnit, setCustomItemUnit] = useState<string>("service");
 
-  // Resort Branding State (Defaults to Green Valley Farmhouse)
+  // Resort Branding State (Defaults to Green Valley Farmhouse in INR)
   const [branding, setBranding] = useState<ResortBranding>(defaultBrandingPresets.farmhouse);
   const [isBrandingModalOpen, setIsBrandingModalOpen] = useState<boolean>(false);
 
@@ -602,6 +784,8 @@ export default function POSPage() {
       date: "12 Sep 2026, 08:30 PM",
       guestName: "Aditya Verma",
       guestPhone: "+91 98480 12345",
+      adultsCount: 2,
+      kidsCount: 1,
       roomOrPitch: "Heritage Pool Villa 1",
       items: [
         { name: "Private Evening Bonfire Setup", quantity: 1, price: 1200, sacCode: "999699", taxRate: 0.18, unit: "session" },
@@ -612,6 +796,7 @@ export default function POSPage() {
       discount: 0,
       tax: 550,
       grandTotal: 3750,
+      currency: "INR (₹)",
       paymentMethod: "Charge to Folio (FOL-901)",
       chargeTarget: "room",
       brandingSnapshot: defaultBrandingPresets.farmhouse,
@@ -641,21 +826,196 @@ export default function POSPage() {
   });
   const [isShiftModalOpen, setIsShiftModalOpen] = useState<boolean>(false);
 
-  // Helper when room selection changes
-  const handleRoomChange = (roomName: string) => {
-    setSelectedRoom(roomName);
-    const found = inHouseReservations.find((r) => r.room === roomName);
+  // Helper when switching guest selection
+  const handleSelectGuest = (guestId: string) => {
+    setSelectedGuestId(guestId);
+    const found = registeredGuests.find((g) => g.id === guestId);
     if (found) {
-      setGuestName(found.guest);
-      setGuestPhone(found.phone);
+      setSelectedRoom(found.roomOrPitch);
+      setGuestName(found.guestName);
+      setGuestPhone(found.guestPhone);
+      setAdultsCount(found.adultsCount);
+      setKidsCount(found.kidsCount);
+      setChargeTarget(found.type === "in_house" ? "room" : "direct");
       if (found.isCorporate) {
         setIsB2B(true);
-        setB2bCompanyName(found.company);
-        setB2bCompanyGstin(found.gstin);
+        setB2bCompanyName(found.companyName || "");
+        setB2bCompanyGstin(found.companyGstin || "");
       } else {
         setIsB2B(false);
       }
     }
+  };
+
+  // Helper when room selection changes
+  const handleRoomChange = (roomName: string) => {
+    setSelectedRoom(roomName);
+    const found = registeredGuests.find((r) => r.roomOrPitch === roomName);
+    if (found) {
+      setSelectedGuestId(found.id);
+      setGuestName(found.guestName);
+      setGuestPhone(found.guestPhone);
+      setAdultsCount(found.adultsCount);
+      setKidsCount(found.kidsCount);
+      if (found.isCorporate) {
+        setIsB2B(true);
+        setB2bCompanyName(found.companyName || "");
+        setB2bCompanyGstin(found.companyGstin || "");
+      } else {
+        setIsB2B(false);
+      }
+    }
+  };
+
+  // Handler to register & save a new guest in POS
+  const handleSaveNewGuest = () => {
+    if (!newGuestName.trim()) {
+      alert("Please enter guest name.");
+      return;
+    }
+    const prefix = newGuestType === "in_house" ? "FOL" : newGuestType === "day_picnic" ? "DP" : "WALK";
+    const newId = `gst-${Date.now()}`;
+    const newFolio = `${prefix}-${Math.floor(100 + Math.random() * 900)}`;
+
+    const created: POSGuestProfile = {
+      id: newId,
+      guestName: newGuestName.trim(),
+      guestPhone: newGuestPhone.trim() || "+91 98480 00000",
+      email: newGuestEmail.trim() || undefined,
+      roomOrPitch: newGuestRoomOrTable.trim() || (newGuestType === "in_house" ? "Executive Cottage" : "Dining Table 1"),
+      folio: newFolio,
+      adultsCount: Math.max(1, newGuestAdults),
+      kidsCount: Math.max(0, newGuestKids),
+      isCorporate: newGuestIsCorporate,
+      companyName: newGuestCompany.trim() || undefined,
+      companyGstin: newGuestGstin.trim() || undefined,
+      checkInDate: new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
+      type: newGuestType,
+    };
+
+    setRegisteredGuests((prev) => [created, ...prev]);
+    setSelectedGuestId(newId);
+    setSelectedRoom(created.roomOrPitch);
+    setGuestName(created.guestName);
+    setGuestPhone(created.guestPhone);
+    setAdultsCount(created.adultsCount);
+    setKidsCount(created.kidsCount);
+    setChargeTarget(created.type === "in_house" ? "room" : "direct");
+
+    if (created.isCorporate && created.companyName) {
+      setIsB2B(true);
+      setB2bCompanyName(created.companyName);
+      setB2bCompanyGstin(created.companyGstin || "");
+    } else {
+      setIsB2B(false);
+    }
+
+    setIsAddGuestModalOpen(false);
+    // Reset form
+    setNewGuestName("");
+    setNewGuestPhone("");
+    setNewGuestEmail("");
+    setNewGuestRoomOrTable("");
+    setNewGuestAdults(2);
+    setNewGuestKids(0);
+    setNewGuestIsCorporate(false);
+    setNewGuestCompany("");
+    setNewGuestGstin("");
+  };
+
+  // Handler to charge a per-head package (Adults & Kids breakdown in INR ₹)
+  const handleChargeHeadcountPackage = (pkg: (typeof headcountPackages)[0]) => {
+    if (adultsCount <= 0 && kidsCount <= 0) {
+      alert("Please specify at least 1 adult or kid guest.");
+      return;
+    }
+
+    const itemsToAdd: { item: POSItem; quantity: number }[] = [];
+
+    if (adultsCount > 0) {
+      itemsToAdd.push({
+        item: {
+          id: `headcount-adult-${pkg.id}-${Date.now()}`,
+          name: `${pkg.name} (Adult Package)`,
+          category: pkg.category,
+          price: pkg.adultRate,
+          taxRate: pkg.taxRate,
+          sacCode: pkg.sacCode,
+          available: true,
+          unit: `${adultsCount} Adult${adultsCount > 1 ? "s" : ""}`,
+          isPerPerson: true,
+        },
+        quantity: adultsCount,
+      });
+    }
+
+    if (kidsCount > 0) {
+      itemsToAdd.push({
+        item: {
+          id: `headcount-kid-${pkg.id}-${Date.now()}`,
+          name: `${pkg.name} (Kids Package)`,
+          category: pkg.category,
+          price: pkg.kidRate,
+          taxRate: pkg.taxRate,
+          sacCode: pkg.sacCode,
+          available: true,
+          unit: `${kidsCount} Kid${kidsCount > 1 ? "s" : ""}`,
+          isPerPerson: true,
+        },
+        quantity: kidsCount,
+      });
+    }
+
+    setCart((prev) => [...prev, ...itemsToAdd]);
+  };
+
+  // Handler to charge ANY catalog item on a per-head (Adults & Kids) basis
+  const handleChargeItemForGuests = (item: POSItem) => {
+    if (adultsCount <= 0 && kidsCount <= 0) {
+      alert("Please specify at least 1 adult or kid guest.");
+      return;
+    }
+
+    const adultPrice = item.price;
+    const kidPrice = item.kidPrice !== undefined ? item.kidPrice : Math.round(item.price * 0.5);
+
+    const itemsToAdd: { item: POSItem; quantity: number }[] = [];
+
+    if (adultsCount > 0) {
+      itemsToAdd.push({
+        item: {
+          id: `pax-adult-${item.id}-${Date.now()}`,
+          name: `${item.name} (${adultsCount} Adults @ ₹${adultPrice.toLocaleString()})`,
+          category: item.category,
+          price: adultPrice,
+          taxRate: item.taxRate,
+          sacCode: item.sacCode,
+          available: true,
+          unit: `${adultsCount} Adult${adultsCount > 1 ? "s" : ""}`,
+          isPerPerson: true,
+        },
+        quantity: adultsCount,
+      });
+    }
+
+    if (kidsCount > 0) {
+      itemsToAdd.push({
+        item: {
+          id: `pax-kid-${item.id}-${Date.now()}`,
+          name: `${item.name} (${kidsCount} Kids @ ₹${kidPrice.toLocaleString()})`,
+          category: item.category,
+          price: kidPrice,
+          taxRate: item.taxRate,
+          sacCode: item.sacCode,
+          available: true,
+          unit: `${kidsCount} Kid${kidsCount > 1 ? "s" : ""}`,
+          isPerPerson: true,
+        },
+        quantity: kidsCount,
+      });
+    }
+
+    setCart((prev) => [...prev, ...itemsToAdd]);
   };
 
   // Cart operations
@@ -765,26 +1125,65 @@ export default function POSPage() {
     });
   }, [catalogItems, selectedCategory, searchQuery]);
 
-  // Handle Add Custom Item
+  // Handle Add Custom Item (Flat vs Per Person in INR ₹)
   const handleAddCustomItem = () => {
     if (!customItemName.trim()) return;
 
-    const newItem: POSItem = {
-      id: `custom-${Date.now()}`,
-      name: customItemName.trim(),
-      category: customItemCategory,
-      price: customItemPrice,
-      taxRate: customItemTaxRate,
-      sacCode: customItemSac.trim() || "996331",
-      available: true,
-      unit: customItemUnit,
-    };
+    if (customPricingMode === "per_person") {
+      const itemsToAdd: { item: POSItem; quantity: number }[] = [];
+      if (adultsCount > 0) {
+        itemsToAdd.push({
+          item: {
+            id: `custom-adult-${Date.now()}`,
+            name: `${customItemName.trim()} (${adultsCount} Adults @ ₹${customItemPrice.toLocaleString()})`,
+            category: customItemCategory,
+            price: customItemPrice,
+            taxRate: customItemTaxRate,
+            sacCode: customItemSac.trim() || "996331",
+            available: true,
+            unit: `${adultsCount} Adult${adultsCount > 1 ? "s" : ""}`,
+            isPerPerson: true,
+          },
+          quantity: adultsCount,
+        });
+      }
+      if (kidsCount > 0) {
+        itemsToAdd.push({
+          item: {
+            id: `custom-kid-${Date.now()}`,
+            name: `${customItemName.trim()} (${kidsCount} Kids @ ₹${customItemKidPrice.toLocaleString()})`,
+            category: customItemCategory,
+            price: customItemKidPrice,
+            taxRate: customItemTaxRate,
+            sacCode: customItemSac.trim() || "996331",
+            available: true,
+            unit: `${kidsCount} Kid${kidsCount > 1 ? "s" : ""}`,
+            isPerPerson: true,
+          },
+          quantity: kidsCount,
+        });
+      }
+      setCart((prev) => [...prev, ...itemsToAdd]);
+    } else {
+      const newItem: POSItem = {
+        id: `custom-${Date.now()}`,
+        name: customItemName.trim(),
+        category: customItemCategory,
+        price: customItemPrice,
+        taxRate: customItemTaxRate,
+        sacCode: customItemSac.trim() || "996331",
+        available: true,
+        unit: customItemUnit,
+      };
 
-    setCatalogItems((prev) => [newItem, ...prev]);
-    addToCart(newItem);
+      setCatalogItems((prev) => [newItem, ...prev]);
+      addToCart(newItem);
+    }
+
     setIsCustomModalOpen(false);
     setCustomItemName("");
     setCustomItemPrice(200);
+    setCustomItemKidPrice(100);
   };
 
   // Quick Split Preset helpers
@@ -822,7 +1221,7 @@ export default function POSPage() {
       return;
     }
 
-    const currentFolio = inHouseReservations.find((r) => r.room === selectedRoom)?.folio || "FOL-000";
+    const currentFolio = registeredGuests.find((r) => r.roomOrPitch === selectedRoom)?.folio || "FOL-000";
     const invoicePrefix = branding.name.includes("Wildwoods") ? "WWC" : branding.name.includes("Palm") ? "POR" : "GVF";
     const newInvNumber = `${invoicePrefix}/2026-27/0${Math.floor(100 + Math.random() * 900)}`;
 
@@ -873,6 +1272,8 @@ export default function POSPage() {
       }),
       guestName: chargeTarget === "room" ? guestName : (guestName.trim() || "Walk-In Guest"),
       guestPhone: guestPhone.trim() || undefined,
+      adultsCount,
+      kidsCount,
       roomOrPitch: chargeTarget === "room" ? selectedRoom : "Direct POS Counter",
       items: cart.map((c) => ({
         name: c.item.name,
@@ -886,11 +1287,12 @@ export default function POSPage() {
       discount: discountAmount,
       tax: totalTax,
       grandTotal,
+      currency: "INR (₹)",
       paymentMethod: formattedPaymentMethod,
       chargeTarget,
       splitDetails,
       b2bDetails,
-      brandingSnapshot: { ...branding },
+      brandingSnapshot: { ...branding, currency: "INR (₹)" },
       taxSummary: taxSummaryRows,
       amountInWords: numberToIndianWords(grandTotal),
       cashierName: cashierShift.cashierName,
@@ -898,24 +1300,10 @@ export default function POSPage() {
 
     // Update shift drawer register
     setCashierShift((prev) => {
-      let addCash = 0;
-      let addUpi = 0;
-      let addCard = 0;
-      let addFolio = 0;
-
-      if (chargeTarget === "room") {
-        addFolio = grandTotal;
-      } else if (paymentMethod === "split") {
-        addCash = splitCash - splitChangeToReturn;
-        addUpi = splitUpi;
-        addCard = splitCard;
-      } else if (paymentMethod === "cash") {
-        addCash = grandTotal;
-      } else if (paymentMethod === "upi") {
-        addUpi = grandTotal;
-      } else if (paymentMethod === "card") {
-        addCard = grandTotal;
-      }
+      const addCash = paymentMethod === "cash" ? grandTotal : paymentMethod === "split" ? (splitCash - splitChangeToReturn) : 0;
+      const addUpi = paymentMethod === "upi" ? grandTotal : paymentMethod === "split" ? splitUpi : 0;
+      const addCard = paymentMethod === "card" ? grandTotal : paymentMethod === "split" ? splitCard : 0;
+      const addFolio = chargeTarget === "room" ? grandTotal : 0;
 
       return {
         ...prev,
@@ -962,6 +1350,8 @@ export default function POSPage() {
 *Invoice No:* ${inv.invoiceNumber}
 *Date:* ${inv.date}
 *Guest:* ${inv.guestName} (${inv.roomOrPitch})
+*Pax / Headcount:* ${inv.adultsCount || 1} Adults${inv.kidsCount ? `, ${inv.kidsCount} Kids` : ""} (Total: ${(inv.adultsCount || 1) + (inv.kidsCount || 0)} Guests)
+*Currency:* Indian Rupee (INR — ₹)
 ${inv.b2bDetails ? `*Company:* ${inv.b2bDetails.companyName}\n*GSTIN:* ${inv.b2bDetails.companyGstin}\n` : ""}
 *Items Ordered:*
 ${itemsList}
@@ -992,6 +1382,8 @@ Here is your itemized GST Tax Invoice:
 Invoice Number: ${inv.invoiceNumber}
 Date: ${inv.date}
 Folio / Location: ${inv.roomOrPitch}
+Headcount: ${inv.adultsCount || 1} Adults${inv.kidsCount ? `, ${inv.kidsCount} Kids` : ""} (Total: ${(inv.adultsCount || 1) + (inv.kidsCount || 0)} Guests)
+Currency: Indian Rupees (INR — ₹)
 Settlement Mode: ${inv.paymentMethod}
 Cashier: ${inv.cashierName}
 ${inv.b2bDetails ? `Company: ${inv.b2bDetails.companyName}\nGSTIN: ${inv.b2bDetails.companyGstin}\n` : ""}
@@ -1218,13 +1610,29 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
               <Store className="h-3.5 w-3.5 mr-1" />
               {branding.name}
             </Badge>
+            <Badge
+              variant="outline"
+              className="text-xs font-semibold text-emerald-700 border-emerald-500/30 bg-emerald-500/5 px-2.5 py-1 flex items-center gap-1"
+            >
+              <IndianRupee className="h-3.5 w-3.5 text-emerald-600" />
+              <span>Deals in INR (₹)</span>
+            </Badge>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Commercial front-desk billing: F&B dining, campfire kits, adventure activities, multi-tender splits, and custom resort-branded GST tax invoices.
+            Commercial front-desk billing: Per-guest/per-kid dining packages, campfire kits, adventure activities, multi-tender splits, and resort-branded GST tax invoices.
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Register New Guest Button */}
+          <Button
+            onClick={() => setIsAddGuestModalOpen(true)}
+            className="text-xs font-bold h-9 gap-1.5 bg-rentcot-blue hover:bg-rentcot-blue/90 text-white shadow-xs"
+          >
+            <UserPlus className="h-4 w-4" />
+            <span>+ Register Guest</span>
+          </Button>
+
           {/* Shift Drawer Summary Button */}
           <Button
             variant="outline"
@@ -1269,7 +1677,7 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search catalog by dish, kit, ride, or SAC code..."
+                placeholder="Search catalog by dish, package, ride, or SAC code in INR (₹)..."
                 className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
               />
               {searchQuery && (
@@ -1291,6 +1699,74 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
               <Plus className="h-3.5 w-3.5" />
               <span>+ Custom Charge</span>
             </Button>
+          </div>
+
+          {/* Headcount Package Quick Billing Banner (Adults & Kids in INR ₹) */}
+          <div className="p-3.5 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent space-y-2.5 shadow-2xs">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                  <Users className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <span>Charge Per Guest (Adults & Kids Packages)</span>
+                    <span className="text-[10px] bg-emerald-500/15 text-emerald-700 font-mono px-1.5 py-0.2 rounded font-semibold">
+                      INR (₹)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Target: <strong className="text-foreground">{guestName}</strong> • {adultsCount} Adult{adultsCount !== 1 ? "s" : ""}, {kidsCount} Kid{kidsCount !== 1 ? "s" : ""} (Total: {adultsCount + kidsCount} Pax)
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsAddGuestModalOpen(true)}
+                className="text-[11px] h-7 gap-1 font-semibold border-border bg-background hover:bg-muted"
+              >
+                <UserPlus className="h-3.5 w-3.5 text-primary" />
+                <span>+ Add / Switch Guest</span>
+              </Button>
+            </div>
+
+            {/* Quick Headcount Package Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-0.5">
+              {headcountPackages.map((pkg) => {
+                const calculatedTotal = (pkg.adultRate * adultsCount) + (pkg.kidRate * kidsCount);
+                return (
+                  <div
+                    key={pkg.id}
+                    className="p-2.5 rounded-lg border border-border/70 bg-card hover:border-primary/50 transition-all space-y-1.5 flex flex-col justify-between shadow-2xs"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-bold text-xs text-foreground truncate" title={pkg.name}>
+                          {pkg.name}
+                        </span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-muted text-muted-foreground shrink-0 font-medium">
+                          {pkg.badge}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        Adult: <strong className="text-foreground">₹{pkg.adultRate}</strong> • Kid: <strong className="text-foreground">₹{pkg.kidRate}</strong>
+                      </div>
+                    </div>
+
+                    <Button
+                      size="sm"
+                      onClick={() => handleChargeHeadcountPackage(pkg)}
+                      className="w-full h-7 text-[11px] font-bold bg-primary hover:bg-primary/90 text-primary-foreground gap-1 justify-between px-2"
+                    >
+                      <span>+ {adultsCount}A + {kidsCount}K</span>
+                      <span className="font-mono">₹{calculatedTotal.toLocaleString()}</span>
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Category Tabs */}
@@ -1340,6 +1816,9 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
             ) : (
               filteredItems.map((item) => {
                 const inCart = cart.find((c) => c.item.id === item.id);
+                const kidPrice = item.kidPrice !== undefined ? item.kidPrice : Math.round(item.price * 0.5);
+                const headcountTotal = (item.price * adultsCount) + (kidPrice * kidsCount);
+
                 return (
                   <Card
                     key={item.id}
@@ -1348,17 +1827,56 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                     }`}
                     onClick={() => addToCart(item)}
                   >
-                    <CardContent className="p-3.5 flex items-start justify-between gap-3">
-                      <div className="space-y-1 flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-bold text-xs sm:text-sm text-foreground leading-tight">
-                            {item.name}
-                          </span>
-                          {item.unit && (
-                            <span className="text-[10px] text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded">
-                              {item.unit}
+                    <CardContent className="p-3.5 flex flex-col justify-between h-full gap-2">
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+                            <span className="font-bold text-xs sm:text-sm text-foreground leading-tight truncate">
+                              {item.name}
                             </span>
-                          )}
+                            {item.unit && (
+                              <span className="text-[10px] text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded shrink-0">
+                                {item.unit}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="shrink-0">
+                            {inCart ? (
+                              <div
+                                className="flex items-center gap-1 bg-background rounded-lg p-0.5 border border-primary/30 shadow-2xs"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  onClick={() => removeFromCart(item.id)}
+                                  className="h-6 w-6 rounded bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 text-xs font-bold transition-colors"
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </button>
+                                <span className="font-extrabold text-xs px-1 text-foreground min-w-[14px] text-center">
+                                  {inCart.quantity}
+                                </span>
+                                <button
+                                  onClick={() => addToCart(item)}
+                                  className="h-6 w-6 rounded bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold hover:bg-primary/90 transition-colors"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 w-7 p-0 rounded-lg border-border hover:border-primary hover:bg-primary hover:text-white transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  addToCart(item);
+                                }}
+                              >
+                                <Plus className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
 
                         {item.description && (
@@ -1377,41 +1895,30 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                         </div>
                       </div>
 
-                      <div className="shrink-0">
-                        {inCart ? (
-                          <div
-                            className="flex items-center gap-1.5 bg-background rounded-lg p-1 border border-primary/30 shadow-2xs"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <button
-                              onClick={() => removeFromCart(item.id)}
-                              className="h-7 w-7 rounded bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 text-xs font-bold transition-colors"
-                            >
-                              <Minus className="h-3 w-3" />
-                            </button>
-                            <span className="font-extrabold text-xs px-1 text-foreground min-w-[16px] text-center">
-                              {inCart.quantity}
+                      {/* Headcount Charging Action Button */}
+                      <div
+                        className="pt-2 border-t border-border/50 flex items-center justify-between gap-1.5"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <span className="text-[10px] text-muted-foreground">
+                          {item.isPerPerson ? (
+                            <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                              <Users className="h-3 w-3" /> Adult ₹{item.price} • Kid ₹{kidPrice}
                             </span>
-                            <button
-                              onClick={() => addToCart(item)}
-                              className="h-7 w-7 rounded bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold hover:bg-primary/90 transition-colors"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 w-8 p-0 rounded-lg border-border hover:border-primary hover:bg-primary hover:text-white transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              addToCart(item);
-                            }}
-                          >
-                            <Plus className="h-3.5 w-3.5" />
-                          </Button>
-                        )}
+                          ) : (
+                            <span>Per Unit Rate</span>
+                          )}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => handleChargeItemForGuests(item)}
+                          className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-colors shrink-0"
+                          title={`Charge for ${adultsCount} Adults + ${kidsCount} Kids in INR (₹)`}
+                        >
+                          <Users className="h-3 w-3" />
+                          <span>Charge {adultsCount}A + {kidsCount}K (₹{headcountTotal.toLocaleString()})</span>
+                        </button>
                       </div>
                     </CardContent>
                   </Card>
@@ -1430,30 +1937,153 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                   <Receipt className="h-4 w-4 text-rentcot-blue" />
                   <span>Front-Desk Billing Folio</span>
                 </CardTitle>
-                {cart.length > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs bg-rentcot-blue/10 text-rentcot-blue font-semibold px-2 py-0.5 rounded-full">
-                      {cart.reduce((sum, c) => sum + c.quantity, 0)} items
-                    </span>
-                    <button
-                      onClick={() => setCart([])}
-                      className="text-[11px] text-muted-foreground hover:text-destructive p-1"
-                      title="Clear Cart"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-[10px] text-emerald-700 border-emerald-500/30 bg-emerald-500/10 font-bold">
+                    INR (₹)
+                  </Badge>
+                  {cart.length > 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs bg-rentcot-blue/10 text-rentcot-blue font-semibold px-2 py-0.5 rounded-full">
+                        {cart.reduce((sum, c) => sum + c.quantity, 0)} items
+                      </span>
+                      <button
+                        onClick={() => setCart([])}
+                        className="text-[11px] text-muted-foreground hover:text-destructive p-1"
+                        title="Clear Cart"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardHeader>
 
             <CardContent className="p-4 space-y-4">
+              {/* Active Guest & Headcount Stepper Controller */}
+              <div className="p-3 rounded-xl border border-primary/20 bg-muted/30 space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="h-8 w-8 rounded-lg bg-rentcot-blue/10 flex items-center justify-center text-rentcot-blue shrink-0">
+                      <UserCheck className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
+                        <span>{guestName}</span>
+                        <span className="text-[10px] text-muted-foreground font-normal truncate">
+                          ({chargeTarget === "room" ? selectedRoom : "Direct Counter"})
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground font-mono">
+                        {guestPhone}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setIsAddGuestModalOpen(true)}
+                      className="h-7 px-2 text-[11px] text-primary border-primary/30 hover:bg-primary/10 font-semibold gap-1"
+                      title="Add or register a new guest in POS"
+                    >
+                      <UserPlus className="h-3.5 w-3.5" />
+                      <span>+ Add Guest</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Headcount Steppers: Adults & Kids in INR (₹) */}
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/60">
+                  {/* Adults Count Stepper */}
+                  <div className="p-2 rounded-lg bg-background border border-border flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Users className="h-3.5 w-3.5 text-rentcot-blue shrink-0" />
+                      <div>
+                        <div className="text-[9px] text-muted-foreground font-semibold uppercase leading-none">
+                          Adults
+                        </div>
+                        <div className="text-xs font-extrabold text-foreground">
+                          {adultsCount} Guest{adultsCount !== 1 ? "s" : ""}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setAdultsCount((prev) => Math.max(1, prev - 1))}
+                        className="h-6 w-6 rounded bg-muted hover:bg-muted/80 flex items-center justify-center text-foreground font-bold text-xs transition-colors"
+                        title="Decrease Adults"
+                      >
+                        <Minus className="h-3 w-3" />
+                      </button>
+                      <span className="font-extrabold text-xs min-w-[14px] text-center text-foreground">
+                        {adultsCount}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setAdultsCount((prev) => prev + 1)}
+                        className="h-6 w-6 rounded bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center font-bold text-xs transition-colors"
+                        title="Increase Adults"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Kids Count Stepper */}
+                  <div className="p-2 rounded-lg bg-background border border-border flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Baby className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                      <div>
+                        <div className="text-[9px] text-muted-foreground font-semibold uppercase leading-none">
+                          Kids / Child
+                        </div>
+                        <div className="text-xs font-extrabold text-foreground">
+                          {kidsCount} Kid{kidsCount !== 1 ? "s" : ""}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setKidsCount((prev) => Math.max(0, prev - 1))}
+                        className="h-6 w-6 rounded bg-muted hover:bg-muted/80 flex items-center justify-center text-foreground font-bold text-xs transition-colors"
+                        title="Decrease Kids"
+                      >
+                        <Minus className="h-3 w-3" />
+                      </button>
+                      <span className="font-extrabold text-xs min-w-[14px] text-center text-foreground">
+                        {kidsCount}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setKidsCount((prev) => prev + 1)}
+                        className="h-6 w-6 rounded bg-amber-600 text-white hover:bg-amber-700 flex items-center justify-center font-bold text-xs transition-colors"
+                        title="Increase Kids"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-0.5 px-0.5">
+                  <span className="flex items-center gap-1">
+                    <span>Total Billable Pax:</span>
+                    <strong className="text-foreground font-bold">{adultsCount + kidsCount} Guests ({adultsCount} Adults, {kidsCount} Kids)</strong>
+                  </span>
+                  <span className="font-semibold text-emerald-600 font-mono">Currency: INR (₹)</span>
+                </div>
+              </div>
+
               {cart.length === 0 ? (
                 <div className="py-16 text-center text-muted-foreground space-y-2">
                   <ShoppingBag className="h-10 w-10 mx-auto opacity-30 text-muted-foreground" />
                   <div className="text-sm font-semibold text-foreground">Folio is currently empty</div>
                   <div className="text-xs text-muted-foreground max-w-xs mx-auto">
-                    Click any food item, campfire setup, or adventure ride on the left to add charges to the bill.
+                    Click any food item, per-guest package, campfire kit, or adventure ride on the left to add charges to the bill.
                   </div>
                 </div>
               ) : (
@@ -1466,7 +2096,14 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                         className="flex items-center justify-between text-xs py-2 border-b border-border/60"
                       >
                         <div className="flex-1 pr-2 min-w-0">
-                          <div className="font-semibold text-foreground truncate">{item.name}</div>
+                          <div className="font-semibold text-foreground truncate flex items-center gap-1">
+                            <span>{item.name}</span>
+                            {item.isPerPerson && (
+                              <span className="text-[9px] bg-emerald-500/10 text-emerald-700 px-1 py-0.2 rounded font-mono">
+                                per head
+                              </span>
+                            )}
+                          </div>
                           <div className="text-muted-foreground font-mono text-[11px] flex items-center gap-1">
                             <span>{quantity} × ₹{item.price.toLocaleString()}</span>
                             <span>•</span>
@@ -1527,17 +2164,26 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
 
                     {chargeTarget === "room" ? (
                       <div className="space-y-1.5 pt-1">
-                        <label className="text-[11px] font-semibold text-muted-foreground block">
-                          Select In-House Villa / Cottage / Tent:
-                        </label>
+                        <div className="flex items-center justify-between">
+                          <label className="text-[11px] font-semibold text-muted-foreground block">
+                            Select In-House Villa / Cottage / Tent:
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setIsAddGuestModalOpen(true)}
+                            className="text-[10px] text-primary hover:underline font-semibold"
+                          >
+                            + Add New Stay Guest
+                          </button>
+                        </div>
                         <select
                           value={selectedRoom}
                           onChange={(e) => handleRoomChange(e.target.value)}
                           className="w-full text-xs p-2 rounded-lg border border-border bg-background text-foreground focus:ring-1 focus:ring-primary"
                         >
-                          {inHouseReservations.map((r) => (
-                            <option key={r.room} value={r.room}>
-                              {r.room} — {r.guest} ({r.folio})
+                          {registeredGuests.map((r) => (
+                            <option key={r.id} value={r.roomOrPitch}>
+                              {r.roomOrPitch} — {r.guestName} ({r.folio}) • {r.adultsCount} Adults, {r.kidsCount} Kids
                             </option>
                           ))}
                         </select>
@@ -1548,6 +2194,18 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                       </div>
                     ) : (
                       <div className="space-y-2 pt-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] text-muted-foreground font-semibold">
+                            Walk-In Guest Details
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setIsAddGuestModalOpen(true)}
+                            className="text-[10px] text-primary hover:underline font-semibold"
+                          >
+                            + Register Walk-In Guest
+                          </button>
+                        </div>
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <label className="text-[10px] text-muted-foreground font-semibold block mb-0.5">
@@ -2064,6 +2722,15 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                     <div className="text-[11px] text-muted-foreground">
                       {activeInvoice.roomOrPitch} {activeInvoice.guestPhone ? `• ${activeInvoice.guestPhone}` : ""}
                     </div>
+                    {/* Guest Headcount & Currency Badges */}
+                    <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                      <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30 font-semibold px-1.5 py-0">
+                        👥 Pax: {activeInvoice.adultsCount || 1} Adult{(activeInvoice.adultsCount || 1) > 1 ? "s" : ""}{activeInvoice.kidsCount ? `, ${activeInvoice.kidsCount} Kid${activeInvoice.kidsCount > 1 ? "s" : ""}` : ""}
+                      </Badge>
+                      <Badge variant="clean" className="text-[10px] font-mono text-emerald-700 bg-emerald-500/10 border-emerald-500/30 px-1.5 py-0">
+                        Currency: {activeInvoice.currency || "INR (₹)"}
+                      </Badge>
+                    </div>
                     {activeInvoice.b2bDetails && (
                       <div className="mt-1.5 pt-1.5 border-t border-border/60">
                         <div className="font-bold text-rentcot-blue text-[11px]">
@@ -2239,6 +2906,12 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                   <div>Date: {activeInvoice.date}</div>
                   <div>Guest: {activeInvoice.guestName}</div>
                   <div>Ref: {activeInvoice.roomOrPitch}</div>
+                  <div className="text-primary font-semibold">
+                    Pax: {activeInvoice.adultsCount || 1} Adults, {activeInvoice.kidsCount || 0} Kids
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">
+                    Currency: {activeInvoice.currency || "INR (₹)"}
+                  </div>
                   {activeInvoice.b2bDetails && (
                     <div className="text-[9px] text-left pt-1">
                       Co: {activeInvoice.b2bDetails.companyName}
@@ -2454,6 +3127,42 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                 />
               </div>
 
+              {/* Pricing Mode Toggle */}
+              <div>
+                <label className="text-[11px] font-semibold text-foreground block mb-1">
+                  Pricing Mode & Headcount Handling (INR ₹)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCustomPricingMode("flat")}
+                    className={`p-2 rounded-lg border text-left flex flex-col gap-0.5 transition-all ${
+                      customPricingMode === "flat"
+                        ? "border-primary bg-primary/10 text-primary font-bold shadow-xs"
+                        : "border-border text-muted-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    <span className="text-xs">Flat Single Charge</span>
+                    <span className="text-[10px] opacity-80 font-normal">Fixed amount (e.g. damages, transport)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCustomPricingMode("per_person")}
+                    className={`p-2 rounded-lg border text-left flex flex-col gap-0.5 transition-all ${
+                      customPricingMode === "per_person"
+                        ? "border-primary bg-primary/10 text-primary font-bold shadow-xs"
+                        : "border-border text-muted-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    <span className="text-xs flex items-center gap-1">
+                      <Users className="h-3.5 w-3.5" /> Per Head (Adults & Kids)
+                    </span>
+                    <span className="text-[10px] opacity-80 font-normal">Multiplies by active guest headcount</span>
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[11px] font-semibold text-foreground block mb-1">
@@ -2489,19 +3198,86 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                   </select>
                 </div>
 
-                <div>
-                  <label className="text-[11px] font-semibold text-foreground block mb-1">
-                    Price (₹)
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    value={customItemPrice}
-                    onChange={(e) => setCustomItemPrice(Number(e.target.value))}
-                    className="w-full p-2 text-xs rounded-lg border border-border bg-background font-bold"
-                  />
-                </div>
+                {customPricingMode === "flat" ? (
+                  <div>
+                    <label className="text-[11px] font-semibold text-foreground block mb-1">
+                      Flat Amount (₹ INR)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={customItemPrice}
+                      onChange={(e) => setCustomItemPrice(Number(e.target.value))}
+                      className="w-full p-2 text-xs rounded-lg border border-border bg-background font-bold"
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label className="text-[11px] font-semibold text-foreground block mb-1">
+                      Adult Rate (₹ INR / adult)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={customItemPrice}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setCustomItemPrice(val);
+                        // Suggest 50% for kids
+                        if (customItemKidPrice === Math.round(customItemPrice * 0.5)) {
+                          setCustomItemKidPrice(Math.round(val * 0.5));
+                        }
+                      }}
+                      className="w-full p-2 text-xs rounded-lg border border-border bg-background font-bold"
+                    />
+                  </div>
+                )}
               </div>
+
+              {customPricingMode === "per_person" && (
+                <div className="p-2.5 rounded-lg bg-muted/40 border border-border/80 space-y-2">
+                  <div className="grid grid-cols-2 gap-3 items-center">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[11px] font-semibold text-foreground">
+                          Kid Rate (₹ INR / kid)
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setCustomItemKidPrice(Math.round(customItemPrice * 0.5))}
+                          className="text-[9px] text-primary hover:underline font-medium"
+                        >
+                          50% of adult
+                        </button>
+                      </div>
+                      <input
+                        type="number"
+                        min={0}
+                        value={customItemKidPrice}
+                        onChange={(e) => setCustomItemKidPrice(Number(e.target.value))}
+                        className="w-full p-2 text-xs rounded-lg border border-border bg-background font-bold"
+                      />
+                    </div>
+
+                    <div className="text-[11px] space-y-1">
+                      <span className="text-[10px] text-muted-foreground uppercase font-bold block">
+                        Headcount Calculation
+                      </span>
+                      <div className="font-semibold text-foreground">
+                        {adultsCount} Adults × ₹{customItemPrice} = ₹{(adultsCount * customItemPrice).toLocaleString("en-IN")}
+                      </div>
+                      {kidsCount > 0 && (
+                        <div className="text-muted-foreground">
+                          {kidsCount} Kids × ₹{customItemKidPrice} = ₹{(kidsCount * customItemKidPrice).toLocaleString("en-IN")}
+                        </div>
+                      )}
+                      <div className="text-xs font-black text-rentcot-blue pt-0.5 border-t border-border">
+                        Total: ₹{(adultsCount * customItemPrice + kidsCount * customItemKidPrice).toLocaleString("en-IN")}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -2869,6 +3645,306 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add / Register Guest in POS Modal */}
+      {isAddGuestModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/40 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <UserPlus className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">Register Guest / Visitor in POS</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Set up guest name, mobile number, stay/dining area, and headcount in INR (₹)
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAddGuestModalOpen(false)}
+                className="p-1 rounded-md text-muted-foreground hover:bg-muted"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              {/* Guest Profile Type */}
+              <div>
+                <label className="text-[11px] font-semibold text-foreground block mb-1.5">
+                  Guest Visit Type
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewGuestType("in_house");
+                      if (!newGuestRoomOrTable) setNewGuestRoomOrTable("Tent T-04 (Meadow)");
+                    }}
+                    className={`p-2.5 rounded-lg border text-left flex flex-col gap-1 transition-all ${
+                      newGuestType === "in_house"
+                        ? "border-primary bg-primary/10 text-primary font-bold shadow-xs"
+                        : "border-border text-muted-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    <span className="text-xs">🏡 In-House Stay</span>
+                    <span className="text-[9px] opacity-80 font-normal">Villa, Cottage, or Tent</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewGuestType("walk_in_dining");
+                      if (!newGuestRoomOrTable) setNewGuestRoomOrTable("Table 07 (Lawn)");
+                    }}
+                    className={`p-2.5 rounded-lg border text-left flex flex-col gap-1 transition-all ${
+                      newGuestType === "walk_in_dining"
+                        ? "border-primary bg-primary/10 text-primary font-bold shadow-xs"
+                        : "border-border text-muted-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    <span className="text-xs">🍽️ Walk-in Dining</span>
+                    <span className="text-[9px] opacity-80 font-normal">Restaurant / Lawn Table</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewGuestType("day_picnic");
+                      if (!newGuestRoomOrTable) setNewGuestRoomOrTable("Pool Cabana #02");
+                    }}
+                    className={`p-2.5 rounded-lg border text-left flex flex-col gap-1 transition-all ${
+                      newGuestType === "day_picnic"
+                        ? "border-primary bg-primary/10 text-primary font-bold shadow-xs"
+                        : "border-border text-muted-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    <span className="text-xs">🏊 Day Picnic / Event</span>
+                    <span className="text-[9px] opacity-80 font-normal">Passes, BBQ, Pool Cabana</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Guest Details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-foreground block mb-1">
+                    Guest Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Ramesh Chandra"
+                    value={newGuestName}
+                    onChange={(e) => setNewGuestName(e.target.value)}
+                    className="w-full p-2 text-xs rounded-lg border border-border bg-background font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-foreground block mb-1">
+                    Mobile Phone (For WhatsApp Invoice) *
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    value={newGuestPhone}
+                    onChange={(e) => setNewGuestPhone(e.target.value)}
+                    className="w-full p-2 text-xs rounded-lg border border-border bg-background font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-foreground block mb-1">
+                    {newGuestType === "in_house"
+                      ? "Room / Tent / Pitch Identifier *"
+                      : newGuestType === "walk_in_dining"
+                      ? "Table / Dining Area *"
+                      : "Cabana / Activity Venue *"}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder={
+                      newGuestType === "in_house"
+                        ? "e.g. Tent T-04 (Meadow)"
+                        : newGuestType === "walk_in_dining"
+                        ? "e.g. Table 05 (Garden View)"
+                        : "e.g. Pool Cabana #02"
+                    }
+                    value={newGuestRoomOrTable}
+                    onChange={(e) => setNewGuestRoomOrTable(e.target.value)}
+                    className="w-full p-2 text-xs rounded-lg border border-border bg-background"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-foreground block mb-1">
+                    Email Address (Optional)
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="guest@example.com"
+                    value={newGuestEmail}
+                    onChange={(e) => setNewGuestEmail(e.target.value)}
+                    className="w-full p-2 text-xs rounded-lg border border-border bg-background"
+                  />
+                </div>
+              </div>
+
+              {/* Headcount Steppers: Number of Guests (Adults) & Kids */}
+              <div className="p-3.5 rounded-xl bg-muted/30 border border-border space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Users className="h-4 w-4 text-primary" />
+                    <span className="font-bold text-foreground text-xs">Guest Headcount (Pax)</span>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] font-mono border-primary/40 text-primary">
+                    Total: {newGuestAdults + newGuestKids} Pax
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Adults */}
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-background border border-border">
+                    <div>
+                      <div className="font-semibold text-xs text-foreground">Adults</div>
+                      <div className="text-[10px] text-muted-foreground">Age 12+ years</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setNewGuestAdults((p) => Math.max(1, p - 1))}
+                        className="h-7 w-7 rounded-md border border-border bg-card flex items-center justify-center text-sm font-bold hover:bg-muted"
+                      >
+                        -
+                      </button>
+                      <span className="w-6 text-center font-bold text-sm text-foreground">
+                        {newGuestAdults}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setNewGuestAdults((p) => p + 1)}
+                        className="h-7 w-7 rounded-md border border-border bg-card flex items-center justify-center text-sm font-bold hover:bg-muted"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Kids */}
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-background border border-border">
+                    <div>
+                      <div className="font-semibold text-xs text-foreground flex items-center gap-1">
+                        <Baby className="h-3.5 w-3.5 text-amber-500" />
+                        Kids / Children
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">Age 5-11 yrs (50% rate)</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setNewGuestKids((p) => Math.max(0, p - 1))}
+                        className="h-7 w-7 rounded-md border border-border bg-card flex items-center justify-center text-sm font-bold hover:bg-muted"
+                      >
+                        -
+                      </button>
+                      <span className="w-6 text-center font-bold text-sm text-foreground">
+                        {newGuestKids}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setNewGuestKids((p) => p + 1)}
+                        className="h-7 w-7 rounded-md border border-border bg-card flex items-center justify-center text-sm font-bold hover:bg-muted"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-[10px] text-muted-foreground flex items-center gap-1.5">
+                  <IndianRupee className="h-3 w-3 text-emerald-600" />
+                  <span>Buffets, BBQ dinners, and entry passes will automatically multiply in INR (₹) for this headcount.</span>
+                </div>
+              </div>
+
+              {/* Corporate GST Toggle */}
+              <div className="p-3 rounded-xl border border-border/80 bg-background space-y-2.5">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newGuestIsCorporate}
+                    onChange={(e) => setNewGuestIsCorporate(e.target.checked)}
+                    className="rounded border-border"
+                  />
+                  <span className="font-bold text-foreground text-xs">
+                    Corporate / B2B GST Invoice Required
+                  </span>
+                </label>
+
+                {newGuestIsCorporate && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-border/60">
+                    <div>
+                      <label className="text-[10px] font-semibold text-foreground block mb-1">
+                        Company / Entity Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Infosys BPM Ltd"
+                        value={newGuestCompany}
+                        onChange={(e) => setNewGuestCompany(e.target.value)}
+                        className="w-full p-2 text-xs rounded-lg border border-border bg-card"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-semibold text-foreground block mb-1">
+                        15-digit GSTIN
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="36AAACI1234F1Z1"
+                        maxLength={15}
+                        value={newGuestGstin}
+                        onChange={(e) => setNewGuestGstin(e.target.value.toUpperCase())}
+                        className="w-full p-2 text-xs rounded-lg border border-border bg-card font-mono uppercase"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-border flex items-center justify-between">
+              <span className="text-[10px] font-mono text-muted-foreground">
+                Currency: INR (₹) • Deals Exclusively in INR
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAddGuestModalOpen(false)}
+                  className="text-xs h-9"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveNewGuest}
+                  disabled={!newGuestName.trim()}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-9 font-semibold gap-1.5"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Save &amp; Set Active in POS
+                </Button>
+              </div>
             </div>
           </div>
         </div>

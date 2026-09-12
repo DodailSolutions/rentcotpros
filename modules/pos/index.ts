@@ -6,12 +6,30 @@ export interface POSItem {
   id: string;
   name: string;
   category: POSCategory;
-  price: number;
+  price: number; // in INR (₹)
+  kidPrice?: number; // optional child/kid rate in INR (₹)
+  isPerPerson?: boolean; // true if this item is charged on a per-head (guest/kid) basis
   taxRate: number; // e.g. 0.05 for 5%, 0.18 for 18%
   sacCode: string; // e.g. "996331" for F&B, "999699" for activities, "4401" for firewood
   available: boolean;
   description?: string;
   unit?: string;
+}
+
+export interface POSGuestProfile {
+  id: string;
+  guestName: string;
+  guestPhone: string;
+  email?: string;
+  roomOrPitch: string;
+  folio: string;
+  adultsCount: number;
+  kidsCount: number;
+  isCorporate: boolean;
+  companyName?: string;
+  companyGstin?: string;
+  checkInDate?: string;
+  type?: "in_house" | "walk_in_dining" | "day_picnic";
 }
 
 export interface SplitTenderDetails {
@@ -48,6 +66,7 @@ export interface ResortBranding {
   bankAccountNo?: string;
   bankIfsc?: string;
   upiVpa?: string;
+  currency?: string; // Defaults to "INR (₹)"
 }
 
 export interface TaxBreakdownRow {
@@ -65,6 +84,8 @@ export interface CompletedInvoice {
   date: string;
   guestName: string;
   guestPhone?: string;
+  adultsCount?: number; // Number of adult guests
+  kidsCount?: number; // Number of kids/children
   roomOrPitch: string;
   items: {
     name: string;
@@ -78,6 +99,7 @@ export interface CompletedInvoice {
   discount: number;
   tax: number;
   grandTotal: number;
+  currency?: string; // Defaults to "INR (₹)"
   paymentMethod: string;
   chargeTarget: "room" | "direct";
   splitDetails?: SplitTenderDetails;
@@ -101,4 +123,5 @@ export interface CashierShift {
   folioCharged: number;
   totalGst: number;
 }
+
 
