@@ -19,10 +19,13 @@ export interface RatePlan {
   id: string;
   organizationId: string;
   propertyId: string;
+  propertyName?: string;
   unitTypeId: string;
   name: string;
+  description?: string;
   pricingType: PricingType;
   baseRate: number;
+  weekendRate?: number;
   extraAdultRate: number;
   extraChildRate: number;
   pricePerHour?: number;

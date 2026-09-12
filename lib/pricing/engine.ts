@@ -155,7 +155,7 @@ export function calculateStayPrice(params: PricingCalculationParams): PriceBreak
     const dayOfWeek = currentNight.getDay(); // 0 = Sunday, 5 = Friday, 6 = Saturday
     const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
 
-    let effectiveRate = ratePlan.baseRate;
+    let effectiveRate = isWeekend && ratePlan.weekendRate ? ratePlan.weekendRate : ratePlan.baseRate;
     let appliedOverride: RateOverride | undefined;
 
     // Check for applicable rate overrides (Festival, Weekend, Seasonal)
