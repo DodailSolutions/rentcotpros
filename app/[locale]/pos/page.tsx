@@ -48,11 +48,19 @@ import {
   Baby,
   UserPlus,
   IndianRupee,
+  Dog,
+  DoorOpen,
+  Eye,
+  Calendar,
+  Tent,
+  Home,
 } from "lucide-react";
 import {
   POSItem,
   POSCategory,
   POSGuestProfile,
+  POSRoomUnit,
+  POSUnitStatus,
   SplitTenderDetails,
   B2BBillingDetails,
   ResortBranding,
@@ -527,7 +535,7 @@ const initialCatalog: POSItem[] = [
   },
 ];
 
-// Active guest profiles for Green Valley Farmhouse with verified adult & kid headcounts
+// Active guest profiles for Green Valley Farmhouse with verified adult, kid & pet headcounts
 const initialGuestProfiles: POSGuestProfile[] = [
   {
     id: "gst-1",
@@ -538,6 +546,8 @@ const initialGuestProfiles: POSGuestProfile[] = [
     checkInDate: "11 Sep 2026",
     adultsCount: 2,
     kidsCount: 1,
+    petsCount: 1,
+    petType: "Golden Retriever",
     isCorporate: false,
     type: "in_house",
   },
@@ -550,6 +560,7 @@ const initialGuestProfiles: POSGuestProfile[] = [
     checkInDate: "12 Sep 2026",
     adultsCount: 4,
     kidsCount: 2,
+    petsCount: 0,
     isCorporate: false,
     type: "in_house",
   },
@@ -562,6 +573,7 @@ const initialGuestProfiles: POSGuestProfile[] = [
     checkInDate: "12 Sep 2026",
     adultsCount: 25,
     kidsCount: 0,
+    petsCount: 0,
     isCorporate: true,
     companyName: "TechCorp Solutions India Pvt Ltd",
     companyGstin: "36AAACT9482P1Z6",
@@ -576,6 +588,7 @@ const initialGuestProfiles: POSGuestProfile[] = [
     checkInDate: "12 Sep 2026",
     adultsCount: 2,
     kidsCount: 0,
+    petsCount: 0,
     isCorporate: false,
     type: "in_house",
   },
@@ -588,6 +601,8 @@ const initialGuestProfiles: POSGuestProfile[] = [
     checkInDate: "13 Sep 2026",
     adultsCount: 3,
     kidsCount: 2,
+    petsCount: 1,
+    petType: "Beagle",
     isCorporate: false,
     type: "in_house",
   },
@@ -600,6 +615,7 @@ const initialGuestProfiles: POSGuestProfile[] = [
     checkInDate: "13 Sep 2026",
     adultsCount: 2,
     kidsCount: 1,
+    petsCount: 0,
     isCorporate: false,
     type: "in_house",
   },
@@ -612,6 +628,7 @@ const initialGuestProfiles: POSGuestProfile[] = [
     checkInDate: "13 Sep 2026",
     adultsCount: 4,
     kidsCount: 2,
+    petsCount: 0,
     isCorporate: false,
     type: "walk_in_dining",
   },
@@ -624,8 +641,174 @@ const initialGuestProfiles: POSGuestProfile[] = [
     checkInDate: "13 Sep 2026",
     adultsCount: 6,
     kidsCount: 3,
+    petsCount: 0,
     isCorporate: false,
     type: "day_picnic",
+  },
+];
+
+// Real-time physical units & outdoor camps for Green Valley Farmhouse & Eco Retreat
+const initialPOSRoomUnits: POSRoomUnit[] = [
+  {
+    id: "unit-1",
+    unitNumber: "Tent T-01",
+    name: "Swiss Luxury Canvas Tent",
+    category: "tent",
+    status: "vacant",
+    ratePerDay: 2800,
+    ratePerHour: 350,
+    minHours: 3,
+    adultsCapacity: 3,
+    kidsCapacity: 2,
+    petFriendly: true,
+    petFee: 500,
+    amenities: ["Attached Bath", "Private Porch", "Electric Fan", "Campfire Pit Access"],
+    standardCheckInTime: "02:00 PM",
+    standardCheckOutTime: "11:00 AM",
+    keyDoorCode: "🔑 T-101",
+    imageUrl: "https://images.unsplash.com/photo-1506535772317-9fca70e930c6?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "unit-2",
+    unitNumber: "Tent T-04",
+    name: "Meadow Bell Tent Deluxe",
+    category: "tent",
+    status: "occupied",
+    ratePerDay: 2400,
+    ratePerHour: 300,
+    minHours: 3,
+    adultsCapacity: 2,
+    kidsCapacity: 1,
+    petFriendly: false,
+    petFee: 0,
+    amenities: ["Shared Bathhouse", "Queen Bed", "Solar Lanterns"],
+    currentGuestName: "Rahul Sharma",
+    currentGuestPhone: "+91 98111 22334",
+    currentGuestFolio: "FOL-840",
+    expectedCheckoutTime: "11:00 AM Today",
+    standardCheckInTime: "02:00 PM",
+    standardCheckOutTime: "11:00 AM",
+    keyDoorCode: "🔑 T-104",
+    imageUrl: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "unit-3",
+    unitNumber: "Cottage C-02",
+    name: "Orchard Family Mango Cottage",
+    category: "cottage",
+    status: "ready_to_vacant",
+    ratePerDay: 4500,
+    ratePerHour: 550,
+    minHours: 3,
+    adultsCapacity: 4,
+    kidsCapacity: 2,
+    petFriendly: true,
+    petFee: 500,
+    amenities: ["Air Conditioned", "Private Garden Patio", "Kitchenette", "Hot Geyser"],
+    currentGuestName: "Rajesh Kumar & Family",
+    currentGuestPhone: "+91 97000 44551",
+    currentGuestFolio: "FOL-905",
+    expectedCheckoutTime: "11:30 AM Today (Departing)",
+    standardCheckInTime: "02:00 PM",
+    standardCheckOutTime: "11:00 AM",
+    keyDoorCode: "🔑 4281#",
+    imageUrl: "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "unit-4",
+    unitNumber: "Villa V-01",
+    name: "Heritage Teak Private Pool Villa",
+    category: "villa",
+    status: "vacant",
+    ratePerDay: 7500,
+    ratePerHour: 950,
+    minHours: 4,
+    adultsCapacity: 6,
+    kidsCapacity: 4,
+    petFriendly: true,
+    petFee: 750,
+    amenities: ["Private Plunge Pool", "2 King Suites", "Lawn Gazebo", "Butler Call Bell"],
+    standardCheckInTime: "02:00 PM",
+    standardCheckOutTime: "11:00 AM",
+    keyDoorCode: "🔑 8820#",
+    imageUrl: "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "unit-5",
+    unitNumber: "Dome D-03",
+    name: "Lakeside Geodesic Glamping Dome",
+    category: "glamping_dome",
+    status: "vacant",
+    ratePerDay: 3800,
+    ratePerHour: 480,
+    minHours: 3,
+    adultsCapacity: 2,
+    kidsCapacity: 1,
+    petFriendly: false,
+    petFee: 0,
+    amenities: ["Stargazing Skylight", "AC Climate Control", "Attached Luxury Bath", "Deck Sunbed"],
+    standardCheckInTime: "02:00 PM",
+    standardCheckOutTime: "11:00 AM",
+    keyDoorCode: "🔑 D-303",
+    imageUrl: "https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "unit-6",
+    unitNumber: "Pitch P-05",
+    name: "Alpine Pine-Woods Pitch (BYOT)",
+    category: "pitch",
+    status: "vacant",
+    ratePerDay: 1200,
+    ratePerHour: 180,
+    minHours: 3,
+    adultsCapacity: 4,
+    kidsCapacity: 2,
+    petFriendly: true,
+    petFee: 300,
+    amenities: ["Level Grass Ground", "Campfire Pit", "Power Socket", "Water Point"],
+    standardCheckInTime: "01:00 PM",
+    standardCheckOutTime: "11:00 AM",
+    keyDoorCode: "P-05 Ground",
+    imageUrl: "https://images.unsplash.com/photo-1496545672447-f699b503d270?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "unit-7",
+    unitNumber: "Cottage C-01",
+    name: "Lakeview Teak Cottage",
+    category: "cottage",
+    status: "dirty",
+    ratePerDay: 4200,
+    ratePerHour: 500,
+    minHours: 3,
+    adultsCapacity: 3,
+    kidsCapacity: 2,
+    petFriendly: false,
+    petFee: 0,
+    amenities: ["Lakeside Balcony", "Air Conditioned", "Attached Bath"],
+    expectedCheckoutTime: "Departed (Housekeeping In-Progress)",
+    standardCheckInTime: "02:00 PM",
+    standardCheckOutTime: "11:00 AM",
+    keyDoorCode: "🔑 1109#",
+    imageUrl: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "unit-8",
+    unitNumber: "Suite S-01",
+    name: "Executive Farmhouse Jacuzzi Suite",
+    category: "suite",
+    status: "vacant",
+    ratePerDay: 6200,
+    ratePerHour: 750,
+    minHours: 3,
+    adultsCapacity: 2,
+    kidsCapacity: 2,
+    petFriendly: false,
+    petFee: 0,
+    amenities: ["Private Jacuzzi", "King Bed", "Coffee Machine", "Veranda View"],
+    standardCheckInTime: "02:00 PM",
+    standardCheckOutTime: "11:00 AM",
+    keyDoorCode: "🔑 9090#",
+    imageUrl: "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=600&q=80",
   },
 ];
 
@@ -720,9 +903,19 @@ export default function POSPage() {
   const [guestName, setGuestName] = useState<string>(initialGuestProfiles[0].guestName);
   const [guestPhone, setGuestPhone] = useState<string>(initialGuestProfiles[0].guestPhone);
 
-  // Guest Headcount (Number of Guests / Adults and Number of Kids / Children)
+  // Main POS View: "catalog" (F&B Dining & Activities) vs "rooms" (Real-Time Room & Camp Availability)
+  const [posMainTab, setPosMainTab] = useState<"catalog" | "rooms">("catalog");
+
+  // Room & Camp Inventory & Availability State
+  const [roomUnits, setRoomUnits] = useState<POSRoomUnit[]>(initialPOSRoomUnits);
+  const [roomCategoryFilter, setRoomCategoryFilter] = useState<string>("all");
+  const [roomStatusFilter, setRoomStatusFilter] = useState<string>("all");
+  const [roomSearchQuery, setRoomSearchQuery] = useState<string>("");
+
+  // Guest Headcount (Number of Guests / Adults, Kids, and Pets)
   const [adultsCount, setAdultsCount] = useState<number>(initialGuestProfiles[0].adultsCount);
   const [kidsCount, setKidsCount] = useState<number>(initialGuestProfiles[0].kidsCount);
+  const [petsCount, setPetsCount] = useState<number>(initialGuestProfiles[0].petsCount || 0);
 
   // Add / Register Guest Modal State
   const [isAddGuestModalOpen, setIsAddGuestModalOpen] = useState<boolean>(false);
@@ -733,9 +926,32 @@ export default function POSPage() {
   const [newGuestRoomOrTable, setNewGuestRoomOrTable] = useState<string>("");
   const [newGuestAdults, setNewGuestAdults] = useState<number>(2);
   const [newGuestKids, setNewGuestKids] = useState<number>(0);
+  const [newGuestPets, setNewGuestPets] = useState<number>(0);
   const [newGuestIsCorporate, setNewGuestIsCorporate] = useState<boolean>(false);
   const [newGuestCompany, setNewGuestCompany] = useState<string>("");
   const [newGuestGstin, setNewGuestGstin] = useState<string>("");
+
+  // Walk-in Stay Reservation Modal State
+  const [isRoomBookingModalOpen, setIsRoomBookingModalOpen] = useState<boolean>(false);
+  const [bookingUnit, setBookingUnit] = useState<POSRoomUnit | null>(null);
+  const [stayDurationType, setStayDurationType] = useState<"per_day" | "per_hour">("per_day");
+  const [stayNights, setStayNights] = useState<number>(1);
+  const [stayHours, setStayHours] = useState<number>(4);
+  const [bookingGuestName, setBookingGuestName] = useState<string>("");
+  const [bookingGuestPhone, setBookingGuestPhone] = useState<string>("");
+  const [bookingAdults, setBookingAdults] = useState<number>(2);
+  const [bookingKids, setBookingKids] = useState<number>(0);
+  const [bookingPets, setBookingPets] = useState<number>(0);
+  const [includePetFee, setIncludePetFee] = useState<boolean>(true);
+  const [bookingCheckInTime, setBookingCheckInTime] = useState<string>("Today, 02:00 PM");
+  const [bookingCheckOutTime, setBookingCheckOutTime] = useState<string>("Tomorrow, 11:00 AM");
+  const [activeStayDetails, setActiveStayDetails] = useState<{
+    unitName: string;
+    duration: string;
+    checkIn: string;
+    checkOut: string;
+    type: "per_day" | "per_hour";
+  } | null>(null);
 
   // Corporate B2B details
   const [isB2B, setIsB2B] = useState<boolean>(false);
@@ -836,6 +1052,7 @@ export default function POSPage() {
       setGuestPhone(found.guestPhone);
       setAdultsCount(found.adultsCount);
       setKidsCount(found.kidsCount);
+      setPetsCount(found.petsCount || 0);
       setChargeTarget(found.type === "in_house" ? "room" : "direct");
       if (found.isCorporate) {
         setIsB2B(true);
@@ -857,6 +1074,7 @@ export default function POSPage() {
       setGuestPhone(found.guestPhone);
       setAdultsCount(found.adultsCount);
       setKidsCount(found.kidsCount);
+      setPetsCount(found.petsCount || 0);
       if (found.isCorporate) {
         setIsB2B(true);
         setB2bCompanyName(found.companyName || "");
@@ -886,6 +1104,7 @@ export default function POSPage() {
       folio: newFolio,
       adultsCount: Math.max(1, newGuestAdults),
       kidsCount: Math.max(0, newGuestKids),
+      petsCount: Math.max(0, newGuestPets),
       isCorporate: newGuestIsCorporate,
       companyName: newGuestCompany.trim() || undefined,
       companyGstin: newGuestGstin.trim() || undefined,
@@ -900,6 +1119,7 @@ export default function POSPage() {
     setGuestPhone(created.guestPhone);
     setAdultsCount(created.adultsCount);
     setKidsCount(created.kidsCount);
+    setPetsCount(created.petsCount);
     setChargeTarget(created.type === "in_house" ? "room" : "direct");
 
     if (created.isCorporate && created.companyName) {
@@ -918,9 +1138,168 @@ export default function POSPage() {
     setNewGuestRoomOrTable("");
     setNewGuestAdults(2);
     setNewGuestKids(0);
+    setNewGuestPets(0);
     setNewGuestIsCorporate(false);
     setNewGuestCompany("");
     setNewGuestGstin("");
+  };
+
+  // Open walk-in room booking modal for any room/camp
+  const handleOpenRoomBooking = (unit: POSRoomUnit) => {
+    setBookingUnit(unit);
+    setStayDurationType("per_day");
+    setStayNights(1);
+    setStayHours(unit.minHours || 3);
+    setBookingGuestName(guestName === "Aditya Verma" ? "" : guestName);
+    setBookingGuestPhone(guestPhone === "+91 98480 12345" ? "" : guestPhone);
+    setBookingAdults(adultsCount > 0 ? adultsCount : 2);
+    setBookingKids(kidsCount);
+    setBookingPets(petsCount);
+    setIncludePetFee(unit.petFriendly && petsCount > 0);
+    setBookingCheckInTime("Today, 02:00 PM");
+    setBookingCheckOutTime("Tomorrow, 11:00 AM");
+    setIsRoomBookingModalOpen(true);
+  };
+
+  // Update check-in and departure calculation when stay duration type or hours change
+  const handleDurationTypeChange = (type: "per_day" | "per_hour", nightsVal?: number, hoursVal?: number) => {
+    setStayDurationType(type);
+    const nights = nightsVal !== undefined ? nightsVal : stayNights;
+    const hours = hoursVal !== undefined ? hoursVal : stayHours;
+
+    if (type === "per_day") {
+      setBookingCheckInTime("Today, 02:00 PM");
+      setBookingCheckOutTime(`${nights === 1 ? "Tomorrow" : `In ${nights} Days`}, 11:00 AM`);
+    } else {
+      const now = new Date();
+      const checkInStr = `Today, ${now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`;
+      const departure = new Date(now.getTime() + hours * 60 * 60 * 1000);
+      const checkOutStr = `Today, ${departure.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`;
+      setBookingCheckInTime(checkInStr);
+      setBookingCheckOutTime(checkOutStr);
+    }
+  };
+
+  // Confirm Walk-in Room Booking and Add to Cart & Folio
+  const handleConfirmRoomBooking = () => {
+    if (!bookingUnit) return;
+    const finalGuestName = bookingGuestName.trim() || "Walk-In Stay Guest";
+    const finalGuestPhone = bookingGuestPhone.trim() || "+91 98480 00000";
+
+    const basePrice = stayDurationType === "per_day"
+      ? bookingUnit.ratePerDay * stayNights
+      : bookingUnit.ratePerHour * stayHours;
+
+    const durationLabel = stayDurationType === "per_day"
+      ? `${stayNights} Night(s) Stay`
+      : `${stayHours} Hours Flex Stay`;
+
+    const stayItem: POSItem = {
+      id: `stay-${bookingUnit.id}-${Date.now()}`,
+      name: `${bookingUnit.name} (${bookingUnit.unitNumber}) - ${durationLabel}`,
+      category: "accommodation",
+      price: basePrice,
+      taxRate: 0.12, // 12% GST on room accommodation
+      sacCode: "996311",
+      available: true,
+      unit: stayDurationType === "per_day" ? `${stayNights} nt` : `${stayHours} hrs`,
+      description: `Check-in: ${bookingCheckInTime} | Check-out: ${bookingCheckOutTime}`,
+    };
+
+    const newCartItems = [...cart, { item: stayItem, quantity: 1 }];
+
+    // If pets are included and unit is pet friendly
+    if (includePetFee && bookingPets > 0 && bookingUnit.petFriendly && bookingUnit.petFee > 0) {
+      const petItem: POSItem = {
+        id: `pet-fee-${Date.now()}`,
+        name: `Pet Stay & Sanitation Fee (${bookingPets} Pet${bookingPets > 1 ? "s" : ""})`,
+        category: "other",
+        price: bookingUnit.petFee * bookingPets,
+        taxRate: 0.18,
+        sacCode: "9997",
+        available: true,
+        unit: `${bookingPets} pet`,
+        description: `Deep-clean sanitization fee for ${bookingUnit.unitNumber}`,
+      };
+      newCartItems.push({ item: petItem, quantity: 1 });
+    }
+
+    setCart(newCartItems);
+
+    // Register / update guest profile
+    const newFolio = `FOL-${Math.floor(100 + Math.random() * 900)}`;
+    const newProfile: POSGuestProfile = {
+      id: `gst-${Date.now()}`,
+      guestName: finalGuestName,
+      guestPhone: finalGuestPhone,
+      roomOrPitch: `${bookingUnit.name} (${bookingUnit.unitNumber})`,
+      folio: newFolio,
+      adultsCount: bookingAdults,
+      kidsCount: bookingKids,
+      petsCount: bookingPets,
+      isCorporate: false,
+      type: "in_house",
+      stayType: stayDurationType,
+      stayDuration: stayDurationType === "per_day" ? stayNights : stayHours,
+      checkInTime: bookingCheckInTime,
+      checkOutTime: bookingCheckOutTime,
+      unitId: bookingUnit.id,
+      checkInDate: new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
+    };
+
+    setRegisteredGuests((prev) => [newProfile, ...prev]);
+    setSelectedGuestId(newProfile.id);
+    setSelectedRoom(newProfile.roomOrPitch);
+    setGuestName(newProfile.guestName);
+    setGuestPhone(newProfile.guestPhone);
+    setAdultsCount(bookingAdults);
+    setKidsCount(bookingKids);
+    setPetsCount(bookingPets);
+    setChargeTarget("room");
+
+    setActiveStayDetails({
+      unitName: `${bookingUnit.name} (${bookingUnit.unitNumber})`,
+      duration: durationLabel,
+      checkIn: bookingCheckInTime,
+      checkOut: bookingCheckOutTime,
+      type: stayDurationType,
+    });
+
+    // Mark unit as occupied in roomUnits
+    setRoomUnits((prev) =>
+      prev.map((u) =>
+        u.id === bookingUnit.id
+          ? {
+              ...u,
+              status: "occupied" as POSUnitStatus,
+              currentGuestName: finalGuestName,
+              currentGuestPhone: finalGuestPhone,
+              currentGuestFolio: newFolio,
+              expectedCheckoutTime: bookingCheckOutTime,
+            }
+          : u
+      )
+    );
+
+    setIsRoomBookingModalOpen(false);
+  };
+
+  // Mark room clean & vacant
+  const handleMarkUnitClean = (unitId: string) => {
+    setRoomUnits((prev) =>
+      prev.map((u) =>
+        u.id === unitId
+          ? {
+              ...u,
+              status: "vacant" as POSUnitStatus,
+              currentGuestName: undefined,
+              currentGuestPhone: undefined,
+              currentGuestFolio: undefined,
+              expectedCheckoutTime: undefined,
+            }
+          : u
+      )
+    );
   };
 
   // Handler to charge a per-head package (Adults & Kids breakdown in INR ₹)
@@ -1125,6 +1504,26 @@ export default function POSPage() {
     });
   }, [catalogItems, selectedCategory, searchQuery]);
 
+  // Room Availability Statistics & Filtering
+  const vacantRoomsCount = useMemo(() => roomUnits.filter((r) => r.status === "vacant").length, [roomUnits]);
+  const readyToVacantCount = useMemo(() => roomUnits.filter((r) => r.status === "ready_to_vacant").length, [roomUnits]);
+  const occupiedRoomsCount = useMemo(() => roomUnits.filter((r) => r.status === "occupied").length, [roomUnits]);
+  const dirtyRoomsCount = useMemo(() => roomUnits.filter((r) => r.status === "dirty").length, [roomUnits]);
+
+  const filteredRoomUnits = useMemo(() => {
+    return roomUnits.filter((u) => {
+      const matchCat = roomCategoryFilter === "all" || u.category === roomCategoryFilter;
+      const matchStatus = roomStatusFilter === "all" || u.status === roomStatusFilter;
+      const matchSearch =
+        !roomSearchQuery ||
+        u.name.toLowerCase().includes(roomSearchQuery.toLowerCase()) ||
+        u.unitNumber.toLowerCase().includes(roomSearchQuery.toLowerCase()) ||
+        (u.currentGuestName && u.currentGuestName.toLowerCase().includes(roomSearchQuery.toLowerCase())) ||
+        u.amenities.some((a) => a.toLowerCase().includes(roomSearchQuery.toLowerCase()));
+      return matchCat && matchStatus && matchSearch;
+    });
+  }, [roomUnits, roomCategoryFilter, roomStatusFilter, roomSearchQuery]);
+
   // Handle Add Custom Item (Flat vs Per Person in INR ₹)
   const handleAddCustomItem = () => {
     if (!customItemName.trim()) return;
@@ -1274,6 +1673,8 @@ export default function POSPage() {
       guestPhone: guestPhone.trim() || undefined,
       adultsCount,
       kidsCount,
+      petsCount: petsCount || 0,
+      stayDetails: activeStayDetails || undefined,
       roomOrPitch: chargeTarget === "room" ? selectedRoom : "Direct POS Counter",
       items: cart.map((c) => ({
         name: c.item.name,
@@ -1667,265 +2068,637 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
 
       {/* Main Two-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Catalog Filter & Items Grid (7 cols) */}
+        {/* Left Column: Catalog Filter & Items Grid or Rooms Availability Grid (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
-          {/* Search bar + Custom Item Quick Add */}
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search catalog by dish, package, ride, or SAC code in INR (₹)..."
-                className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsCustomModalOpen(true)}
-              className="text-xs h-9 gap-1.5 font-semibold shrink-0 border-dashed border-primary/40 text-primary hover:bg-primary/5"
+          {/* Main POS Operations Tab Switcher: F&B Dining & Activities Catalog vs Rooms & Camps Availability */}
+          <div className="flex items-center justify-between p-1 rounded-xl bg-muted/60 border border-border shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setPosMainTab("catalog")}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                posMainTab === "catalog"
+                  ? "bg-background text-foreground shadow-xs border border-border"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
-              <Plus className="h-3.5 w-3.5" />
-              <span>+ Custom Charge</span>
-            </Button>
+              <Utensils className="h-4 w-4 text-primary" />
+              <span>Dining &amp; Activities Catalog</span>
+              <Badge variant="clean" className="text-[10px] py-0 px-1.5 ml-1">
+                {catalogItems.length}
+              </Badge>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPosMainTab("rooms")}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                posMainTab === "rooms"
+                  ? "bg-background text-foreground shadow-xs border border-border"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <BedDouble className="h-4 w-4 text-emerald-600" />
+              <span>Rooms &amp; Camps Availability</span>
+              <Badge variant="outline" className="text-[10px] py-0 px-1.5 ml-1 bg-emerald-500/10 text-emerald-700 border-emerald-500/30 font-bold">
+                {vacantRoomsCount} Vacant
+              </Badge>
+            </button>
           </div>
 
-          {/* Headcount Package Quick Billing Banner (Adults & Kids in INR ₹) */}
-          <div className="p-3.5 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent space-y-2.5 shadow-2xs">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          {posMainTab === "catalog" ? (
+            <div className="space-y-4 animate-in fade-in">
+              {/* Search bar + Custom Item Quick Add */}
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary shrink-0">
-                  <Users className="h-4 w-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                    <span>Charge Per Guest (Adults & Kids Packages)</span>
-                    <span className="text-[10px] bg-emerald-500/15 text-emerald-700 font-mono px-1.5 py-0.2 rounded font-semibold">
-                      INR (₹)
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    Target: <strong className="text-foreground">{guestName}</strong> • {adultsCount} Adult{adultsCount !== 1 ? "s" : ""}, {kidsCount} Kid{kidsCount !== 1 ? "s" : ""} (Total: {adultsCount + kidsCount} Pax)
-                  </p>
-                </div>
-              </div>
-
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setIsAddGuestModalOpen(true)}
-                className="text-[11px] h-7 gap-1 font-semibold border-border bg-background hover:bg-muted"
-              >
-                <UserPlus className="h-3.5 w-3.5 text-primary" />
-                <span>+ Add / Switch Guest</span>
-              </Button>
-            </div>
-
-            {/* Quick Headcount Package Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-0.5">
-              {headcountPackages.map((pkg) => {
-                const calculatedTotal = (pkg.adultRate * adultsCount) + (pkg.kidRate * kidsCount);
-                return (
-                  <div
-                    key={pkg.id}
-                    className="p-2.5 rounded-lg border border-border/70 bg-card hover:border-primary/50 transition-all space-y-1.5 flex flex-col justify-between shadow-2xs"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="font-bold text-xs text-foreground truncate" title={pkg.name}>
-                          {pkg.name}
-                        </span>
-                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-muted text-muted-foreground shrink-0 font-medium">
-                          {pkg.badge}
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">
-                        Adult: <strong className="text-foreground">₹{pkg.adultRate}</strong> • Kid: <strong className="text-foreground">₹{pkg.kidRate}</strong>
-                      </div>
-                    </div>
-
-                    <Button
-                      size="sm"
-                      onClick={() => handleChargeHeadcountPackage(pkg)}
-                      className="w-full h-7 text-[11px] font-bold bg-primary hover:bg-primary/90 text-primary-foreground gap-1 justify-between px-2"
+                <div className="relative flex-1">
+                  <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search catalog by dish, package, ride, or SAC code in INR (₹)..."
+                    className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
                     >
-                      <span>+ {adultsCount}A + {kidsCount}K</span>
-                      <span className="font-mono">₹{calculatedTotal.toLocaleString()}</span>
-                    </Button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                      ✕
+                    </button>
+                  )}
+                </div>
 
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-none">
-            {[
-              { id: "all", label: "All Items", icon: ShoppingBag, count: catalogItems.length },
-              { id: "food", label: "F&B Dining", icon: Utensils, count: catalogItems.filter((i) => i.category === "food").length },
-              { id: "beverage", label: "Beverages & Cafe", icon: Coffee, count: catalogItems.filter((i) => i.category === "beverage").length },
-              { id: "bbq_campfire", label: "BBQ & Campfire", icon: Flame, count: catalogItems.filter((i) => i.category === "bbq_campfire").length },
-              { id: "activities", label: "Activities & Rides", icon: Bike, count: catalogItems.filter((i) => i.category === "activities").length },
-              { id: "farm_produce", label: "Farm Fresh", icon: Sparkles, count: catalogItems.filter((i) => i.category === "farm_produce").length },
-            ].map((cat) => {
-              const Icon = cat.icon;
-              const isSelected = selectedCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors min-h-[38px] ${
-                    isSelected
-                      ? "bg-primary text-primary-foreground shadow-xs"
-                      : "bg-card border border-border text-muted-foreground hover:bg-muted/60"
-                  }`}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsCustomModalOpen(true)}
+                  className="text-xs h-9 gap-1.5 font-semibold shrink-0 border-dashed border-primary/40 text-primary hover:bg-primary/5"
                 >
-                  <Icon className="h-3.5 w-3.5" />
-                  <span>{cat.label}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                      isSelected ? "bg-primary-foreground/20 text-white" : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {cat.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Catalog Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[720px] overflow-y-auto pr-1">
-            {filteredItems.length === 0 ? (
-              <div className="col-span-full py-16 text-center text-muted-foreground bg-muted/20 border border-dashed rounded-xl">
-                <ShoppingBag className="h-8 w-8 mx-auto opacity-30 mb-2" />
-                <p className="text-sm font-semibold">No items match your filter</p>
-                <p className="text-xs text-muted-foreground mt-1">Try another search or click "+ Custom Charge" to add on-the-fly.</p>
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>+ Custom Charge</span>
+                </Button>
               </div>
-            ) : (
-              filteredItems.map((item) => {
-                const inCart = cart.find((c) => c.item.id === item.id);
-                const kidPrice = item.kidPrice !== undefined ? item.kidPrice : Math.round(item.price * 0.5);
-                const headcountTotal = (item.price * adultsCount) + (kidPrice * kidsCount);
 
-                return (
-                  <Card
-                    key={item.id}
-                    className={`hover:border-primary/50 transition-all cursor-pointer select-none bg-card ${
-                      inCart ? "border-primary/40 bg-primary/5" : "border-border"
-                    }`}
-                    onClick={() => addToCart(item)}
+              {/* Headcount Package Quick Billing Banner (Adults & Kids in INR ₹) */}
+              <div className="p-3.5 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent space-y-2.5 shadow-2xs">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                        <span>Charge Per Guest (Adults &amp; Kids Packages)</span>
+                        <span className="text-[10px] bg-emerald-500/15 text-emerald-700 font-mono px-1.5 py-0.2 rounded font-semibold">
+                          INR (₹)
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        Target: <strong className="text-foreground">{guestName}</strong> • {adultsCount} Adult{adultsCount !== 1 ? "s" : ""}, {kidsCount} Kid{kidsCount !== 1 ? "s" : ""}{petsCount > 0 ? `, ${petsCount} Pet${petsCount > 1 ? "s" : ""}` : ""} (Total: {adultsCount + kidsCount} Pax)
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsAddGuestModalOpen(true)}
+                    className="text-[11px] h-7 gap-1 font-semibold border-border bg-background hover:bg-muted"
                   >
-                    <CardContent className="p-3.5 flex flex-col justify-between h-full gap-2">
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
-                            <span className="font-bold text-xs sm:text-sm text-foreground leading-tight truncate">
-                              {item.name}
+                    <UserPlus className="h-3.5 w-3.5 text-primary" />
+                    <span>+ Add / Switch Guest</span>
+                  </Button>
+                </div>
+
+                {/* Quick Headcount Package Cards Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-0.5">
+                  {headcountPackages.map((pkg) => {
+                    const calculatedTotal = (pkg.adultRate * adultsCount) + (pkg.kidRate * kidsCount);
+                    return (
+                      <div
+                        key={pkg.id}
+                        className="p-2.5 rounded-lg border border-border/70 bg-card hover:border-primary/50 transition-all space-y-1.5 flex flex-col justify-between shadow-2xs"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="font-bold text-xs text-foreground truncate" title={pkg.name}>
+                              {pkg.name}
                             </span>
-                            {item.unit && (
-                              <span className="text-[10px] text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded shrink-0">
-                                {item.unit}
+                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-muted text-muted-foreground shrink-0 font-medium">
+                              {pkg.badge}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-muted-foreground mt-0.5">
+                            Adult: <strong className="text-foreground">₹{pkg.adultRate}</strong> • Kid: <strong className="text-foreground">₹{pkg.kidRate}</strong>
+                          </div>
+                        </div>
+
+                        <Button
+                          size="sm"
+                          onClick={() => handleChargeHeadcountPackage(pkg)}
+                          className="w-full text-[11px] h-7 font-bold bg-primary hover:bg-primary/90 text-primary-foreground gap-1 justify-between shadow-2xs"
+                        >
+                          <span>+ {adultsCount}A + {kidsCount}K</span>
+                          <span className="font-mono">₹{calculatedTotal.toLocaleString()}</span>
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Category Filter Tabs */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                {[
+                  { id: "all", label: "All Items", icon: ShoppingBag },
+                  { id: "food", label: "F&B Dining", icon: Utensils },
+                  { id: "beverage", label: "Beverages & Cafe", icon: Coffee },
+                  { id: "bbq_campfire", label: "BBQ & Campfire", icon: Flame },
+                  { id: "activities", label: "Activities & Rides", icon: Bike },
+                  { id: "accommodation", label: "Stay Packages", icon: BedDouble },
+                  { id: "farm_produce", label: "Farm Fresh", icon: Sparkles },
+                ].map((cat) => {
+                  const Icon = cat.icon;
+                  const isActive = selectedCategory === cat.id;
+                  const count =
+                    cat.id === "all"
+                      ? catalogItems.length
+                      : catalogItems.filter((i) => i.category === cat.id).length;
+
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                          : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      <span>{cat.label}</span>
+                      <span
+                        className={`text-[10px] rounded-full px-1.5 py-0.2 ${
+                          isActive
+                            ? "bg-primary-foreground/20 text-primary-foreground"
+                            : "bg-background/80 text-muted-foreground"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Items Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[580px] overflow-y-auto pr-1">
+                {filteredItems.length === 0 ? (
+                  <div className="col-span-2 py-12 text-center text-muted-foreground space-y-2">
+                    <Store className="h-8 w-8 mx-auto opacity-30" />
+                    <div className="text-sm font-semibold">No catalog items found</div>
+                    <div className="text-xs">Try clearing the search query or switching categories.</div>
+                  </div>
+                ) : (
+                  filteredItems.map((item) => {
+                    const inCart = cart.find((c) => c.item.id === item.id);
+                    const kidPrice = item.kidPrice !== undefined ? item.kidPrice : Math.round(item.price * 0.5);
+                    const headcountTotal = (item.price * adultsCount) + (kidPrice * kidsCount);
+
+                    return (
+                      <Card
+                        key={item.id}
+                        className={`hover:border-primary/50 transition-all cursor-pointer select-none bg-card ${
+                          inCart ? "border-primary/40 bg-primary/5" : "border-border"
+                        }`}
+                        onClick={() => addToCart(item)}
+                      >
+                        <CardContent className="p-3.5 flex flex-col justify-between h-full gap-2">
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+                                <span className="font-bold text-xs sm:text-sm text-foreground leading-tight truncate">
+                                  {item.name}
+                                </span>
+                                {item.unit && (
+                                  <span className="text-[10px] text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded shrink-0">
+                                    {item.unit}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="shrink-0">
+                                {inCart ? (
+                                  <div
+                                    className="flex items-center gap-1 bg-background rounded-lg p-0.5 border border-primary/30 shadow-2xs"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <button
+                                      onClick={() => removeFromCart(item.id)}
+                                      className="h-6 w-6 rounded bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 text-xs font-bold transition-colors"
+                                    >
+                                      <Minus className="h-3 w-3" />
+                                    </button>
+                                    <span className="font-extrabold text-xs px-1 text-foreground min-w-[14px] text-center">
+                                      {inCart.quantity}
+                                    </span>
+                                    <button
+                                      onClick={() => addToCart(item)}
+                                      className="h-6 w-6 rounded bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold hover:bg-primary/90 transition-colors"
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-7 w-7 p-0 rounded-lg border-border hover:border-primary hover:bg-primary hover:text-white transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      addToCart(item);
+                                    }}
+                                  >
+                                    <Plus className="h-3.5 w-3.5" />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+
+                            {item.description && (
+                              <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                                {item.description}
+                              </p>
+                            )}
+
+                            <div className="flex items-center gap-2 pt-1">
+                              <span className="text-base font-extrabold text-rentcot-blue">
+                                ₹{item.price.toLocaleString()}
                               </span>
+                              {item.kidPrice && (
+                                <span className="text-[11px] text-muted-foreground font-medium">
+                                  (Kid: ₹{item.kidPrice})
+                                </span>
+                              )}
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] font-mono border-border text-muted-foreground ml-auto"
+                              >
+                                SAC {item.sacCode} • {(item.taxRate * 100).toFixed(0)}% GST
+                              </Badge>
+                            </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-border/50 flex items-center justify-between gap-1">
+                            <span className="text-[10px] text-muted-foreground">
+                              1-Click Bill for Guests:
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleChargeItemForGuests(item);
+                              }}
+                              className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-colors shrink-0"
+                              title={`Charge for ${adultsCount} Adults + ${kidsCount} Kids in INR (₹)`}
+                            >
+                              <Users className="h-3 w-3" />
+                              <span>Charge {adultsCount}A + {kidsCount}K (₹{headcountTotal.toLocaleString()})</span>
+                            </button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Real-Time Rooms & Camps Availability View */
+            <div className="space-y-4 animate-in fade-in">
+              {/* Operational KPI Strip */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 flex items-center gap-2.5 shadow-2xs">
+                  <div className="h-8 w-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-700 font-bold shrink-0">
+                    <DoorOpen className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-emerald-800 uppercase font-bold block">Vacant &amp; Ready</span>
+                    <div className="text-base font-black text-emerald-700">{vacantRoomsCount} Units</div>
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-center gap-2.5 shadow-2xs">
+                  <div className="h-8 w-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-700 font-bold shrink-0">
+                    <Clock className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-amber-800 uppercase font-bold block">Checkout Today</span>
+                    <div className="text-base font-black text-amber-700">{readyToVacantCount} Units</div>
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-xl border border-blue-500/30 bg-blue-500/10 flex items-center gap-2.5 shadow-2xs">
+                  <div className="h-8 w-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-700 font-bold shrink-0">
+                    <BedDouble className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-blue-800 uppercase font-bold block">In-House Occupied</span>
+                    <div className="text-base font-black text-blue-700">{occupiedRoomsCount} Units</div>
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-xl border border-purple-500/30 bg-purple-500/10 flex items-center gap-2.5 shadow-2xs">
+                  <div className="h-8 w-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-700 font-bold shrink-0">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-purple-800 uppercase font-bold block">Housekeeping / Dirty</span>
+                    <div className="text-base font-black text-purple-700">{dirtyRoomsCount} Units</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters & Search Row */}
+              <div className="p-3 rounded-xl border border-border bg-card space-y-2.5 shadow-2xs">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                  <div className="relative flex-1">
+                    <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={roomSearchQuery}
+                      onChange={(e) => setRoomSearchQuery(e.target.value)}
+                      placeholder="Search room number, tent, villa, guest, or amenity in INR (₹)..."
+                      className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-2xs"
+                    />
+                    {roomSearchQuery && (
+                      <button
+                        onClick={() => setRoomSearchQuery("")}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {/* Status Filter */}
+                    <select
+                      value={roomStatusFilter}
+                      onChange={(e) => setRoomStatusFilter(e.target.value)}
+                      className="p-2 text-xs rounded-lg border border-border bg-background text-foreground font-semibold"
+                    >
+                      <option value="all">All Statuses ({roomUnits.length})</option>
+                      <option value="vacant">🟢 Vacant Only ({vacantRoomsCount})</option>
+                      <option value="ready_to_vacant">🟡 Departing Today ({readyToVacantCount})</option>
+                      <option value="occupied">🔴 Occupied ({occupiedRoomsCount})</option>
+                      <option value="dirty">🧹 Housekeeping ({dirtyRoomsCount})</option>
+                    </select>
+
+                    {/* Category Filter */}
+                    <select
+                      value={roomCategoryFilter}
+                      onChange={(e) => setRoomCategoryFilter(e.target.value)}
+                      className="p-2 text-xs rounded-lg border border-border bg-background text-foreground font-semibold"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="tent">🎪 Tents &amp; Camps</option>
+                      <option value="cottage">🏡 Cottages</option>
+                      <option value="villa">🏰 Villas</option>
+                      <option value="glamping_dome">🔮 Glamping Domes</option>
+                      <option value="suite">🛋️ Suites</option>
+                      <option value="pitch">🏕️ Pitches</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-border/60">
+                  <span>
+                    Showing <strong>{filteredRoomUnits.length}</strong> physical accommodation keys at <strong>Green Valley Farmhouse</strong>
+                  </span>
+                  <span className="text-emerald-700 font-semibold font-mono">
+                    Check-in: 02:00 PM • Checkout: 11:00 AM • Hourly Flex Available
+                  </span>
+                </div>
+              </div>
+
+              {/* Room & Camp Availability Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-h-[580px] overflow-y-auto pr-1">
+                {filteredRoomUnits.length === 0 ? (
+                  <div className="col-span-full py-12 text-center text-muted-foreground space-y-2 border border-dashed border-border rounded-xl bg-muted/10">
+                    <BedDouble className="h-8 w-8 mx-auto opacity-30" />
+                    <div className="text-sm font-semibold text-foreground">No rooms or camps match your filter</div>
+                    <div className="text-xs">Adjust your status, category, or search filters above.</div>
+                  </div>
+                ) : (
+                  filteredRoomUnits.map((unit) => {
+                    const isVacant = unit.status === "vacant";
+                    const isReady = unit.status === "ready_to_vacant";
+                    const isOccupied = unit.status === "occupied";
+                    const isDirty = unit.status === "dirty";
+
+                    return (
+                      <Card
+                        key={unit.id}
+                        className={`overflow-hidden border transition-all flex flex-col justify-between shadow-2xs ${
+                          isVacant
+                            ? "border-emerald-500/40 bg-card hover:border-emerald-500"
+                            : isReady
+                            ? "border-amber-500/40 bg-card hover:border-amber-500"
+                            : isOccupied
+                            ? "border-border/80 bg-muted/10"
+                            : "border-border/60 bg-muted/20"
+                        }`}
+                      >
+                        {/* Cover Image & Header Badges */}
+                        <div className="relative h-32 w-full bg-muted overflow-hidden">
+                          {unit.imageUrl ? (
+                            <Image
+                              src={unit.imageUrl}
+                              alt={unit.name}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="h-full w-full bg-gradient-to-tr from-muted to-muted/40 flex items-center justify-center">
+                              <BedDouble className="h-8 w-8 text-muted-foreground/40" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+
+                          {/* Top Badges */}
+                          <div className="absolute top-2 left-2 flex items-center gap-1.5 flex-wrap">
+                            <Badge className="bg-background/90 text-foreground font-extrabold text-[10px] backdrop-blur-xs border border-border shadow-xs">
+                              {unit.unitNumber}
+                            </Badge>
+                            <Badge variant="outline" className="bg-background/80 text-foreground text-[9px] backdrop-blur-xs capitalize border-border font-medium">
+                              {unit.category.replace("_", " ")}
+                            </Badge>
+                          </div>
+
+                          <div className="absolute top-2 right-2">
+                            {isVacant && (
+                              <Badge className="bg-emerald-600 text-white font-bold text-[10px] shadow-sm">
+                                🟢 Vacant &amp; Ready
+                              </Badge>
+                            )}
+                            {isReady && (
+                              <Badge className="bg-amber-600 text-white font-bold text-[10px] shadow-sm">
+                                🟡 Checkout Today
+                              </Badge>
+                            )}
+                            {isOccupied && (
+                              <Badge className="bg-red-600 text-white font-bold text-[10px] shadow-sm">
+                                🔴 Occupied
+                              </Badge>
+                            )}
+                            {isDirty && (
+                              <Badge className="bg-purple-700 text-white font-bold text-[10px] shadow-sm">
+                                🧹 Housekeeping
+                              </Badge>
                             )}
                           </div>
 
-                          <div className="shrink-0">
-                            {inCart ? (
-                              <div
-                                className="flex items-center gap-1 bg-background rounded-lg p-0.5 border border-primary/30 shadow-2xs"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <button
-                                  onClick={() => removeFromCart(item.id)}
-                                  className="h-6 w-6 rounded bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 text-xs font-bold transition-colors"
-                                >
-                                  <Minus className="h-3 w-3" />
-                                </button>
-                                <span className="font-extrabold text-xs px-1 text-foreground min-w-[14px] text-center">
-                                  {inCart.quantity}
+                          {/* Bottom Title on Image */}
+                          <div className="absolute bottom-2 left-2.5 right-2.5 text-white">
+                            <h4 className="font-bold text-xs sm:text-sm drop-shadow-md truncate">
+                              {unit.name}
+                            </h4>
+                            <div className="flex items-center gap-2 text-[10px] text-white/90 font-mono">
+                              <span>Per Day: ₹{unit.ratePerDay.toLocaleString("en-IN")}</span>
+                              <span>•</span>
+                              <span>Per Hr: ₹{unit.ratePerHour.toLocaleString("en-IN")}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Card Body Details */}
+                        <div className="p-3 space-y-2.5 flex-1 flex flex-col justify-between text-xs">
+                          <div className="space-y-1.5">
+                            {/* Rates and Timings Strip */}
+                            <div className="grid grid-cols-2 gap-1.5 p-2 rounded-lg bg-muted/40 border border-border/70 text-[11px]">
+                              <div>
+                                <span className="text-[9px] text-muted-foreground uppercase font-bold block">
+                                  Standard Timings
                                 </span>
-                                <button
-                                  onClick={() => addToCart(item)}
-                                  className="h-6 w-6 rounded bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold hover:bg-primary/90 transition-colors"
-                                >
-                                  <Plus className="h-3 w-3" />
-                                </button>
+                                <div className="font-semibold text-foreground">
+                                  In: {unit.standardCheckInTime} • Out: {unit.standardCheckOutTime}
+                                </div>
                               </div>
+                              <div>
+                                <span className="text-[9px] text-muted-foreground uppercase font-bold block">
+                                  Flexible Hourly Rate
+                                </span>
+                                <div className="font-semibold text-rentcot-blue font-mono">
+                                  ₹{unit.ratePerHour}/hr (min {unit.minHours || 3}h)
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Occupancy or Expected Checkout notice */}
+                            {(isReady || isOccupied) && (
+                              <div className={`p-2 rounded-lg text-[10px] border ${
+                                isReady
+                                  ? "bg-amber-500/10 border-amber-500/30 text-amber-900"
+                                  : "bg-blue-500/10 border-blue-500/30 text-blue-900"
+                              }`}>
+                                <div className="font-bold flex items-center justify-between">
+                                  <span>Guest: {unit.currentGuestName || "In-House Guest"}</span>
+                                  {unit.currentGuestFolio && <span className="font-mono">{unit.currentGuestFolio}</span>}
+                                </div>
+                                <div className="text-[10px] mt-0.5 opacity-90">
+                                  {isReady ? `Expected Checkout: ${unit.expectedCheckoutTime}` : `Checkout: ${unit.standardCheckOutTime}`}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Capacity and Pet policy */}
+                            <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Users className="h-3.5 w-3.5 text-foreground" />
+                                <span>Up to {unit.adultsCapacity} Adults, {unit.kidsCapacity} Kids</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Dog className={`h-3.5 w-3.5 ${unit.petFriendly ? "text-orange-600" : "text-muted-foreground/50"}`} />
+                                <span className={unit.petFriendly ? "text-orange-700 font-semibold" : ""}>
+                                  {unit.petFriendly ? `Pet Friendly (₹{unit.petFee})` : "No Pets"}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Amenities Chips */}
+                            <div className="flex items-center gap-1 flex-wrap pt-0.5">
+                              {unit.amenities.map((amenity, idx) => (
+                                <span
+                                  key={idx}
+                                  className="text-[9px] bg-muted/60 text-muted-foreground px-1.5 py-0.5 rounded border border-border/50"
+                                >
+                                  {amenity}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Action Button */}
+                          <div className="pt-2 border-t border-border/60">
+                            {isVacant ? (
+                              <Button
+                                size="sm"
+                                onClick={() => handleOpenRoomBooking(unit)}
+                                className="w-full h-8 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-xs"
+                              >
+                                <DoorOpen className="h-3.5 w-3.5" />
+                                <span>Book Walk-in Stay (Day / Hour)</span>
+                              </Button>
+                            ) : isReady ? (
+                              <div className="space-y-1">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleOpenRoomBooking(unit)}
+                                  className="w-full h-8 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white gap-1.5 shadow-xs"
+                                >
+                                  <Clock className="h-3.5 w-3.5" />
+                                  <span>Pre-Book Next Walk-in (After 12 PM)</span>
+                                </Button>
+                              </div>
+                            ) : isOccupied ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  const guest = registeredGuests.find((g) => g.roomOrPitch.includes(unit.unitNumber));
+                                  if (guest) {
+                                    handleSelectGuest(guest.id);
+                                    setPosMainTab("catalog");
+                                  } else {
+                                    alert(`In-house guest details: ${unit.currentGuestName} (${unit.currentGuestPhone || "No phone"})`);
+                                  }
+                                }}
+                                className="w-full h-8 text-xs font-semibold border-border gap-1.5 hover:bg-muted"
+                              >
+                                <Eye className="h-3.5 w-3.5 text-primary" />
+                                <span>View Active Guest Folio</span>
+                              </Button>
                             ) : (
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="h-7 w-7 p-0 rounded-lg border-border hover:border-primary hover:bg-primary hover:text-white transition-colors"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  addToCart(item);
-                                }}
+                                onClick={() => handleMarkUnitClean(unit.id)}
+                                className="w-full h-8 text-xs font-semibold text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/10 gap-1.5"
                               >
-                                <Plus className="h-3.5 w-3.5" />
+                                <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                                <span>Mark Clean &amp; Vacant</span>
                               </Button>
                             )}
                           </div>
                         </div>
-
-                        {item.description && (
-                          <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
-                            {item.description}
-                          </p>
-                        )}
-
-                        <div className="flex items-center gap-2 pt-1">
-                          <span className="text-base font-extrabold text-rentcot-blue">
-                            ₹{item.price.toLocaleString()}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">
-                            SAC {item.sacCode} • +{(item.taxRate * 100).toFixed(0)}% GST
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Headcount Charging Action Button */}
-                      <div
-                        className="pt-2 border-t border-border/50 flex items-center justify-between gap-1.5"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <span className="text-[10px] text-muted-foreground">
-                          {item.isPerPerson ? (
-                            <span className="text-emerald-700 font-semibold flex items-center gap-1">
-                              <Users className="h-3 w-3" /> Adult ₹{item.price} • Kid ₹{kidPrice}
-                            </span>
-                          ) : (
-                            <span>Per Unit Rate</span>
-                          )}
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={() => handleChargeItemForGuests(item)}
-                          className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-colors shrink-0"
-                          title={`Charge for ${adultsCount} Adults + ${kidsCount} Kids in INR (₹)`}
-                        >
-                          <Users className="h-3 w-3" />
-                          <span>Charge {adultsCount}A + {kidsCount}K (₹{headcountTotal.toLocaleString()})</span>
-                        </button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })
-            )}
-          </div>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Column: Active Cart, Split Tenders & Invoicing Panel (5 cols) */}
@@ -1994,8 +2767,8 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                   </div>
                 </div>
 
-                {/* Headcount Steppers: Adults & Kids in INR (₹) */}
-                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/60">
+                {/* Headcount Steppers: Adults, Kids & Pets in INR (₹) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 border-t border-border/60">
                   {/* Adults Count Stepper */}
                   <div className="p-2 rounded-lg bg-background border border-border flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
@@ -2038,7 +2811,7 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                       <Baby className="h-3.5 w-3.5 text-amber-600 shrink-0" />
                       <div>
                         <div className="text-[9px] text-muted-foreground font-semibold uppercase leading-none">
-                          Kids / Child
+                          Kids
                         </div>
                         <div className="text-xs font-extrabold text-foreground">
                           {kidsCount} Kid{kidsCount !== 1 ? "s" : ""}
@@ -2067,14 +2840,82 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                       </button>
                     </div>
                   </div>
+
+                  {/* Pets Count Stepper */}
+                  <div className="p-2 rounded-lg bg-background border border-border flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Dog className="h-3.5 w-3.5 text-orange-600 shrink-0" />
+                      <div>
+                        <div className="text-[9px] text-muted-foreground font-semibold uppercase leading-none">
+                          Pets
+                        </div>
+                        <div className="text-xs font-extrabold text-foreground">
+                          {petsCount} Pet{petsCount !== 1 ? "s" : ""}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setPetsCount((prev) => Math.max(0, prev - 1))}
+                        className="h-6 w-6 rounded bg-muted hover:bg-muted/80 flex items-center justify-center text-foreground font-bold text-xs transition-colors"
+                        title="Decrease Pets"
+                      >
+                        <Minus className="h-3 w-3" />
+                      </button>
+                      <span className="font-extrabold text-xs min-w-[14px] text-center text-foreground">
+                        {petsCount}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setPetsCount((prev) => prev + 1)}
+                        className="h-6 w-6 rounded bg-orange-600 text-white hover:bg-orange-700 flex items-center justify-center font-bold text-xs transition-colors"
+                        title="Increase Pets"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Pet Sanitation Quick Fee Button if pets registered */}
+                {petsCount > 0 && (
+                  <div className="p-2 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-between text-xs animate-in fade-in">
+                    <div className="flex items-center gap-1.5 text-orange-800 text-[11px]">
+                      <Dog className="h-3.5 w-3.5 text-orange-600 shrink-0" />
+                      <span><strong>{petsCount} Pet{petsCount > 1 ? "s" : ""}</strong> Registered (₹500/pet fee)</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const feeItem: POSItem = {
+                          id: `pet-fee-${Date.now()}`,
+                          name: `Pet Stay & Sanitation Fee (${petsCount} Pet${petsCount > 1 ? "s" : ""})`,
+                          category: "other",
+                          price: 500 * petsCount,
+                          taxRate: 0.18,
+                          sacCode: "9997",
+                          available: true,
+                          unit: `${petsCount} pet`,
+                          description: "Deep-clean sanitization fee for pet-friendly stay",
+                        };
+                        addToCart(feeItem);
+                      }}
+                      className="px-2 py-0.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-bold text-[10px] shrink-0 transition-colors shadow-2xs"
+                    >
+                      + Add Pet Fee (₹{(petsCount * 500).toLocaleString("en-IN")})
+                    </button>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-0.5 px-0.5">
                   <span className="flex items-center gap-1">
-                    <span>Total Billable Pax:</span>
-                    <strong className="text-foreground font-bold">{adultsCount + kidsCount} Guests ({adultsCount} Adults, {kidsCount} Kids)</strong>
+                    <span>Total Billable:</span>
+                    <strong className="text-foreground font-bold">
+                      {adultsCount + kidsCount} Guests ({adultsCount}A, {kidsCount}K){petsCount > 0 ? ` • ${petsCount} Pet${petsCount > 1 ? "s" : ""}` : ""}
+                    </strong>
                   </span>
-                  <span className="font-semibold text-emerald-600 font-mono">Currency: INR (₹)</span>
+                  <span className="font-semibold text-emerald-600 font-mono">Deals in INR (₹)</span>
                 </div>
               </div>
 
@@ -2725,12 +3566,21 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                     {/* Guest Headcount & Currency Badges */}
                     <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
                       <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30 font-semibold px-1.5 py-0">
-                        👥 Pax: {activeInvoice.adultsCount || 1} Adult{(activeInvoice.adultsCount || 1) > 1 ? "s" : ""}{activeInvoice.kidsCount ? `, ${activeInvoice.kidsCount} Kid${activeInvoice.kidsCount > 1 ? "s" : ""}` : ""}
+                        👥 Pax: {activeInvoice.adultsCount || 1} Adult{(activeInvoice.adultsCount || 1) > 1 ? "s" : ""}{activeInvoice.kidsCount ? `, ${activeInvoice.kidsCount} Kid${activeInvoice.kidsCount > 1 ? "s" : ""}` : ""}{activeInvoice.petsCount ? `, ${activeInvoice.petsCount} Pet${activeInvoice.petsCount > 1 ? "s" : ""}` : ""}
                       </Badge>
                       <Badge variant="clean" className="text-[10px] font-mono text-emerald-700 bg-emerald-500/10 border-emerald-500/30 px-1.5 py-0">
                         Currency: {activeInvoice.currency || "INR (₹)"}
                       </Badge>
                     </div>
+
+                    {activeInvoice.stayDetails && (
+                      <div className="mt-1.5 p-1.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px]">
+                        <span className="font-bold text-emerald-800">🛏️ Stay Accommodation: </span>
+                        <span className="text-foreground font-semibold">{activeInvoice.stayDetails.unitName} ({activeInvoice.stayDetails.duration})</span>
+                        <div className="text-muted-foreground mt-0.5">In: {activeInvoice.stayDetails.checkIn} • Out: {activeInvoice.stayDetails.checkOut}</div>
+                      </div>
+                    )}
+
                     {activeInvoice.b2bDetails && (
                       <div className="mt-1.5 pt-1.5 border-t border-border/60">
                         <div className="font-bold text-rentcot-blue text-[11px]">
@@ -2747,7 +3597,7 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                       Settlement Details:
                     </span>
                     <div className="font-bold text-foreground">{activeInvoice.paymentMethod}</div>
-                    <div className="text-[11px] text-emerald-600 font-medium">Status: Settled & Cleared</div>
+                    <div className="text-[11px] text-emerald-600 font-medium">Status: Settled &amp; Cleared</div>
                     <div className="text-[10px] text-muted-foreground">Cashier: {activeInvoice.cashierName}</div>
                   </div>
                 </div>
@@ -2783,7 +3633,7 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                 {/* Statutory SAC Tax Summary Breakdown */}
                 <div className="pt-2">
                   <div className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider mb-1">
-                    Statutory Tax Breakdown (CGST & SGST Split)
+                    Statutory Tax Breakdown (CGST &amp; SGST Split)
                   </div>
                   <table className="w-full text-[10px] border-collapse bg-muted/20 rounded border border-border">
                     <thead>
@@ -2870,7 +3720,7 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                     <div className="text-[10px] text-muted-foreground leading-tight">
                       <div>Powered by Rentcot Property OS</div>
                       <div className="text-[9px] text-muted-foreground/80">
-                        Multi-Tenant Hospitality Engine for Resorts, Farmhouses & Camping Retreats
+                        Multi-Tenant Hospitality Engine for Resorts, Farmhouses &amp; Camping Retreats
                       </div>
                     </div>
                   </div>
@@ -2907,8 +3757,19 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                   <div>Guest: {activeInvoice.guestName}</div>
                   <div>Ref: {activeInvoice.roomOrPitch}</div>
                   <div className="text-primary font-semibold">
-                    Pax: {activeInvoice.adultsCount || 1} Adults, {activeInvoice.kidsCount || 0} Kids
+                    Pax: {activeInvoice.adultsCount || 1} Adults, {activeInvoice.kidsCount || 0} Kids{activeInvoice.petsCount ? `, ${activeInvoice.petsCount} Pets` : ""}
                   </div>
+                  {activeInvoice.stayDetails && (
+                    <div className="text-[10px] text-emerald-700 font-semibold border-y border-dashed border-border py-1 my-1 text-left">
+                      Stay: {activeInvoice.stayDetails.unitName}
+                      <br />
+                      Dur: {activeInvoice.stayDetails.duration}
+                      <br />
+                      In: {activeInvoice.stayDetails.checkIn}
+                      <br />
+                      Out: {activeInvoice.stayDetails.checkOut}
+                    </div>
+                  )}
                   <div className="text-[10px] text-muted-foreground">
                     Currency: {activeInvoice.currency || "INR (₹)"}
                   </div>
@@ -3799,19 +4660,19 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                 </div>
               </div>
 
-              {/* Headcount Steppers: Number of Guests (Adults) & Kids */}
+              {/* Headcount Steppers: Number of Guests (Adults), Kids & Pets */}
               <div className="p-3.5 rounded-xl bg-muted/30 border border-border space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Users className="h-4 w-4 text-primary" />
-                    <span className="font-bold text-foreground text-xs">Guest Headcount (Pax)</span>
+                    <span className="font-bold text-foreground text-xs">Guest Headcount (Pax &amp; Pets)</span>
                   </div>
                   <Badge variant="outline" className="text-[10px] font-mono border-primary/40 text-primary">
-                    Total: {newGuestAdults + newGuestKids} Pax
+                    Total: {newGuestAdults + newGuestKids} Pax {newGuestPets > 0 && `• ${newGuestPets} Pet${newGuestPets > 1 ? "s" : ""}`}
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {/* Adults */}
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-background border border-border">
                     <div>
@@ -3844,9 +4705,9 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                     <div>
                       <div className="font-semibold text-xs text-foreground flex items-center gap-1">
                         <Baby className="h-3.5 w-3.5 text-amber-500" />
-                        Kids / Children
+                        Kids
                       </div>
-                      <div className="text-[10px] text-muted-foreground">Age 5-11 yrs (50% rate)</div>
+                      <div className="text-[10px] text-muted-foreground">Age 5-11 yrs</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
@@ -3868,11 +4729,41 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                       </button>
                     </div>
                   </div>
+
+                  {/* Pets */}
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-background border border-border">
+                    <div>
+                      <div className="font-semibold text-xs text-foreground flex items-center gap-1">
+                        <Dog className="h-3.5 w-3.5 text-purple-600" />
+                        Pets
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">Dogs/Cats/Pets</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setNewGuestPets((p) => Math.max(0, p - 1))}
+                        className="h-7 w-7 rounded-md border border-border bg-card flex items-center justify-center text-sm font-bold hover:bg-muted"
+                      >
+                        -
+                      </button>
+                      <span className="w-6 text-center font-bold text-sm text-foreground">
+                        {newGuestPets}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setNewGuestPets((p) => p + 1)}
+                        className="h-7 w-7 rounded-md border border-border bg-card flex items-center justify-center text-sm font-bold hover:bg-muted"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="text-[10px] text-muted-foreground flex items-center gap-1.5">
                   <IndianRupee className="h-3 w-3 text-emerald-600" />
-                  <span>Buffets, BBQ dinners, and entry passes will automatically multiply in INR (₹) for this headcount.</span>
+                  <span>Buffets, BBQ dinners, stays, and pet fees will automatically calculate in INR (₹) based on this headcount.</span>
                 </div>
               </div>
 
@@ -3949,6 +4840,415 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
           </div>
         </div>
       )}
+
+      {/* WALK-IN ROOM / CAMP STAY BOOKING MODAL */}
+      {isRoomBookingModalOpen && bookingUnit && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-card rounded-2xl border border-border shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="p-4 bg-muted/40 border-b border-border flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                  {bookingUnit.category === "tent" || bookingUnit.category === "glamping_dome" ? (
+                    <Tent className="h-5 w-5" />
+                  ) : (
+                    <Home className="h-5 w-5" />
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-foreground text-base">
+                      Book Walk-in Stay: {bookingUnit.name}
+                    </h3>
+                    <Badge variant="outline" className="font-mono text-xs border-primary/40 text-primary">
+                      {bookingUnit.unitNumber}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Instantly assign room/camp, register pax &amp; pets, and bill directly in POS folio
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsRoomBookingModalOpen(false)}
+                className="rounded-full h-8 w-8 text-muted-foreground hover:text-foreground"
+              >
+                ✕
+              </Button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 overflow-y-auto space-y-4 text-xs">
+              {/* Unit Highlights Banner */}
+              <div className="p-3 rounded-xl bg-muted/30 border border-border flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="secondary" className="text-[10px] capitalize">
+                    {bookingUnit.category.replace("_", " ")}
+                  </Badge>
+                  <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                    Max: {bookingUnit.adultsCapacity} Adults, {bookingUnit.kidsCapacity} Kids
+                  </Badge>
+                  {bookingUnit.petFriendly ? (
+                    <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 text-[10px] flex items-center gap-1">
+                      <Dog className="h-3 w-3" /> Pet Friendly (₹{bookingUnit.petFee.toLocaleString("en-IN")}/pet fee)
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                      🚫 No Pets
+                    </Badge>
+                  )}
+                  {bookingUnit.keyDoorCode && (
+                    <Badge variant="outline" className="text-[10px] font-mono border-amber-300 text-amber-700 dark:text-amber-300">
+                      Key Code: {bookingUnit.keyDoorCode}
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-bold text-foreground">
+                    ₹{stayDurationType === "per_day" ? bookingUnit.ratePerDay.toLocaleString("en-IN") : bookingUnit.ratePerHour.toLocaleString("en-IN")}
+                    <span className="text-[10px] font-normal text-muted-foreground">
+                      {stayDurationType === "per_day" ? "/night" : "/hr"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stay Type Tabs: Per Day / Night vs Per Hour */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground block">
+                  Select Stay Duration Type
+                </label>
+                <div className="grid grid-cols-2 gap-2 p-1 bg-muted/50 rounded-xl border border-border">
+                  <button
+                    type="button"
+                    onClick={() => handleDurationTypeChange("per_day")}
+                    className={`py-2.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                      stayDurationType === "per_day"
+                        ? "bg-card text-foreground shadow-sm border border-border"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Calendar className="h-4 w-4 text-emerald-600" />
+                    <span>Per Day / Overnight (₹{bookingUnit.ratePerDay.toLocaleString("en-IN")}/nt)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDurationTypeChange("per_hour")}
+                    className={`py-2.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                      stayDurationType === "per_hour"
+                        ? "bg-card text-foreground shadow-sm border border-border"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span>Per Hour / Flex Stay (₹{bookingUnit.ratePerHour.toLocaleString("en-IN")}/hr)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Duration Count: Nights or Hours */}
+              {stayDurationType === "per_day" ? (
+                <div className="p-3.5 rounded-xl border border-border bg-background space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-foreground">Number of Nights</div>
+                      <div className="text-[10px] text-muted-foreground">
+                        Standard Check-in: 02:00 PM • Check-out: 11:00 AM
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const val = Math.max(1, stayNights - 1);
+                          setStayNights(val);
+                          handleDurationTypeChange("per_day", val);
+                        }}
+                        className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center text-sm font-bold hover:bg-muted"
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center font-bold text-sm text-foreground">
+                        {stayNights}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const val = stayNights + 1;
+                          setStayNights(val);
+                          handleDurationTypeChange("per_day", val);
+                        }}
+                        className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center text-sm font-bold hover:bg-muted"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/60 text-[11px]">
+                    <div className="p-2 rounded-lg bg-muted/40">
+                      <span className="text-muted-foreground block text-[10px]">Check-in</span>
+                      <span className="font-semibold text-foreground">{bookingCheckInTime}</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-muted/40">
+                      <span className="text-muted-foreground block text-[10px]">Departure / Check-out</span>
+                      <span className="font-semibold text-foreground">{bookingCheckOutTime}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3.5 rounded-xl border border-border bg-background space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-foreground">Flex Stay Hours (Min: {bookingUnit.minHours}h)</div>
+                      <div className="text-[10px] text-muted-foreground">
+                        Micro-stay for day resting, pool access, or transit guests
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {[3, 4, 6, 8, 12].map((hrs) => (
+                        <Button
+                          key={hrs}
+                          variant={stayHours === hrs ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setStayHours(hrs);
+                            handleDurationTypeChange("per_hour", undefined, hrs);
+                          }}
+                          className={`h-7 px-2.5 text-xs font-semibold ${stayHours === hrs ? "bg-primary text-primary-foreground" : ""}`}
+                        >
+                          {hrs}h
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/60 text-[11px]">
+                    <div className="p-2 rounded-lg bg-muted/40">
+                      <span className="text-muted-foreground block text-[10px]">Check-in (Immediate)</span>
+                      <span className="font-semibold text-foreground">{bookingCheckInTime}</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-muted/40">
+                      <span className="text-muted-foreground block text-[10px]">Departure (After {stayHours}h)</span>
+                      <span className="font-semibold text-foreground">{bookingCheckOutTime}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Guest Details Input */}
+              <div className="p-3.5 rounded-xl border border-border bg-background space-y-3">
+                <div className="font-bold text-foreground text-xs flex items-center gap-1.5">
+                  <UserCheck className="h-4 w-4 text-primary" />
+                  <span>Guest Registration Details</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-semibold text-foreground block mb-1">
+                      Guest Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Vikramaditya Rathore"
+                      value={bookingGuestName}
+                      onChange={(e) => setBookingGuestName(e.target.value)}
+                      className="w-full p-2 text-xs rounded-lg border border-border bg-card"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-foreground block mb-1">
+                      Mobile Number (+91)
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="+91 98480 99999"
+                      value={bookingGuestPhone}
+                      onChange={(e) => setBookingGuestPhone(e.target.value)}
+                      className="w-full p-2 text-xs rounded-lg border border-border bg-card font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Headcount Steppers: Adults, Kids, Pets */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-border/60">
+                  {/* Adults */}
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-border">
+                    <div>
+                      <div className="font-semibold text-xs text-foreground">Adults</div>
+                      <div className="text-[10px] text-muted-foreground">Max {bookingUnit.adultsCapacity}</div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setBookingAdults((p) => Math.max(1, p - 1))}
+                        className="h-6 w-6 rounded border border-border bg-card flex items-center justify-center text-xs font-bold hover:bg-muted"
+                      >
+                        -
+                      </button>
+                      <span className="w-5 text-center font-bold text-xs">{bookingAdults}</span>
+                      <button
+                        type="button"
+                        onClick={() => setBookingAdults((p) => Math.min(bookingUnit.adultsCapacity + 2, p + 1))}
+                        className="h-6 w-6 rounded border border-border bg-card flex items-center justify-center text-xs font-bold hover:bg-muted"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Kids */}
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-border">
+                    <div>
+                      <div className="font-semibold text-xs text-foreground flex items-center gap-1">
+                        <Baby className="h-3 w-3 text-amber-500" />
+                        Kids
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">Max {bookingUnit.kidsCapacity}</div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setBookingKids((p) => Math.max(0, p - 1))}
+                        className="h-6 w-6 rounded border border-border bg-card flex items-center justify-center text-xs font-bold hover:bg-muted"
+                      >
+                        -
+                      </button>
+                      <span className="w-5 text-center font-bold text-xs">{bookingKids}</span>
+                      <button
+                        type="button"
+                        onClick={() => setBookingKids((p) => p + 1)}
+                        className="h-6 w-6 rounded border border-border bg-card flex items-center justify-center text-xs font-bold hover:bg-muted"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Pets */}
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-border">
+                    <div>
+                      <div className="font-semibold text-xs text-foreground flex items-center gap-1">
+                        <Dog className="h-3 w-3 text-purple-600" />
+                        Pets
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">
+                        {bookingUnit.petFriendly ? "Allowed" : "Not allowed"}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        disabled={!bookingUnit.petFriendly}
+                        onClick={() => setBookingPets((p) => Math.max(0, p - 1))}
+                        className="h-6 w-6 rounded border border-border bg-card flex items-center justify-center text-xs font-bold hover:bg-muted disabled:opacity-40"
+                      >
+                        -
+                      </button>
+                      <span className="w-5 text-center font-bold text-xs">{bookingPets}</span>
+                      <button
+                        type="button"
+                        disabled={!bookingUnit.petFriendly}
+                        onClick={() => setBookingPets((p) => p + 1)}
+                        className="h-6 w-6 rounded border border-border bg-card flex items-center justify-center text-xs font-bold hover:bg-muted disabled:opacity-40"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pet Fee Sanitation Checkbox if pets > 0 */}
+                {bookingUnit.petFriendly && bookingPets > 0 && (
+                  <div className="p-2.5 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/50 flex items-center justify-between">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={includePetFee}
+                        onChange={(e) => setIncludePetFee(e.target.checked)}
+                        className="rounded border-purple-400 text-purple-600"
+                      />
+                      <div>
+                        <span className="font-bold text-purple-900 dark:text-purple-200 text-xs">
+                          Add Pet Sanitization &amp; Deep Clean Fee
+                        </span>
+                        <p className="text-[10px] text-purple-700 dark:text-purple-300">
+                          ₹{bookingUnit.petFee.toLocaleString("en-IN")} × {bookingPets} Pet{bookingPets > 1 ? "s" : ""} (SAC 9997 • 18% GST)
+                        </p>
+                      </div>
+                    </label>
+                    <span className="font-bold font-mono text-purple-900 dark:text-purple-200 text-xs">
+                      +₹{(bookingUnit.petFee * bookingPets).toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Price Calculation Summary */}
+              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-emerald-900 dark:text-emerald-300 font-medium">
+                    {stayDurationType === "per_day" ? `Room Tariff (${stayNights} Night)` : `Hourly Tariff (${stayHours} Hours)`}
+                  </span>
+                  <span className="font-bold font-mono text-emerald-950 dark:text-emerald-200">
+                    ₹{(stayDurationType === "per_day" ? bookingUnit.ratePerDay * stayNights : bookingUnit.ratePerHour * stayHours).toLocaleString("en-IN")}
+                  </span>
+                </div>
+
+                {includePetFee && bookingPets > 0 && bookingUnit.petFriendly && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-purple-800 dark:text-purple-300 font-medium">
+                      Pet Fee ({bookingPets} Pet{bookingPets > 1 ? "s" : ""})
+                    </span>
+                    <span className="font-bold font-mono text-purple-950 dark:text-purple-200">
+                      +₹{(bookingUnit.petFee * bookingPets).toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-emerald-200/80 dark:border-emerald-800/40 flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-emerald-950 dark:text-emerald-100 text-sm">
+                      Total Accommodation Bill
+                    </span>
+                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 block">
+                      SAC 996311 (12% GST) included • Exclusively in INR (₹)
+                    </span>
+                  </div>
+                  <span className="font-extrabold font-mono text-base text-emerald-700 dark:text-emerald-300">
+                    ₹{(
+                      (stayDurationType === "per_day" ? bookingUnit.ratePerDay * stayNights : bookingUnit.ratePerHour * stayHours) +
+                      (includePetFee && bookingPets > 0 && bookingUnit.petFriendly ? bookingUnit.petFee * bookingPets : 0)
+                    ).toLocaleString("en-IN")}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-muted/30 border-t border-border flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsRoomBookingModalOpen(false)}
+                className="text-xs h-9"
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleConfirmRoomBooking}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-9 font-semibold gap-1.5 shadow-md"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Confirm Stay &amp; Add to POS Cart
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
