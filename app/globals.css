@@ -228,6 +228,127 @@
   background-size: 24px 24px;
 }
 
+/* Staggered reveal animation for hero elements */
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+
+/* Animated gradient text shimmer */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-text {
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease-in-out infinite;
+}
+
+/* Occupancy bar fill */
+@keyframes bar-fill {
+  0% {
+    width: 0%;
+  }
+}
+
+.animate-bar-fill {
+  animation: bar-fill 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 600ms;
+}
+
+/* Counter number tick */
+@keyframes count-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-count-up {
+  animation: count-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Live notification slide-in from right */
+@keyframes slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out-right {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-out-right {
+  animation: slide-out-right 0.4s cubic-bezier(0.7, 0, 0.84, 0) both;
+}
+
+/* Gradient glow border for cockpit card */
+.cockpit-glow {
+  position: relative;
+}
+
+.cockpit-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 1rem;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(2,99,224,0.3), rgba(16,185,129,0.2), rgba(41,182,246,0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Smooth number transition for KPIs */
+.kpi-value {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Accessibility: Respect Reduced Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
   .animate-float,
@@ -235,7 +356,13 @@
   .animate-pulse-glow,
   .animate-pulse-emerald,
   .animate-marquee,
-  .shimmer-badge {
+  .shimmer-badge,
+  .animate-fade-up,
+  .animate-bar-fill,
+  .animate-count-up,
+  .animate-slide-in-right,
+  .animate-slide-out-right,
+  .animate-gradient-text {
     animation: none !important;
   }
 }

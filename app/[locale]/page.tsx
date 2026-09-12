@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -96,6 +96,30 @@ export default function LandingPage() {
 
   // FAQ Accordion State
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  // Live Notification Feed for Hero Cockpit
+  const liveNotifications = [
+    { id: 1, icon: "🔒", text: "Airbnb reservation locked Villa 102 → MMT stop-sell pushed", time: "Just now", color: "emerald" },
+    { id: 2, icon: "💳", text: "Walk-in POS Invoice #RC-8942 generated → WhatsApp sent", time: "2m ago", color: "blue" },
+    { id: 3, icon: "🌡️", text: "Wind speed dropped to 14 km/h → Campfire checkout re-enabled", time: "5m ago", color: "amber" },
+    { id: 4, icon: "📊", text: "Occupancy crossed 85% → Weekend surge +25% activated", time: "8m ago", color: "blue" },
+    { id: 5, icon: "🧹", text: "Villa 104 housekeeping complete → Status: Inspected Clean", time: "12m ago", color: "emerald" },
+    { id: 6, icon: "✈️", text: "Booking.com reservation #BK-44921 confirmed → Auto-assigned", time: "15m ago", color: "blue" },
+  ];
+  const [activeNotifIndex, setActiveNotifIndex] = useState(0);
+  const [notifAnimating, setNotifAnimating] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNotifAnimating(true);
+      setTimeout(() => {
+        setActiveNotifIndex((prev) => (prev + 1) % liveNotifications.length);
+        setNotifAnimating(false);
+      }, 400);
+    }, 3500);
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSignInSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -285,15 +309,17 @@ export default function LandingPage() {
 
       {/* Main Landing Page Content */}
       <main>
-        {/* HERO SECTION WITH AMBIENT AURA & FLOATING BADGES */}
-        <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 border-b border-border dot-pattern">
-          {/* Ambient Glow Aura */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] md:w-[850px] md:h-[450px] bg-gradient-to-tr from-rentcot-blue/20 via-sky-400/15 to-emerald-400/15 blur-[100px] pointer-events-none rounded-full" />
+        {/* HERO SECTION WITH AMBIENT AURA, STAGGERED REVEALS & LIVE COCKPIT */}
+        <section className="relative overflow-hidden pt-14 pb-20 md:pt-24 md:pb-32 border-b border-border">
+          {/* Layered Background: dot-pattern + gradient mesh + secondary glow orb */}
+          <div className="absolute inset-0 dot-pattern opacity-60 pointer-events-none" />
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] md:w-[900px] md:h-[500px] bg-gradient-to-tr from-rentcot-blue/25 via-sky-400/15 to-emerald-400/15 blur-[120px] pointer-events-none rounded-full" />
+          <div className="absolute bottom-0 right-0 w-[400px] h-[300px] bg-gradient-to-tl from-emerald-500/10 via-transparent to-transparent blur-[80px] pointer-events-none rounded-full" />
 
-          {/* Floating Live Indicator Badges (Hidden on tiny mobile) */}
-          <div className="hidden xl:block absolute top-28 left-8 2xl:left-20 animate-float z-10 pointer-events-none">
-            <div className="glass-panel border border-emerald-500/30 shadow-lg rounded-2xl p-3 px-4 flex items-center gap-3 backdrop-blur-md">
-              <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse-emerald" />
+          {/* Floating Live Indicator Badges */}
+          <div className="hidden xl:block absolute top-32 left-6 2xl:left-16 animate-float z-10 pointer-events-none">
+            <div className="glass-panel border border-emerald-500/30 shadow-lg rounded-2xl p-3 px-4 flex items-center gap-3">
+              <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse-emerald shrink-0" />
               <div>
                 <div className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                   2-Way Channel Lock
@@ -303,9 +329,9 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="hidden xl:block absolute top-48 right-8 2xl:right-20 animate-float-reverse z-10 pointer-events-none">
-            <div className="glass-panel border border-rentcot-blue/30 shadow-lg rounded-2xl p-3 px-4 flex items-center gap-3 backdrop-blur-md">
-              <div className="h-2.5 w-2.5 rounded-full bg-rentcot-blue animate-pulse-glow" />
+          <div className="hidden xl:block absolute top-52 right-6 2xl:right-16 animate-float-reverse z-10 pointer-events-none">
+            <div className="glass-panel border border-rentcot-blue/30 shadow-lg rounded-2xl p-3 px-4 flex items-center gap-3">
+              <div className="h-2.5 w-2.5 rounded-full bg-rentcot-blue animate-pulse-glow shrink-0" />
               <div>
                 <div className="text-[10px] font-bold text-rentcot-blue uppercase tracking-wider">
                   Live Operations Radar
@@ -315,199 +341,263 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
-            {/* Top Version Announcement Badge with Shimmer Sweep */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-rentcot-blue/30 shimmer-badge px-4 py-1.5 text-xs font-semibold text-rentcot-blue shadow-xs">
-              <Sparkles className="h-3.5 w-3.5 text-rentcot-blue" />
-              <span>Next-Gen 2026 Hospitality Architecture • Multi-Tenant Supabase RLS</span>
+          {/* Third floating badge (bottom-left, only on 2xl) */}
+          <div className="hidden 2xl:block absolute bottom-36 left-12 animate-float z-10 pointer-events-none" style={{ animationDelay: '1.5s' }}>
+            <div className="glass-panel border border-amber-500/30 shadow-lg rounded-2xl p-3 px-4 flex items-center gap-3">
+              <div className="h-2.5 w-2.5 rounded-full bg-amber-500 shrink-0 animate-pulse" />
+              <div>
+                <div className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                  GST Invoice Pushed
+                </div>
+                <div className="text-xs font-bold text-foreground">₹24,500 receipt → WhatsApp delivered</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            {/* Staggered Reveal: Version Badge */}
+            <div className="animate-fade-up">
+              <div className="inline-flex items-center gap-2 rounded-full border border-rentcot-blue/30 shimmer-badge px-4 py-1.5 text-xs font-semibold text-rentcot-blue shadow-xs">
+                <Sparkles className="h-3.5 w-3.5 text-rentcot-blue" />
+                <span>Next-Gen 2026 Hospitality Architecture &bull; Multi-Tenant Supabase RLS</span>
+              </div>
             </div>
 
-            {/* Main Headline with Modern Gradient Typography */}
-            <h1 className="mx-auto max-w-4xl text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.12]">
+            {/* Staggered Reveal: Main Headline with Animated Gradient */}
+            <h1 className="animate-fade-up delay-100 mx-auto max-w-4xl text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-[3.5rem] xl:text-6xl leading-[1.1] mt-6">
               The Unified Operating System for{" "}
-              <span className="bg-gradient-to-r from-rentcot-blue via-sky-500 to-emerald-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-rentcot-blue via-sky-500 to-emerald-500 bg-clip-text text-transparent animate-gradient-text">
                 Resorts, Farmhouses & Glamping
               </span>
             </h1>
 
-            {/* Sub-headline */}
-            <p className="mx-auto max-w-2xl text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">
+            {/* Staggered Reveal: Sub-headline */}
+            <p className="animate-fade-up delay-200 mx-auto max-w-2xl text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed mt-5">
               Consolidate reservations, collision-proof 2-way OTA channel synchronization, front-desk POS billing with GST,
               dynamic surge pricing, and campsite weather safety into a single high-performance cockpit.
             </p>
 
-            {/* Action Buttons with Micro-Interactions */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
+            {/* Staggered Reveal: Action Buttons */}
+            <div className="animate-fade-up delay-300 flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-6">
               <Button
                 size="lg"
                 onClick={() => {
                   setAuthMode("signup");
                   setIsAuthModalOpen(true);
                 }}
-                className="w-full sm:w-auto bg-rentcot-blue hover:bg-rentcot-blue/90 text-white font-semibold text-sm h-12 px-8 rounded-xl shadow-lg shadow-rentcot-blue/25 hover:shadow-rentcot-blue/40 transition-all duration-200 active:scale-[0.98] gap-2"
+                className="w-full sm:w-auto bg-rentcot-blue hover:bg-rentcot-blue/90 text-white font-semibold text-sm h-12 px-8 rounded-xl shadow-lg shadow-rentcot-blue/25 hover:shadow-xl hover:shadow-rentcot-blue/30 transition-all duration-200 active:scale-[0.97] gap-2 group"
               >
                 <span>Start 14-Day Free Trial</span>
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Button>
 
               <Button
                 size="lg"
                 variant="outline"
                 onClick={handleDemoAccess}
-                className="w-full sm:w-auto border-border bg-card/80 hover:bg-muted text-foreground font-semibold text-sm h-12 px-6 rounded-xl transition-all duration-200 active:scale-[0.98] gap-2 shadow-xs"
+                className="w-full sm:w-auto border-border bg-card/80 hover:bg-muted text-foreground font-semibold text-sm h-12 px-6 rounded-xl transition-all duration-200 active:scale-[0.97] gap-2 shadow-xs"
               >
                 <Zap className="h-4 w-4 text-emerald-600" />
                 <span>Explore Live Demo Portal</span>
               </Button>
             </div>
 
-            {/* Trust Metrics Bar */}
-            <div className="pt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto border-t border-border/60">
-              <div className="text-center group">
-                <div className="text-xl sm:text-2xl font-black text-foreground font-mono transition-transform group-hover:scale-105">
-                  500+
-                </div>
-                <div className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">Properties Live</div>
+            {/* Staggered Reveal: Social Proof Inline */}
+            <div className="animate-fade-up delay-400 flex items-center justify-center gap-3 mt-5 text-[11px] text-muted-foreground">
+              <div className="flex -space-x-2">
+                {["RR", "SM", "AD", "VK"].map((initials, i) => (
+                  <div
+                    key={i}
+                    className="h-7 w-7 rounded-full bg-rentcot-blue/10 border-2 border-background text-rentcot-blue flex items-center justify-center font-bold text-[9px]"
+                  >
+                    {initials}
+                  </div>
+                ))}
               </div>
-              <div className="text-center group">
-                <div className="text-xl sm:text-2xl font-black text-foreground font-mono transition-transform group-hover:scale-105">
-                  ₹45 Cr+
-                </div>
-                <div className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">Bookings Processed</div>
-              </div>
-              <div className="text-center group">
-                <div className="text-xl sm:text-2xl font-black text-emerald-600 font-mono transition-transform group-hover:scale-105">
-                  0%
-                </div>
-                <div className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">Double-Bookings</div>
-              </div>
-              <div className="text-center group">
-                <div className="text-xl sm:text-2xl font-black text-rentcot-blue font-mono transition-transform group-hover:scale-105">
-                  99.98%
-                </div>
-                <div className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">Edge Uptime SLA</div>
-              </div>
+              <span>Trusted by <strong className="text-foreground">500+ hospitality operators</strong> across India</span>
             </div>
 
-            {/* INTERACTIVE HERO COCKPIT MOCKUP */}
-            <div className="pt-8 max-w-5xl mx-auto">
-              <div className="rounded-2xl border border-border/80 bg-card/90 shadow-2xl p-4 sm:p-6 backdrop-blur-md space-y-5 text-left transition-all">
-                {/* Cockpit Header with Property Type Switcher */}
+            {/* Staggered Reveal: Trust Metrics Strip */}
+            <div className="animate-fade-up delay-500 pt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto border-t border-border/60">
+              {[
+                { value: "500+", label: "Properties Live", color: "text-foreground" },
+                { value: "₹45 Cr+", label: "Bookings Processed", color: "text-foreground" },
+                { value: "0%", label: "Double-Bookings", color: "text-emerald-600" },
+                { value: "99.98%", label: "Edge Uptime SLA", color: "text-rentcot-blue" },
+              ].map((metric, i) => (
+                <div key={i} className="text-center group pt-4">
+                  <div className={`text-xl sm:text-2xl font-black font-mono ${metric.color} animate-count-up transition-transform group-hover:scale-110`} style={{ animationDelay: `${600 + i * 120}ms` }}>
+                    {metric.value}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">{metric.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Staggered Reveal: INTERACTIVE HERO COCKPIT */}
+            <div className="animate-fade-up delay-700 pt-10 max-w-5xl mx-auto">
+              <div className="cockpit-glow rounded-2xl bg-card/95 shadow-2xl p-4 sm:p-6 backdrop-blur-md text-left transition-all">
+                {/* Cockpit Title Bar */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-3 w-3 rounded-full bg-rose-500/80" />
-                    <div className="h-3 w-3 rounded-full bg-amber-500/80" />
-                    <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-3 w-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors" />
+                      <div className="h-3 w-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors" />
+                      <div className="h-3 w-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors" />
+                    </div>
                     <span className="text-xs font-bold text-foreground ml-2 font-mono">rentcot-cockpit // v2.4</span>
                     <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-semibold">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                      </span>
                       Live Stream
                     </span>
                   </div>
 
                   {/* Property Category View Chips */}
                   <div className="inline-flex p-1 rounded-xl bg-muted/60 border border-border/80 text-xs">
-                    <button
-                      onClick={() => setHeroPropertyType("resort")}
-                      className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                        heroPropertyType === "resort"
-                          ? "bg-background text-foreground shadow-xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      Boutique Resort
-                    </button>
-                    <button
-                      onClick={() => setHeroPropertyType("farmhouse")}
-                      className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                        heroPropertyType === "farmhouse"
-                          ? "bg-background text-foreground shadow-xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      Private Farmhouse
-                    </button>
-                    <button
-                      onClick={() => setHeroPropertyType("campsite")}
-                      className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                        heroPropertyType === "campsite"
-                          ? "bg-background text-foreground shadow-xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      Glamping & Camp
-                    </button>
+                    {([
+                      { key: "resort" as const, label: "Boutique Resort" },
+                      { key: "farmhouse" as const, label: "Private Farmhouse" },
+                      { key: "campsite" as const, label: "Glamping & Camp" },
+                    ]).map((tab) => (
+                      <button
+                        key={tab.key}
+                        onClick={() => setHeroPropertyType(tab.key)}
+                        className={`px-3 py-1 rounded-lg font-bold transition-all duration-200 ${
+                          heroPropertyType === tab.key
+                            ? "bg-background text-foreground shadow-xs"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* KPI Metrics Row */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1">
+                {/* KPI Metrics Row with Occupancy Progress Bars */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1.5 hover:bg-background transition-colors">
                     <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
                       <span>Today&apos;s Revenue</span>
                       <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
                     </div>
-                    <div className="text-lg sm:text-xl font-bold font-mono text-foreground">
+                    <div className="text-lg sm:text-xl font-bold font-mono text-foreground kpi-value">
                       {heroPropertyType === "resort" ? "₹3,42,800" : heroPropertyType === "farmhouse" ? "₹1,85,000" : "₹1,12,400"}
                     </div>
-                    <div className="text-[10px] text-emerald-600 font-semibold">+18.4% vs last week</div>
+                    <div className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" />
+                      +18.4% vs last week
+                    </div>
                   </div>
 
-                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1">
+                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1.5 hover:bg-background transition-colors">
                     <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
                       <span>Live Occupancy</span>
                       <Activity className="h-3.5 w-3.5 text-rentcot-blue" />
                     </div>
-                    <div className="text-lg sm:text-xl font-bold font-mono text-foreground">
+                    <div className="text-lg sm:text-xl font-bold font-mono text-foreground kpi-value">
                       {heroPropertyType === "resort" ? "92.4%" : heroPropertyType === "farmhouse" ? "100%" : "84.0%"}
                     </div>
-                    <div className="text-[10px] text-rentcot-blue font-semibold">
+                    {/* Occupancy Progress Bar */}
+                    <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full animate-bar-fill transition-all duration-500"
+                        style={{
+                          width: heroPropertyType === "resort" ? "92.4%" : heroPropertyType === "farmhouse" ? "100%" : "84%",
+                          background: heroPropertyType === "farmhouse"
+                            ? "linear-gradient(90deg, #10b981, #059669)"
+                            : "linear-gradient(90deg, #0263e0, #29b6f6)",
+                        }}
+                      />
+                    </div>
+                    <div className="text-[10px] text-rentcot-blue font-semibold kpi-value">
                       {heroPropertyType === "resort" ? "24 / 26 Suites Active" : heroPropertyType === "farmhouse" ? "Full Buyout Confirmed" : "21 / 25 Pitches Taken"}
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1">
+                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1.5 hover:bg-background transition-colors">
                     <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
                       <span>OTA Sync Latency</span>
                       <Zap className="h-3.5 w-3.5 text-amber-500" />
                     </div>
                     <div className="text-lg sm:text-xl font-bold font-mono text-foreground">18 ms</div>
-                    <div className="text-[10px] text-muted-foreground">Airbnb &bull; Booking &bull; MMT</div>
+                    {/* Channel Sync Dots */}
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                      {["Airbnb", "Booking", "MMT"].map((ch, i) => (
+                        <span key={i} className="flex items-center gap-1">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" style={{ animationDelay: `${i * 200}ms` }} />
+                          {ch}
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1">
+                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/80 space-y-1.5 hover:bg-background transition-colors">
                     <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
                       <span>Safety Watchdog</span>
                       <Shield className="h-3.5 w-3.5 text-emerald-600" />
                     </div>
-                    <div className="text-lg sm:text-xl font-bold font-mono text-emerald-600">
+                    <div className="text-lg sm:text-xl font-bold font-mono text-emerald-600 kpi-value">
                       {heroPropertyType === "campsite" ? "16 km/h (Safe)" : "Optimal"}
                     </div>
-                    <div className="text-[10px] text-muted-foreground">Campfire Protocol Normal</div>
+                    {/* Safety Level Mini Bar */}
+                    <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: heroPropertyType === "campsite" ? "36%" : "15%",
+                          background: "linear-gradient(90deg, #10b981, #f59e0b)",
+                        }}
+                      />
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">
+                      {heroPropertyType === "campsite" ? "Auto-Ban at 28 km/h" : "All Systems Normal"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* LIVE ACTIVITY FEED BAR */}
+                <div className="mt-3 rounded-xl border border-border/60 bg-muted/30 px-4 py-2.5 flex items-center gap-3 overflow-hidden">
+                  <span className="shrink-0 inline-flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full bg-rentcot-blue/10 text-rentcot-blue border border-rentcot-blue/20 font-bold uppercase tracking-wider">
+                    <Activity className="h-3 w-3" />
+                    Live Feed
+                  </span>
+                  <div className={`flex-1 min-w-0 ${notifAnimating ? 'animate-slide-out-right' : 'animate-slide-in-right'}`} key={activeNotifIndex}>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span>{liveNotifications[activeNotifIndex].icon}</span>
+                      <span className="text-foreground font-medium truncate">{liveNotifications[activeNotifIndex].text}</span>
+                      <span className="text-[10px] text-muted-foreground shrink-0 hidden sm:inline">{liveNotifications[activeNotifIndex].time}</span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Simulated Live Unit Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-1">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
                   {heroPropertyType === "resort" && (
                     <>
-                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1">
+                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1 hover:border-emerald-500/60 transition-all group">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-foreground">Villa 101 (Pool View)</span>
                           <span className="h-2 w-2 rounded-full bg-emerald-500" />
                         </div>
                         <div className="text-[11px] text-emerald-600 font-medium">Available &bull; ₹14,500/nt</div>
-                        <div className="text-[10px] text-muted-foreground">Turnover Inspected</div>
+                        <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+                          <Check className="h-3 w-3 text-emerald-500" />
+                          Turnover Inspected
+                        </div>
                       </div>
-                      <div className="p-3 rounded-xl border border-amber-500/40 bg-amber-500/5 space-y-1">
+                      <div className="p-3 rounded-xl border border-amber-500/40 bg-amber-500/5 space-y-1 hover:border-amber-500/60 transition-all group">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-foreground">Villa 102 (Royal Suite)</span>
-                          <span className="h-2 w-2 rounded-full bg-amber-500" />
+                          <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
                         </div>
-                        <div className="text-[11px] text-amber-600 font-medium">Occupied &bull; Airbnb</div>
+                        <div className="text-[11px] text-amber-600 font-medium">Occupied &bull; via Airbnb</div>
                         <div className="text-[10px] text-muted-foreground">Check-out Tomorrow 11 AM</div>
                       </div>
-                      <div className="p-3 rounded-xl border border-blue-500/40 bg-blue-500/5 space-y-1">
+                      <div className="p-3 rounded-xl border border-blue-500/40 bg-blue-500/5 space-y-1 hover:border-blue-500/60 transition-all group">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-foreground">Villa 103 (Garden Deluxe)</span>
                           <span className="h-2 w-2 rounded-full bg-blue-500" />
@@ -515,20 +605,26 @@ export default function LandingPage() {
                         <div className="text-[11px] text-rentcot-blue font-medium">Direct Booking &bull; ₹12,000</div>
                         <div className="text-[10px] text-muted-foreground">Arriving Today 2 PM</div>
                       </div>
-                      <div className="p-3 rounded-xl border border-red-500/30 bg-red-500/5 space-y-1">
+                      <div className="p-3 rounded-xl border border-red-500/30 bg-red-500/5 space-y-1 hover:border-red-500/50 transition-all group">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-foreground">Villa 104 (Executive)</span>
-                          <span className="h-2 w-2 rounded-full bg-red-500" />
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                          </span>
                         </div>
-                        <div className="text-[11px] text-red-600 font-medium">Housekeeping Dirty</div>
-                        <div className="text-[10px] text-muted-foreground">Turnover in Progress (14m)</div>
+                        <div className="text-[11px] text-red-600 font-medium">Housekeeping In-Progress</div>
+                        <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+                          <RefreshCw className="h-3 w-3 text-red-400 animate-spin" style={{ animationDuration: '3s' }} />
+                          Turnover 14m remaining
+                        </div>
                       </div>
                     </>
                   )}
 
                   {heroPropertyType === "farmhouse" && (
                     <>
-                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1">
+                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1 hover:border-emerald-500/60 transition-all">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-foreground">Main Farmhouse Buyout</span>
                           <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -536,7 +632,7 @@ export default function LandingPage() {
                         <div className="text-[11px] text-emerald-600 font-medium">Reserved Weekend &bull; ₹65,000</div>
                         <div className="text-[10px] text-muted-foreground">Private Pool & Lawns</div>
                       </div>
-                      <div className="p-3 rounded-xl border border-blue-500/40 bg-blue-500/5 space-y-1">
+                      <div className="p-3 rounded-xl border border-blue-500/40 bg-blue-500/5 space-y-1 hover:border-blue-500/60 transition-all">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-foreground">Day-Picnic Slot</span>
                           <span className="h-2 w-2 rounded-full bg-blue-500" />
@@ -544,28 +640,31 @@ export default function LandingPage() {
                         <div className="text-[11px] text-rentcot-blue font-medium">10 AM – 6 PM Package</div>
                         <div className="text-[10px] text-muted-foreground">22 Guests &bull; Organic Lunch</div>
                       </div>
-                      <div className="p-3 rounded-xl border border-border bg-background space-y-1">
+                      <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-1 hover:border-amber-500/50 transition-all">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-foreground">Mango Grove Bonfire Deck</span>
+                          <span className="text-xs font-bold text-foreground">Mango Grove Bonfire</span>
                           <span className="h-2 w-2 rounded-full bg-amber-500" />
                         </div>
-                        <div className="text-[11px] text-amber-600 font-medium">Hardwood Bonfire Ready</div>
-                        <div className="text-[10px] text-muted-foreground">Kit Billed at ₹1,500</div>
+                        <div className="text-[11px] text-amber-600 font-medium">Hardwood Kit Ready</div>
+                        <div className="text-[10px] text-muted-foreground">Billed at ₹1,500</div>
                       </div>
-                      <div className="p-3 rounded-xl border border-border bg-background space-y-1">
+                      <div className="p-3 rounded-xl border border-border bg-background space-y-1 hover:border-emerald-500/40 transition-all">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-foreground">Pet Parent Check</span>
                           <span className="h-2 w-2 rounded-full bg-emerald-500" />
                         </div>
-                        <div className="text-[11px] text-emerald-600 font-medium">2 Golden Retrievers Declared</div>
-                        <div className="text-[10px] text-muted-foreground">Deposit Cleared</div>
+                        <div className="text-[11px] text-emerald-600 font-medium">2 Golden Retrievers</div>
+                        <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+                          <Check className="h-3 w-3 text-emerald-500" />
+                          Deposit Cleared
+                        </div>
                       </div>
                     </>
                   )}
 
                   {heroPropertyType === "campsite" && (
                     <>
-                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1">
+                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1 hover:border-emerald-500/60 transition-all">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-foreground">Glamping Dome 01</span>
                           <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -573,29 +672,32 @@ export default function LandingPage() {
                         <div className="text-[11px] text-emerald-600 font-medium">Wooden Deck &bull; AC Glamp</div>
                         <div className="text-[10px] text-muted-foreground">Occupied &bull; Check-out 11 AM</div>
                       </div>
-                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1">
+                      <div className="p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/5 space-y-1 hover:border-emerald-500/60 transition-all">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-foreground">Pitch P-04 (Lawn)</span>
                           <span className="h-2 w-2 rounded-full bg-emerald-500" />
                         </div>
                         <div className="text-[11px] text-emerald-600 font-medium">Vacant Clean &bull; ₹2,200</div>
-                        <div className="text-[10px] text-muted-foreground">Includes 4-person Coleman Tent</div>
+                        <div className="text-[10px] text-muted-foreground">Includes 4-person Tent</div>
                       </div>
-                      <div className="p-3 rounded-xl border border-amber-500/40 bg-amber-500/5 space-y-1">
+                      <div className="p-3 rounded-xl border border-amber-500/40 bg-amber-500/5 space-y-1 hover:border-amber-500/60 transition-all">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-foreground">UV Sanitization Desk</span>
-                          <span className="h-2 w-2 rounded-full bg-amber-500" />
+                          <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
                         </div>
-                        <div className="text-[11px] text-amber-600 font-medium">12 Sleeping Bags Cycled</div>
-                        <div className="text-[10px] text-muted-foreground">UV Chamber Clean Passed</div>
+                        <div className="text-[11px] text-amber-600 font-medium">12 Bags Cycled Today</div>
+                        <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+                          <Check className="h-3 w-3 text-amber-500" />
+                          UV Chamber Passed
+                        </div>
                       </div>
-                      <div className="p-3 rounded-xl border border-border bg-background space-y-1">
+                      <div className="p-3 rounded-xl border border-border bg-background space-y-1 hover:border-emerald-500/40 transition-all">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-foreground">Wind Watchdog</span>
                           <span className="h-2 w-2 rounded-full bg-emerald-500" />
                         </div>
                         <div className="text-[11px] text-emerald-600 font-medium">Gusts 16 km/h &bull; Safe</div>
-                        <div className="text-[10px] text-muted-foreground">Auto-Ban Threshold: 28 km/h</div>
+                        <div className="text-[10px] text-muted-foreground">Auto-Ban at 28 km/h</div>
                       </div>
                     </>
                   )}
@@ -604,7 +706,6 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-
         {/* INFINITE MARQUEE: CONNECTED OTA CHANNELS & INTEGRATIONS */}
         <section id="channel-manager" className="py-6 border-b border-border bg-muted/30 overflow-hidden relative">
           <div className="text-center pb-3">
