@@ -309,62 +309,26 @@ export default function LandingPage() {
 
       {/* Main Landing Page Content */}
       <main>
-        {/* HERO SECTION WITH AMBIENT AURA, STAGGERED REVEALS & LIVE COCKPIT */}
-        <section className="relative overflow-hidden pt-14 pb-20 md:pt-24 md:pb-32 border-b border-border">
-          {/* Layered Background: dot-pattern + gradient mesh + secondary glow orb */}
-          <div className="absolute inset-0 dot-pattern opacity-60 pointer-events-none" />
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] md:w-[900px] md:h-[500px] bg-gradient-to-tr from-rentcot-blue/25 via-sky-400/15 to-emerald-400/15 blur-[120px] pointer-events-none rounded-full" />
-          <div className="absolute bottom-0 right-0 w-[400px] h-[300px] bg-gradient-to-tl from-emerald-500/10 via-transparent to-transparent blur-[80px] pointer-events-none rounded-full" />
-
-          {/* Floating Live Indicator Badges */}
-          <div className="hidden xl:block absolute top-32 left-6 2xl:left-16 animate-float z-10 pointer-events-none">
-            <div className="glass-panel border border-emerald-500/30 shadow-lg rounded-2xl p-3 px-4 flex items-center gap-3">
-              <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse-emerald shrink-0" />
-              <div>
-                <div className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                  2-Way Channel Lock
-                </div>
-                <div className="text-xs font-bold text-foreground">Airbnb booked &bull; MMT locked in 18ms</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="hidden xl:block absolute top-52 right-6 2xl:right-16 animate-float-reverse z-10 pointer-events-none">
-            <div className="glass-panel border border-rentcot-blue/30 shadow-lg rounded-2xl p-3 px-4 flex items-center gap-3">
-              <div className="h-2.5 w-2.5 rounded-full bg-rentcot-blue animate-pulse-glow shrink-0" />
-              <div>
-                <div className="text-[10px] font-bold text-rentcot-blue uppercase tracking-wider">
-                  Live Operations Radar
-                </div>
-                <div className="text-xs font-bold text-foreground">94.2% Occupancy &bull; Zero Overbookings</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Third floating badge (bottom-left, only on 2xl) */}
-          <div className="hidden 2xl:block absolute bottom-36 left-12 animate-float z-10 pointer-events-none" style={{ animationDelay: '1.5s' }}>
-            <div className="glass-panel border border-amber-500/30 shadow-lg rounded-2xl p-3 px-4 flex items-center gap-3">
-              <div className="h-2.5 w-2.5 rounded-full bg-amber-500 shrink-0 animate-pulse" />
-              <div>
-                <div className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
-                  GST Invoice Pushed
-                </div>
-                <div className="text-xs font-bold text-foreground">₹24,500 receipt → WhatsApp delivered</div>
-              </div>
-            </div>
-          </div>
+        {/* HERO SECTION WITH AMBIENT AURA, CLEAN TYPOGRAPHY & LIVE COCKPIT */}
+        <section className="relative overflow-hidden pt-14 pb-20 md:pt-20 md:pb-32 border-b border-border">
+          {/* Layered Background: masked dot-pattern + centered gradient mesh aura */}
+          <div className="absolute inset-0 dot-pattern opacity-50 pointer-events-none [mask-image:radial-gradient(ellipse_75%_60%_at_50%_30%,#000_40%,transparent_100%)]" />
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] md:w-[850px] md:h-[450px] bg-gradient-to-tr from-rentcot-blue/20 via-sky-400/12 to-emerald-400/10 blur-[120px] pointer-events-none rounded-full" />
 
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center relative z-10">
             {/* Staggered Reveal: Version Badge */}
             <div className="animate-fade-up">
-              <div className="inline-flex items-center gap-2 rounded-full border border-rentcot-blue/30 shimmer-badge px-4 py-1.5 text-xs font-semibold text-rentcot-blue shadow-xs">
-                <Sparkles className="h-3.5 w-3.5 text-rentcot-blue" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-rentcot-blue/25 bg-rentcot-blue/5 hover:bg-rentcot-blue/10 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold text-rentcot-blue shadow-xs transition-colors">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rentcot-blue opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rentcot-blue"></span>
+                </span>
                 <span>Next-Gen 2026 Hospitality Architecture &bull; Multi-Tenant Supabase RLS</span>
               </div>
             </div>
 
             {/* Staggered Reveal: Main Headline with Animated Gradient */}
-            <h1 className="animate-fade-up delay-100 mx-auto max-w-4xl text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-[3.5rem] xl:text-6xl leading-[1.1] mt-6">
+            <h1 className="animate-fade-up delay-100 mx-auto max-w-4xl text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-[3.5rem] xl:text-6xl leading-[1.12] text-balance mt-6">
               The Unified Operating System for{" "}
               <span className="bg-gradient-to-r from-rentcot-blue via-sky-500 to-emerald-500 bg-clip-text text-transparent animate-gradient-text">
                 Resorts, Farmhouses & Glamping
@@ -372,7 +336,7 @@ export default function LandingPage() {
             </h1>
 
             {/* Staggered Reveal: Sub-headline */}
-            <p className="animate-fade-up delay-200 mx-auto max-w-2xl text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed mt-5">
+            <p className="animate-fade-up delay-200 mx-auto max-w-2xl text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed mt-5 text-balance">
               Consolidate reservations, collision-proof 2-way OTA channel synchronization, front-desk POS billing with GST,
               dynamic surge pricing, and campsite weather safety into a single high-performance cockpit.
             </p>
@@ -403,7 +367,7 @@ export default function LandingPage() {
             </div>
 
             {/* Staggered Reveal: Social Proof Inline */}
-            <div className="animate-fade-up delay-400 flex items-center justify-center gap-3 mt-5 text-[11px] text-muted-foreground">
+            <div className="animate-fade-up delay-400 flex items-center justify-center gap-3 mt-6 text-[11px] text-muted-foreground">
               <div className="flex -space-x-2">
                 {["RR", "SM", "AD", "VK"].map((initials, i) => (
                   <div
@@ -434,8 +398,34 @@ export default function LandingPage() {
               ))}
             </div>
 
-            {/* Staggered Reveal: INTERACTIVE HERO COCKPIT */}
-            <div className="animate-fade-up delay-700 pt-10 max-w-5xl mx-auto">
+            {/* Staggered Reveal: INTERACTIVE HERO COCKPIT (With Contextual Floating Telemetry Badges) */}
+            <div className="animate-fade-up delay-700 pt-12 max-w-5xl mx-auto relative">
+              {/* Floating Live Telemetry Badge: Anchored above Top-Left of Cockpit */}
+              <div className="hidden lg:flex items-center absolute -top-1 left-4 xl:-left-6 z-20 animate-float pointer-events-none">
+                <div className="glass-panel border border-emerald-500/30 shadow-xl rounded-2xl py-2 px-3.5 flex items-center gap-2.5 backdrop-blur-md">
+                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse-emerald shrink-0" />
+                  <div className="text-left">
+                    <div className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                      2-Way Channel Lock
+                    </div>
+                    <div className="text-[11px] font-semibold text-foreground">Airbnb booked &bull; MMT locked in 18ms</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Live Telemetry Badge: Anchored above Top-Right of Cockpit */}
+              <div className="hidden lg:flex items-center absolute -top-1 right-4 xl:-right-6 z-20 animate-float-reverse pointer-events-none">
+                <div className="glass-panel border border-rentcot-blue/30 shadow-xl rounded-2xl py-2 px-3.5 flex items-center gap-2.5 backdrop-blur-md">
+                  <div className="h-2.5 w-2.5 rounded-full bg-rentcot-blue animate-pulse-glow shrink-0" />
+                  <div className="text-left">
+                    <div className="text-[9px] font-bold text-rentcot-blue uppercase tracking-wider">
+                      Live Operations Radar
+                    </div>
+                    <div className="text-[11px] font-semibold text-foreground">94.2% Occupancy &bull; Zero Overbookings</div>
+                  </div>
+                </div>
+              </div>
+
               <div className="cockpit-glow rounded-2xl bg-card/95 shadow-2xl p-4 sm:p-6 backdrop-blur-md text-left transition-all">
                 {/* Cockpit Title Bar */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
