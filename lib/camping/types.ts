@@ -2,7 +2,9 @@ export type CampsitePitchType =
   | "luxury_glamping_dome"
   | "pre_pitched_tent"
   | "byot_ground_pitch"
-  | "rv_campervan_bay";
+  | "rv_campervan_bay"
+  | "swiss_cottage_tent"
+  | "alpine_dome";
 
 export type PitchGroundType =
   | "wooden_deck"
@@ -30,28 +32,44 @@ export type GearCondition =
   | "under_repair"
   | "damaged";
 
-export interface CampsitePitch {
-  id: string;
-  pitchNumber: string;
+export type TentStatus = "available" | "reserved" | "occupied" | "maintenance" | "dirty";
+
+export interface CampsiteGuest {
+  bookingId: string;
   name: string;
-  type: CampsitePitchType;
+  phone: string;
+  email?: string;
+  adults: number;
+  children: number;
+  pets: number;
+  checkIn: string;
+  checkOut: string;
+  paidAmount: number;
+  paymentStatus: "paid" | "partial" | "pending";
+  mealPlan: "veg_special" | "jain" | "standard_veg" | "non_veg";
+  bbqOptIn: boolean;
+  firewoodBundles: number;
+  sleepingBagsExtra: number;
+  notes?: string;
+}
+
+export interface CampsitePitch {
+  id: string | number;
+  pitchNumber: string; // e.g. "RC-1" to "RC-200" or "DOME-01"
+  name: string;
+  zone: "A" | "B" | "C" | "D";
+  zoneName: string;
+  type: CampsitePitchType | string;
   groundType: PitchGroundType;
   powerSupply: PitchPowerType;
   firePit: FirePitType;
   maxOccupancy: number;
+  ratePerNight: number;
   hasAttachedWashroom: boolean;
   distanceToWashroomMeters: number;
   isShaded: boolean;
-  status: "available" | "occupied" | "reserved" | "maintenance";
-  currentGuest?: {
-    name: string;
-    phone: string;
-    adults: number;
-    children: number;
-    pets: number;
-    checkIn: string;
-    checkOut: string;
-  };
+  status: TentStatus;
+  currentGuest?: CampsiteGuest;
 }
 
 export interface CampfireBbqOrder {
@@ -61,7 +79,7 @@ export interface CampfireBbqOrder {
   phone: string;
   scheduledTime: string;
   firewoodBundles: number;
-  bbqPackage: "veg_marinade" | "nonveg_marinade" | "mixed_grill" | "wood_only";
+  bbqPackage: "veg_marinade" | "nonveg_marinade" | "mixed_grill" | "wood_only" | "marshmallow_kit";
   fireSafetyCleared: boolean;
   status: "scheduled" | "delivered" | "lit" | "extinguished";
   totalAmount: number;
@@ -70,7 +88,7 @@ export interface CampfireBbqOrder {
 export interface GearItem {
   id: string;
   name: string;
-  category: "sleeping_bag" | "air_mattress" | "headlamp" | "camp_chair" | "trekking_pole";
+  category: "sleeping_bag" | "air_mattress" | "headlamp" | "camp_chair" | "trekking_pole" | "portable_stove";
   serialTag: string;
   condition: GearCondition;
   lastSanitized: string;
