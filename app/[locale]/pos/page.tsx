@@ -435,6 +435,7 @@ const initialCatalog: POSItem[] = [
     taxRate: 0.18,
     sacCode: "999699",
     available: true,
+    isPerPerson: true,
     description: "200cc all-terrain quad ride through mud track and wooded trail with instructor",
     unit: "rider",
   },
@@ -446,6 +447,7 @@ const initialCatalog: POSItem[] = [
     taxRate: 0.18,
     sacCode: "999699",
     available: true,
+    isPerPerson: true,
     description: "Tandem or solo sit-on-top kayak with life vests and safety supervisor",
     unit: "session",
   },
@@ -454,9 +456,11 @@ const initialCatalog: POSItem[] = [
     name: "Guided Organic Farm Walk & Harvest Tour",
     category: "activities",
     price: 300,
+    kidPrice: 150,
     taxRate: 0.05,
     sacCode: "9983",
     available: true,
+    isPerPerson: true,
     description: "Agronomist-led tour of drip irrigation, hydroponics and pluck-your-own veggies",
     unit: "guest",
   },
@@ -479,6 +483,7 @@ const initialCatalog: POSItem[] = [
     taxRate: 0.18,
     sacCode: "999699",
     available: true,
+    isPerPerson: true,
     description: "Recurve bows & .177 air rifles with bullseye target boards and safety gear",
     unit: "session",
   },
@@ -919,6 +924,39 @@ export default function POSPage() {
   const [kidsCount, setKidsCount] = useState<number>(0);
   const [petsCount, setPetsCount] = useState<number>(0);
 
+  // Handler to update adult count and auto-sync per-person/activity cart items
+  const handleUpdateAdults = (newAdults: number) => {
+    if (newAdults < 1) return;
+    const prevAdults = adultsCount;
+    setAdultsCount(newAdults);
+
+    // Auto-sync items in cart that are per-person (e.g. ATV ride, kayaking, thali, pass)
+    setCart((prev) =>
+      prev.map((c) => {
+        if (c.item.isPerPerson && (c.quantity === prevAdults || c.quantity === 1)) {
+          return { ...c, quantity: newAdults };
+        }
+        return c;
+      })
+    );
+  };
+
+  // Handler to update kid count and auto-sync kid pass items in cart
+  const handleUpdateKids = (newKids: number) => {
+    if (newKids < 0) return;
+    const prevKids = kidsCount;
+    setKidsCount(newKids);
+
+    setCart((prev) =>
+      prev.map((c) => {
+        if (c.item.id.endsWith("-kid") && (c.quantity === prevKids || c.quantity === 1)) {
+          return { ...c, quantity: Math.max(1, newKids) };
+        }
+        return c;
+      })
+    );
+  };
+
   // Group Headcount Feasts & Passes Collapsible Banner
   const [showHeadcountPackages, setShowHeadcountPackages] = useState<boolean>(false);
 
@@ -1055,8 +1093,8 @@ export default function POSPage() {
       setSelectedRoom(found.roomOrPitch);
       setGuestName(found.guestName);
       setGuestPhone(found.guestPhone);
-      setAdultsCount(found.adultsCount);
-      setKidsCount(found.kidsCount);
+      handleUpdateAdults(found.adultsCount);
+      handleUpdateKids(found.kidsCount);
       setPetsCount(found.petsCount || 0);
       setChargeTarget(found.type === "in_house" ? "room" : "direct");
       if (found.isCorporate) {
@@ -1077,8 +1115,8 @@ export default function POSPage() {
       setSelectedGuestId(found.id);
       setGuestName(found.guestName);
       setGuestPhone(found.guestPhone);
-      setAdultsCount(found.adultsCount);
-      setKidsCount(found.kidsCount);
+      handleUpdateAdults(found.adultsCount);
+      handleUpdateKids(found.kidsCount);
       setPetsCount(found.petsCount || 0);
       if (found.isCorporate) {
         setIsB2B(true);
@@ -1100,8 +1138,8 @@ export default function POSPage() {
         setSelectedGuestId(activeRoom.id);
         setGuestName(activeRoom.guestName);
         setGuestPhone(activeRoom.guestPhone);
-        setAdultsCount(activeRoom.adultsCount || 2);
-        setKidsCount(activeRoom.kidsCount || 0);
+        handleUpdateAdults(activeRoom.adultsCount || 2);
+        handleUpdateKids(activeRoom.kidsCount || 0);
         setPetsCount(activeRoom.petsCount || 0);
         if (activeRoom.isCorporate) {
           setIsB2B(true);
@@ -1115,9 +1153,7 @@ export default function POSPage() {
       setSelectedGuestId("walk_in");
       setGuestName("Walk-In Guest");
       setGuestPhone("");
-      setAdultsCount(1);
-      setKidsCount(0);
-      setPetsCount(0);
+      setSelectedRoom("");
       setIsB2B(false);
     }
   };
@@ -1385,65 +1421,83 @@ export default function POSPage() {
     setCart((prev) => [...prev, ...itemsToAdd]);
   };
 
-  // Handler to charge ANY catalog item on a per-head (Adults & Kids) basis
+  // Handler to charge catalog item on a per-head (Adults & Kids) basis
   const handleChargeItemForGuests = (item: POSItem) => {
     if (adultsCount <= 0 && kidsCount <= 0) {
       alert("Please specify at least 1 adult or kid guest.");
       return;
     }
 
-    const adultPrice = item.price;
-    const kidPrice = item.kidPrice !== undefined ? item.kidPrice : Math.round(item.price * 0.5);
+    setCart((prev) => {
+      let updated = [...prev];
 
-    const itemsToAdd: { item: POSItem; quantity: number }[] = [];
+      // Add or update adult portion using the real item.id so card counters sync
+      if (adultsCount > 0) {
+        const adultItemIndex = updated.findIndex((c) => c.item.id === item.id);
+        if (adultItemIndex >= 0) {
+          updated[adultItemIndex] = {
+            ...updated[adultItemIndex],
+            quantity: adultsCount,
+          };
+        } else {
+          updated.push({
+            item,
+            quantity: adultsCount,
+          });
+        }
+      }
 
-    if (adultsCount > 0) {
-      itemsToAdd.push({
-        item: {
-          id: `pax-adult-${item.id}-${Date.now()}`,
-          name: `${item.name} (${adultsCount} Adults @ ₹${adultPrice.toLocaleString()})`,
-          category: item.category,
-          price: adultPrice,
-          taxRate: item.taxRate,
-          sacCode: item.sacCode,
-          available: true,
-          unit: `${adultsCount} Adult${adultsCount > 1 ? "s" : ""}`,
-          isPerPerson: true,
-        },
-        quantity: adultsCount,
-      });
-    }
+      // If kids are present and item has a kid price or is per-person, add or update kid line
+      if (kidsCount > 0 && (item.kidPrice !== undefined || item.isPerPerson)) {
+        const kidPrice = item.kidPrice !== undefined ? item.kidPrice : Math.round(item.price * 0.5);
+        const kidItemId = `${item.id}-kid`;
+        const kidItemIndex = updated.findIndex((c) => c.item.id === kidItemId);
 
-    if (kidsCount > 0) {
-      itemsToAdd.push({
-        item: {
-          id: `pax-kid-${item.id}-${Date.now()}`,
-          name: `${item.name} (${kidsCount} Kids @ ₹${kidPrice.toLocaleString()})`,
-          category: item.category,
+        const kidItem: POSItem = {
+          ...item,
+          id: kidItemId,
+          name: `${item.name} (${kidsCount} Kids)`,
           price: kidPrice,
-          taxRate: item.taxRate,
-          sacCode: item.sacCode,
-          available: true,
           unit: `${kidsCount} Kid${kidsCount > 1 ? "s" : ""}`,
           isPerPerson: true,
-        },
-        quantity: kidsCount,
-      });
-    }
+        };
 
-    setCart((prev) => [...prev, ...itemsToAdd]);
+        if (kidItemIndex >= 0) {
+          updated[kidItemIndex] = {
+            ...updated[kidItemIndex],
+            quantity: kidsCount,
+          };
+        } else {
+          updated.push({
+            item: kidItem,
+            quantity: kidsCount,
+          });
+        }
+      }
+
+      return updated;
+    });
   };
 
   // Cart operations
-  const addToCart = (item: POSItem) => {
+  const addToCart = (item: POSItem, customQty?: number) => {
     setCart((prev) => {
       const existing = prev.find((c) => c.item.id === item.id);
       if (existing) {
+        const increment = customQty !== undefined ? customQty : 1;
         return prev.map((c) =>
-          c.item.id === item.id ? { ...c, quantity: c.quantity + 1 } : c
+          c.item.id === item.id ? { ...c, quantity: c.quantity + increment } : c
         );
       }
-      return [...prev, { item, quantity: 1 }];
+      // If item is per-person (e.g. ATV ride, kayaking, thali, pass) and adultsCount > 1, default initial quantity to adultsCount
+      const initialQty =
+        customQty !== undefined
+          ? customQty
+          : item.isPerPerson && adultsCount > 1
+          ? adultsCount
+          : 1;
+
+      return [...prev, { item, quantity: initialQty }];
     });
   };
 
@@ -2368,7 +2422,9 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                                     }}
                                   >
                                     <Plus className="h-3.5 w-3.5" />
-                                    <span>Add</span>
+                                    <span>
+                                      {item.isPerPerson && adultsCount > 1 ? `Add (${adultsCount})` : "Add"}
+                                    </span>
                                   </Button>
                                 )}
                               </div>
@@ -2849,7 +2905,7 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                         <div className="flex items-center gap-0.5 bg-muted rounded p-0.5">
                           <button
                             type="button"
-                            onClick={() => setAdultsCount((p) => Math.max(1, p - 1))}
+                            onClick={() => handleUpdateAdults(Math.max(1, adultsCount - 1))}
                             className="h-5 w-5 rounded bg-background flex items-center justify-center font-bold text-xs hover:bg-card"
                           >
                             -
@@ -2857,7 +2913,7 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                           <span className="w-5 text-center font-bold text-xs">{adultsCount}</span>
                           <button
                             type="button"
-                            onClick={() => setAdultsCount((p) => p + 1)}
+                            onClick={() => handleUpdateAdults(adultsCount + 1)}
                             className="h-5 w-5 rounded bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs"
                           >
                             +
@@ -2871,7 +2927,7 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                         <div className="flex items-center gap-0.5 bg-muted rounded p-0.5">
                           <button
                             type="button"
-                            onClick={() => setKidsCount((p) => Math.max(0, p - 1))}
+                            onClick={() => handleUpdateKids(Math.max(0, kidsCount - 1))}
                             className="h-5 w-5 rounded bg-background flex items-center justify-center font-bold text-xs hover:bg-card"
                           >
                             -
@@ -2879,7 +2935,7 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                           <span className="w-5 text-center font-bold text-xs">{kidsCount}</span>
                           <button
                             type="button"
-                            onClick={() => setKidsCount((p) => p + 1)}
+                            onClick={() => handleUpdateKids(kidsCount + 1)}
                             className="h-5 w-5 rounded bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs"
                           >
                             +
@@ -3022,13 +3078,36 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="font-extrabold text-foreground font-mono">
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {/* In-folio quantity stepper */}
+                          <div className="flex items-center gap-0.5 bg-background rounded-md border border-border p-0.5 shadow-2xs">
+                            <button
+                              type="button"
+                              onClick={() => removeFromCart(item.id)}
+                              className="h-5 w-5 rounded bg-muted/60 flex items-center justify-center font-bold text-xs hover:bg-muted text-foreground transition-colors"
+                              title="Decrease quantity"
+                            >
+                              -
+                            </button>
+                            <span className="w-5 text-center font-bold font-mono text-xs text-foreground">
+                              {quantity}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => addToCart(item, 1)}
+                              className="h-5 w-5 rounded bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-2xs hover:bg-primary/90 transition-colors"
+                              title="Increase quantity"
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          <span className="font-extrabold text-foreground font-mono min-w-[56px] text-right">
                             ₹{(quantity * item.price).toLocaleString()}
                           </span>
                           <button
                             onClick={() => clearCartItem(item.id)}
-                            className="text-muted-foreground hover:text-destructive p-1 transition-colors"
+                            className="text-muted-foreground hover:text-destructive p-1 transition-colors ml-0.5"
                             title="Remove item"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
