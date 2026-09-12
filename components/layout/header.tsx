@@ -13,7 +13,8 @@ import {
   Compass,
   TreePine,
   Tent,
-  UserPlus
+  UserPlus,
+  Globe,
 } from "lucide-react";
 
 export function Header({
@@ -49,7 +50,7 @@ export function Header({
         </button>
 
         {/* Official Brand Logo */}
-        <Link href={`/${locale}`} className="flex items-center gap-2">
+        <Link href={`/${locale}/dashboard`} className="flex items-center gap-2" title="Rentcot Property OS Dashboard">
           <div className="relative h-8 w-32 md:h-9 md:w-36">
             <Image
               src="/brand/rentcot-logo.png"
@@ -124,6 +125,16 @@ export function Header({
 
         {/* Language Switcher */}
         <LanguageSwitcher />
+
+        {/* Public Landing Page Link */}
+        <Link
+          href={`/${locale}`}
+          className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-background text-muted-foreground hover:text-foreground text-xs font-medium transition-colors"
+          title="View Public Marketing Landing Page"
+        >
+          <Globe className="h-3.5 w-3.5 text-rentcot-blue" />
+          <span>Public Site</span>
+        </Link>
 
         {/* Notification Bell */}
         <button

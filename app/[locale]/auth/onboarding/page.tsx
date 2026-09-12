@@ -489,7 +489,7 @@ export default function OnboardingPage() {
 
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Button
-                  onClick={() => router.push(`/${locale}`)}
+                  onClick={() => router.push(`/${locale}/dashboard`)}
                   className="w-full sm:w-auto bg-rentcot-blue hover:bg-rentcot-blue/90 text-white font-semibold"
                 >
                   Enter Owner Dashboard

@@ -269,10 +269,10 @@ export default function LoginPage() {
 
             <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
               <Link
-                href={`/${locale}/auth/onboarding`}
-                className="text-rentcot-blue font-medium hover:underline"
+                href={`/${locale}/auth/signup`}
+                className="text-rentcot-blue font-semibold hover:underline"
               >
-                + Register New Resort / Org
+                + Register / Sign Up (14-Day Free Trial)
               </Link>
               <Link
                 href={`/${locale}/guest/portal`}

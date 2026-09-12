@@ -20,6 +20,8 @@ import {
   X,
   Tent,
   Flame,
+  Globe,
+  ExternalLink,
 } from "lucide-react";
 
 export function Sidebar({
@@ -33,7 +35,7 @@ export function Sidebar({
   const pathname = usePathname();
 
   const navItems = [
-    { label: t("nav.dashboard", "Overview"), href: `/${locale}`, icon: LayoutDashboard },
+    { label: t("nav.dashboard", "Overview"), href: `/${locale}/dashboard`, icon: LayoutDashboard },
     { label: t("nav.properties", "Properties"), href: `/${locale}/properties`, icon: Building },
     { label: t("nav.units", "Units & Accommodations"), href: `/${locale}/units`, icon: BedDouble },
     { label: "Pricing Engine", href: `/${locale}/pricing`, icon: CreditCard },
@@ -82,10 +84,7 @@ export function Sidebar({
         <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-6rem)] pr-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive =
-              item.href === `/${locale}`
-                ? pathname === `/${locale}` || pathname === `/${locale}/`
-                : pathname.startsWith(item.href);
+            const isActive = pathname === item.href || (item.href !== `/${locale}` && pathname.startsWith(item.href));
 
             return (
               <Link
@@ -103,6 +102,20 @@ export function Sidebar({
               </Link>
             );
           })}
+
+          <div className="pt-2 mt-2 border-t border-border">
+            <Link
+              href={`/${locale}`}
+              onClick={onClose}
+              className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold text-rentcot-blue hover:bg-rentcot-blue/10 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4" />
+                <span>Public Landing Page</span>
+              </div>
+              <ExternalLink className="h-3 w-3" />
+            </Link>
+          </div>
         </nav>
       </aside>
     </>
