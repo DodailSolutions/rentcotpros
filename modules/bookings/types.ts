@@ -68,6 +68,7 @@ export interface RichReservation {
   otaSyncLocked: boolean;
   ownerName?: string;
   ownerPayout?: number;
+  pricingMode?: "per_unit" | "per_person";
 }
 
 export interface Booking {

@@ -186,8 +186,8 @@ export function calculateStayPrice(params: PricingCalculationParams): PriceBreak
       }
     }
 
-    // Special tent per-person calculation
-    if (ratePlan.pricingType === "tent_per_person") {
+    // Special per-person calculation (tent_per_person or per_person)
+    if (ratePlan.pricingType === "tent_per_person" || ratePlan.pricingType === "per_person") {
       effectiveRate = effectiveRate * adultsCount;
     }
 
@@ -207,12 +207,12 @@ export function calculateStayPrice(params: PricingCalculationParams): PriceBreak
   let extraAdultsAmount = 0;
   let extraChildrenAmount = 0;
 
-  if (ratePlan.pricingType !== "tent_per_person") {
+  if (ratePlan.pricingType !== "tent_per_person" && ratePlan.pricingType !== "per_person") {
     const extraAdults = Math.max(0, adultsCount - baseIncludedAdults);
     extraAdultsAmount = extraAdults * ratePlan.extraAdultRate * totalNights;
     extraChildrenAmount = childrenCount * ratePlan.extraChildRate * totalNights;
   } else {
-    // For tent per-person, children extra rate
+    // For per-person, children extra rate
     extraChildrenAmount = childrenCount * ratePlan.extraChildRate * totalNights;
   }
 

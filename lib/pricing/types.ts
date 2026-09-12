@@ -3,7 +3,9 @@ export type PricingType =
   | "hourly"
   | "day_use"
   | "tent_flat"
-  | "tent_per_person";
+  | "tent_per_person"
+  | "per_person";
+
 
 export type OverrideType =
   | "fixed_rate"

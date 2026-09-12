@@ -48,6 +48,7 @@ import {
   Phone,
   Calendar,
   IndianRupee,
+  DollarSign,
 } from "lucide-react";
 
 const propertyOwnerCatalog: Record<
@@ -401,8 +402,11 @@ const initialUnits: RichUnit[] = [
     image_url: "https://images.unsplash.com/photo-1510312305653-8ed496efae75?w=600&auto=format&fit=crop&q=80",
     owner_name: "Rajesh Sharma",
     owner_phone: "+91 98490 12345",
-    pricing_model: "single_tent",
+    pricing_model: "per_person",
     per_person_rate: 1200,
+    min_chargeable_pax: 2,
+    package_includes_meals: true,
+    meal_inclusions: "Campfire BBQ, Buffet Dinner & Morning Breakfast",
     tent_type: "alpine_tent",
     washroom_type: "shared_bathhouse",
     ground_type: "grass_pitch",
@@ -482,7 +486,7 @@ export default function UnitsPage() {
   const [selectedProperty, setSelectedProperty] = useState<string>("ALL");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterPricingModel, setFilterPricingModel] = useState<"all" | "per_unit" | "single_tent">("all");
+  const [filterPricingModel, setFilterPricingModel] = useState<"all" | "per_unit" | "per_person" | "single_tent">("all");
   const [filterPetFriendly, setFilterPetFriendly] = useState(false);
   const [filterAC, setFilterAC] = useState(false);
   const [filterPool, setFilterPool] = useState(false);
@@ -504,10 +508,13 @@ export default function UnitsPage() {
   const [tentFormUnitNumber, setTentFormUnitNumber] = useState("T-05");
   const [tentFormName, setTentFormName] = useState("Geodesic Glamping Dome 03");
   const [tentFormCategory, setTentFormCategory] = useState<UnitCategory>("glamping_dome");
-  const [tentFormPricingModel, setTentFormPricingModel] = useState<"per_unit" | "single_tent">("per_unit");
+  const [tentFormPricingModel, setTentFormPricingModel] = useState<"per_person" | "per_unit" | "single_tent">("per_person");
   const [tentFormRate, setTentFormRate] = useState(5500);
   const [tentFormWeekendRate, setTentFormWeekendRate] = useState(6500);
   const [tentFormPerPersonRate, setTentFormPerPersonRate] = useState(1200);
+  const [tentFormMinPax, setTentFormMinPax] = useState(2);
+  const [tentFormMealsIncluded, setTentFormMealsIncluded] = useState(true);
+  const [tentFormMealDescription, setTentFormMealDescription] = useState("Campfire BBQ, Buffet Dinner & Morning Breakfast");
   const [tentFormAdults, setTentFormAdults] = useState(3);
   const [tentFormChildren, setTentFormChildren] = useState(1);
   const [tentFormZone, setTentFormZone] = useState("Zone A: Lakeside Deck");
@@ -523,6 +530,11 @@ export default function UnitsPage() {
   const [formName, setFormName] = useState("");
   const [formPropertyName, setFormPropertyName] = useState("Palm Oasis Luxury Resort");
   const [formCategory, setFormCategory] = useState<UnitCategory>("suite");
+  const [formPricingModel, setFormPricingModel] = useState<"per_unit" | "per_person">("per_unit");
+  const [formPerPersonRate, setFormPerPersonRate] = useState(1500);
+  const [formMinChargeablePax, setFormMinChargeablePax] = useState(2);
+  const [formIncludesMeals, setFormIncludesMeals] = useState(false);
+  const [formMealInclusions, setFormMealInclusions] = useState("Breakfast Buffet Included");
   const [formZone, setFormZone] = useState("");
   const [formRate, setFormRate] = useState(8500);
   const [formWeekendRate, setFormWeekendRate] = useState(9500);
@@ -639,6 +651,11 @@ export default function UnitsPage() {
     setFormName("Deluxe Lakeview Cottage");
     setFormPropertyName("Palm Oasis Luxury Resort");
     setFormCategory("cottage");
+    setFormPricingModel("per_unit");
+    setFormPerPersonRate(1500);
+    setFormMinChargeablePax(2);
+    setFormIncludesMeals(false);
+    setFormMealInclusions("Breakfast Buffet Included");
     setFormZone("Waterfront Garden");
     setFormRate(9500);
     setFormWeekendRate(11000);
@@ -659,6 +676,11 @@ export default function UnitsPage() {
     setFormName(u.name);
     setFormPropertyName(u.property_name);
     setFormCategory(u.category);
+    setFormPricingModel(u.pricing_model === "per_person" ? "per_person" : "per_unit");
+    setFormPerPersonRate(u.per_person_rate || 1500);
+    setFormMinChargeablePax(u.min_chargeable_pax || 2);
+    setFormIncludesMeals(u.package_includes_meals || false);
+    setFormMealInclusions(u.meal_inclusions || "Breakfast Buffet Included");
     setFormZone(u.zone_or_floor);
     setFormRate(u.rate_per_night);
     setFormWeekendRate(u.weekend_rate);
@@ -686,6 +708,11 @@ export default function UnitsPage() {
                 name: formName,
                 property_name: formPropertyName,
                 category: formCategory,
+                pricing_model: formPricingModel,
+                per_person_rate: formPricingModel === "per_person" ? Number(formPerPersonRate) : undefined,
+                min_chargeable_pax: formPricingModel === "per_person" ? Number(formMinChargeablePax) : undefined,
+                package_includes_meals: formPricingModel === "per_person" ? formIncludesMeals : undefined,
+                meal_inclusions: formPricingModel === "per_person" && formIncludesMeals ? formMealInclusions : undefined,
                 zone_or_floor: formZone,
                 rate_per_night: Number(formRate),
                 weekend_rate: Number(formWeekendRate),
@@ -713,6 +740,11 @@ export default function UnitsPage() {
         category_label: formCategory.replace("_", " ").toUpperCase(),
         zone_or_floor: formZone || "Main Floor",
         status: "clean",
+        pricing_model: formPricingModel,
+        per_person_rate: formPricingModel === "per_person" ? Number(formPerPersonRate) : undefined,
+        min_chargeable_pax: formPricingModel === "per_person" ? Number(formMinChargeablePax) : undefined,
+        package_includes_meals: formPricingModel === "per_person" ? formIncludesMeals : undefined,
+        meal_inclusions: formPricingModel === "per_person" && formIncludesMeals ? formMealInclusions : undefined,
         rate_per_night: Number(formRate),
         weekend_rate: Number(formWeekendRate),
         adults_capacity: Number(formAdults),
@@ -729,7 +761,6 @@ export default function UnitsPage() {
         image_url: formImage || "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&auto=format&fit=crop&q=80",
         owner_name: propertyOwnerCatalog[formPropertyName]?.owner || "Estate Owner",
         owner_phone: propertyOwnerCatalog[formPropertyName]?.phone || "+91 98480 00000",
-        pricing_model: "per_unit",
       };
       setUnits((prev) => [created, ...prev]);
       setIsAddUnitModalOpen(false);
@@ -750,54 +781,97 @@ export default function UnitsPage() {
       setTentFormUnitNumber(`T-${pad}`);
       setTentFormName(`Geodesic Glamping Dome ${pad}`);
       setTentFormCategory("glamping_dome");
-      setTentFormPricingModel("per_unit");
+      setTentFormPricingModel("per_person");
       setTentFormRate(5500);
       setTentFormWeekendRate(6500);
       setTentFormPerPersonRate(1200);
+      setTentFormMinPax(2);
+      setTentFormMealsIncluded(true);
+      setTentFormMealDescription("Campfire BBQ, Buffet Dinner & Morning Breakfast");
+      setTentFormAdults(3);
+      setTentFormChildren(1);
       setTentFormZone("Zone A: Lakeside Deck");
       setTentFormWashroom("attached_private");
       setTentFormGround("wooden_deck");
-      setTentFormLockCode(`Lockbox #${pad} (Code: 77${pad})`);
-    } else {
+      setTentFormHasAC(true);
+      setTentFormHasPower(true);
+      setTentFormPetFriendly(true);
+      setTentFormLockCode(`Lockbox #${pad} (Code: 1944)`);
+    } else if (targetProp.includes("Green Valley")) {
       setTentFormUnitNumber(`BELL-${pad}`);
       setTentFormName(`Orchard Glamping Bell Tent ${pad}`);
       setTentFormCategory("glamping_dome");
-      setTentFormPricingModel("per_unit");
+      setTentFormPricingModel("per_person");
       setTentFormRate(4500);
       setTentFormWeekendRate(5500);
-      setTentFormPerPersonRate(1000);
+      setTentFormPerPersonRate(950);
+      setTentFormMinPax(2);
+      setTentFormMealsIncluded(true);
+      setTentFormMealDescription("Farm Fresh Organic Lunch & High-Tea Included");
+      setTentFormAdults(3);
+      setTentFormChildren(1);
       setTentFormZone("Mango Orchard Lawn");
       setTentFormWashroom("attached_private");
       setTentFormGround("grass_pitch");
-      setTentFormLockCode(`Lockbox #${pad} (Code: 55${pad})`);
+      setTentFormHasAC(true);
+      setTentFormHasPower(true);
+      setTentFormPetFriendly(true);
+      setTentFormLockCode(`Lockbox #${pad} (Code: 5521)`);
+    } else {
+      setTentFormUnitNumber(`TENT-${pad}`);
+      setTentFormName(`Luxury Safari Glamping Tent ${pad}`);
+      setTentFormCategory("glamping_dome");
+      setTentFormPricingModel("per_unit");
+      setTentFormRate(6000);
+      setTentFormWeekendRate(7500);
+      setTentFormPerPersonRate(1400);
+      setTentFormMinPax(2);
+      setTentFormMealsIncluded(false);
+      setTentFormMealDescription("");
+      setTentFormAdults(2);
+      setTentFormChildren(0);
+      setTentFormZone("Lakeview Meadow");
+      setTentFormWashroom("attached_private");
+      setTentFormGround("wooden_deck");
+      setTentFormHasAC(true);
+      setTentFormHasPower(true);
+      setTentFormPetFriendly(false);
+      setTentFormLockCode(`Lockbox #${pad} (Code: 8840)`);
     }
+
     setIsAddTentModalOpen(true);
   };
 
-  const handleSaveTent = (e: React.FormEvent) => {
+  const handleSaveTentForOwner = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tentFormUnitNumber.trim() || !tentFormName.trim()) return;
-
-    const ownerMeta = propertyOwnerCatalog[tentFormPropertyName] || propertyOwnerCatalog["Wildwoods Glamping & Campsite"];
+    const ownerMeta = propertyOwnerCatalog[tentFormPropertyName] || {
+      id: tentFormPropertyId,
+      owner: tentFormOwnerName,
+      phone: tentFormOwnerPhone,
+      split: "85% Owner / 15% Rentcot",
+    };
 
     const created: RichUnit = {
-      id: `u-tent-${Date.now()}`,
+      id: `u-${Date.now()}`,
       unit_number: tentFormUnitNumber,
       name: tentFormName,
-      property_id: ownerMeta.id,
+      property_id: tentFormPropertyId,
       property_name: tentFormPropertyName,
       category: tentFormCategory,
       category_label:
         tentFormCategory === "glamping_dome"
-          ? "Geodesic Glamping Dome"
-          : tentFormCategory === "tent" && tentFormPricingModel === "single_tent"
-          ? "Single Tent / BYOT Pitch"
-          : "Swiss Canvas Tent",
-      zone_or_floor: tentFormZone || "Camping Ground",
+          ? "Glamping Dome"
+          : tentFormCategory === "tent"
+          ? "Swiss Tent"
+          : "Outdoor Pitch",
+      zone_or_floor: tentFormZone || "Ground Zone",
       status: "clean",
-      rate_per_night: tentFormPricingModel === "per_unit" ? Number(tentFormRate) : Number(tentFormPerPersonRate),
+      rate_per_night:
+        tentFormPricingModel === "per_unit" ? Number(tentFormRate) : Number(tentFormPerPersonRate),
       weekend_rate:
-        tentFormPricingModel === "per_unit" ? Number(tentFormWeekendRate) : Math.round(Number(tentFormPerPersonRate) * 1.25),
+        tentFormPricingModel === "per_unit"
+          ? Number(tentFormWeekendRate)
+          : Math.round(Number(tentFormPerPersonRate) * 1.25),
       adults_capacity: Number(tentFormAdults),
       children_capacity: Number(tentFormChildren),
       bedding: { kingBeds: 1, queenBeds: 0, singleBeds: 1, bunkBeds: 0, extraRollawayAllowed: true },
@@ -816,7 +890,14 @@ export default function UnitsPage() {
       owner_name: ownerMeta.owner,
       owner_phone: ownerMeta.phone,
       pricing_model: tentFormPricingModel,
-      per_person_rate: tentFormPricingModel === "single_tent" ? Number(tentFormPerPersonRate) : undefined,
+      per_person_rate:
+        tentFormPricingModel === "per_person" || tentFormPricingModel === "single_tent"
+          ? Number(tentFormPerPersonRate)
+          : undefined,
+      min_chargeable_pax: tentFormPricingModel === "per_person" ? Number(tentFormMinPax) : undefined,
+      package_includes_meals: tentFormPricingModel === "per_person" ? tentFormMealsIncluded : undefined,
+      meal_inclusions:
+        tentFormPricingModel === "per_person" && tentFormMealsIncluded ? tentFormMealDescription : undefined,
       tent_type: tentFormCategory as any,
       washroom_type: tentFormWashroom,
       ground_type: tentFormGround,
@@ -825,9 +906,11 @@ export default function UnitsPage() {
     setUnits((prev) => [created, ...prev]);
     setTentActionToast(
       `Successfully added ${tentFormName} (${tentFormUnitNumber}) to ${tentFormPropertyName} (Owner: ${ownerMeta.owner}) charged ${
-        tentFormPricingModel === "per_unit"
+        tentFormPricingModel === "per_person"
+          ? `Per Person (₹${Number(tentFormPerPersonRate).toLocaleString()}/head/nt)`
+          : tentFormPricingModel === "per_unit"
           ? `Per Unit Flat (₹${Number(tentFormRate).toLocaleString()}/nt)`
-          : `Single Tent (₹${Number(tentFormPerPersonRate).toLocaleString()}/head)`
+          : `Single Pitch (₹${Number(tentFormPerPersonRate).toLocaleString()}/head)`
       }!`
     );
     setTimeout(() => setTentActionToast(null), 6000);
@@ -1259,7 +1342,7 @@ export default function UnitsPage() {
           </div>
         </div>
 
-        {/* Dual Pricing Model Filter Bar */}
+        {/* Dual / Multi Pricing Model Filter Bar */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/60 text-xs">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-[11px] text-muted-foreground font-semibold flex items-center gap-1">
@@ -1268,8 +1351,9 @@ export default function UnitsPage() {
             </span>
             {[
               { id: "all", label: "All Pricing Models", count: units.length },
+              { id: "per_person", label: "👤 Charge Per Person", count: units.filter((u) => u.pricing_model === "per_person").length },
               { id: "per_unit", label: "🏷️ Per Unit Flat Rate", count: units.filter((u) => u.pricing_model === "per_unit").length },
-              { id: "single_tent", label: "👤 Single Tent / Per Head", count: units.filter((u) => u.pricing_model === "single_tent").length },
+              { id: "single_tent", label: "⛺ Single Tent Pitch", count: units.filter((u) => u.pricing_model === "single_tent").length },
             ].map((pm) => (
               <button
                 key={pm.id}
@@ -1289,7 +1373,7 @@ export default function UnitsPage() {
           </div>
 
           <div className="text-[11px] text-muted-foreground font-medium hidden sm:block">
-            Outdoor Inventory: <strong className="text-foreground">{kpis.totalTents} Tents</strong> ({kpis.perUnitTents} Unit Flat, {kpis.singleTents} Single Tent Slots)
+            Outdoor Inventory: <strong className="text-foreground">{kpis.totalTents} Tents</strong> ({kpis.perUnitTents} Unit Flat, {units.filter((u) => u.pricing_model === "per_person").length} Per Person, {kpis.singleTents} BYOT Slots)
           </div>
         </div>
       </div>
@@ -1316,14 +1400,19 @@ export default function UnitsPage() {
                     <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-black/60 text-white backdrop-blur-xs border border-white/20">
                       {u.category_label}
                     </span>
+                    {u.pricing_model === "per_person" && (
+                      <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-purple-600 text-white backdrop-blur-xs shadow-xs">
+                        👤 Per Person (₹{(u.per_person_rate || u.rate_per_night).toLocaleString()}/head)
+                      </span>
+                    )}
                     {u.pricing_model === "per_unit" && (
-                      <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-purple-600/90 text-white backdrop-blur-xs shadow-xs">
+                      <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-blue-600/90 text-white backdrop-blur-xs shadow-xs">
                         🏷️ Per Unit Flat
                       </span>
                     )}
                     {u.pricing_model === "single_tent" && (
                       <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-amber-600/90 text-white backdrop-blur-xs shadow-xs">
-                        👤 Single Tent (₹{u.per_person_rate || u.rate_per_night}/head)
+                        ⛺ Single Pitch (₹{(u.per_person_rate || u.rate_per_night).toLocaleString()})
                       </span>
                     )}
                   </div>
@@ -1344,10 +1433,17 @@ export default function UnitsPage() {
 
                     <div className="text-right">
                       <span className="font-mono text-xs font-bold text-white block">
-                        ₹{(u.pricing_model === "single_tent" && u.per_person_rate ? u.per_person_rate : u.rate_per_night).toLocaleString()}
+                        ₹{(u.pricing_model === "per_person" || u.pricing_model === "single_tent"
+                          ? (u.per_person_rate || u.rate_per_night)
+                          : u.rate_per_night
+                        ).toLocaleString()}
                       </span>
                       <span className="text-[9px] text-white/70">
-                        {u.pricing_model === "single_tent" ? "/ camper / nt" : "/ unit / nt"}
+                        {u.pricing_model === "per_person"
+                          ? "/ person / nt"
+                          : u.pricing_model === "single_tent"
+                          ? "/ camper / nt"
+                          : "/ unit / nt"}
                       </span>
                     </div>
                   </div>
@@ -1412,13 +1508,23 @@ export default function UnitsPage() {
 
                   {/* Quick Features Chips */}
                   <div className="flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground">
+                    {u.pricing_model === "per_person" && (
+                      <span className="px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 font-bold">
+                        👤 Per Head {u.min_chargeable_pax && u.min_chargeable_pax > 1 ? `(Min ${u.min_chargeable_pax} Pax)` : ""}
+                      </span>
+                    )}
+                    {u.package_includes_meals && (
+                      <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-medium">
+                        🍽️ Meals Included
+                      </span>
+                    )}
                     {u.pricing_model === "single_tent" && (
                       <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 font-medium">
                         BYOT/Camper
                       </span>
                     )}
                     {u.pricing_model === "per_unit" && (
-                      <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20 font-medium">
+                      <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 font-medium">
                         Unit Flat
                       </span>
                     )}
@@ -1540,11 +1646,13 @@ export default function UnitsPage() {
                               <span className="font-mono font-bold text-sm text-foreground">{u.unit_number}</span>
                               {u.pricing_model && (
                                 <span className={`ml-1.5 text-[9px] font-bold px-1.5 py-0.2 rounded ${
-                                  u.pricing_model === "single_tent"
+                                  u.pricing_model === "per_person"
+                                    ? "bg-purple-500/15 text-purple-700 dark:text-purple-300"
+                                    : u.pricing_model === "single_tent"
                                     ? "bg-amber-500/10 text-amber-700 dark:text-amber-300"
-                                    : "bg-purple-500/10 text-purple-700 dark:text-purple-300"
+                                    : "bg-blue-500/10 text-blue-700 dark:text-blue-300"
                                 }`}>
-                                  {u.pricing_model === "single_tent" ? "Single Tent" : "Per Unit"}
+                                  {u.pricing_model === "per_person" ? "Per Person" : u.pricing_model === "single_tent" ? "Single Tent" : "Per Unit"}
                                 </span>
                               )}
                             </div>
@@ -1553,9 +1661,12 @@ export default function UnitsPage() {
                           <div className="text-xs text-muted-foreground truncate">{u.name}</div>
                           <div className="flex items-center justify-between pt-1 border-t border-border/60 text-xs">
                             <span className="font-mono font-bold text-foreground">
-                              ₹{(u.pricing_model === "single_tent" && u.per_person_rate ? u.per_person_rate : u.rate_per_night).toLocaleString()}
+                              ₹{(u.pricing_model === "per_person" || u.pricing_model === "single_tent"
+                                ? (u.per_person_rate || u.rate_per_night)
+                                : u.rate_per_night
+                              ).toLocaleString()}
                               <span className="text-[9px] text-muted-foreground font-normal">
-                                {u.pricing_model === "single_tent" ? "/camper" : "/nt"}
+                                {u.pricing_model === "per_person" ? "/person" : u.pricing_model === "single_tent" ? "/camper" : "/nt"}
                               </span>
                             </span>
                             <span className="text-[11px] text-muted-foreground">{u.adults_capacity}A / {u.children_capacity}C</span>
@@ -1606,13 +1717,17 @@ export default function UnitsPage() {
                   </td>
                   <td className="p-3.5 font-medium capitalize">{u.category.replace("_", " ")}</td>
                   <td className="p-3.5">
-                    {u.pricing_model === "per_unit" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/25">
+                    {u.pricing_model === "per_person" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30">
+                        👤 Per Person
+                      </span>
+                    ) : u.pricing_model === "per_unit" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/25">
                         🏷️ Per Unit Flat
                       </span>
                     ) : u.pricing_model === "single_tent" ? (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/25">
-                        👤 Single Tent
+                        ⛺ Single Pitch
                       </span>
                     ) : (
                       <span className="text-muted-foreground text-[10px]">Standard</span>
@@ -1620,9 +1735,12 @@ export default function UnitsPage() {
                   </td>
                   <td className="p-3.5">{getStatusBadge(u.status)}</td>
                   <td className="p-3.5 font-mono font-bold">
-                    ₹{(u.pricing_model === "single_tent" && u.per_person_rate ? u.per_person_rate : u.rate_per_night).toLocaleString()}
+                    ₹{(u.pricing_model === "per_person" || u.pricing_model === "single_tent"
+                      ? (u.per_person_rate || u.rate_per_night)
+                      : u.rate_per_night
+                    ).toLocaleString()}
                     <span className="text-[10px] text-muted-foreground font-normal block">
-                      {u.pricing_model === "single_tent" ? "per camper / nt" : "per unit / nt"}
+                      {u.pricing_model === "per_person" ? "per person / nt" : u.pricing_model === "single_tent" ? "per camper / nt" : "per unit / nt"}
                     </span>
                   </td>
                   <td className="p-3.5 text-foreground font-medium">{u.assigned_cleaner || "Unassigned"}</td>
@@ -1750,13 +1868,17 @@ export default function UnitsPage() {
                     <User className="h-3.5 w-3.5 text-rentcot-blue" />
                     <span>Estate Owner & Commercial Model</span>
                   </span>
-                  {selectedUnitForDossier.pricing_model === "per_unit" ? (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/25">
+                  {selectedUnitForDossier.pricing_model === "per_person" ? (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30">
+                      👤 Charge Per Person
+                    </span>
+                  ) : selectedUnitForDossier.pricing_model === "per_unit" ? (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/25">
                       🏷️ Per Unit Flat Rate
                     </span>
                   ) : selectedUnitForDossier.pricing_model === "single_tent" ? (
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/25">
-                      👤 Single Tent / Per Head
+                      ⛺ Single Pitch Slot
                     </span>
                   ) : null}
                 </div>
@@ -1771,6 +1893,29 @@ export default function UnitsPage() {
                     <strong className="text-foreground text-xs font-mono">{selectedUnitForDossier.owner_phone || "On File"}</strong>
                   </div>
                 </div>
+
+                {/* Per Person Pricing Attributes */}
+                {selectedUnitForDossier.pricing_model === "per_person" && (
+                  <div className="p-2.5 rounded-lg bg-purple-500/5 border border-purple-500/20 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-foreground">Per-Person Rate:</span>
+                      <span className="font-mono font-bold text-purple-700 dark:text-purple-300">
+                        ₹{(selectedUnitForDossier.per_person_rate || selectedUnitForDossier.rate_per_night).toLocaleString()} / head / nt
+                      </span>
+                    </div>
+                    {selectedUnitForDossier.min_chargeable_pax && selectedUnitForDossier.min_chargeable_pax > 1 && (
+                      <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                        <span>Minimum Chargeable Guests:</span>
+                        <span className="font-bold text-foreground">{selectedUnitForDossier.min_chargeable_pax} Guests</span>
+                      </div>
+                    )}
+                    {selectedUnitForDossier.meal_inclusions && (
+                      <div className="text-[10px] text-muted-foreground pt-1 border-t border-purple-500/20 italic">
+                        🍽️ {selectedUnitForDossier.meal_inclusions}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Tent Specific Attributes */}
                 {(selectedUnitForDossier.pricing_model || selectedUnitForDossier.category === "tent" || selectedUnitForDossier.category === "glamping_dome") && (
@@ -1790,7 +1935,11 @@ export default function UnitsPage() {
                     <div className="p-1.5 rounded-lg bg-background border border-border/70">
                       <span className="text-[9px] text-muted-foreground block uppercase">Billing Base</span>
                       <strong className="text-foreground capitalize text-[10px]">
-                        {selectedUnitForDossier.pricing_model === "single_tent" ? "Per Camper" : "Entire Tent"}
+                        {selectedUnitForDossier.pricing_model === "per_person"
+                          ? "Per Head / Camper"
+                          : selectedUnitForDossier.pricing_model === "single_tent"
+                          ? "Per Camper"
+                          : "Entire Unit"}
                       </strong>
                     </div>
                   </div>
@@ -2053,25 +2202,134 @@ export default function UnitsPage() {
                 </div>
               </div>
 
+              {/* Unit Billing & Commercial Model Selector */}
+              <div className="space-y-1.5 p-3 rounded-xl bg-muted/40 border border-border">
+                <label className="font-bold text-foreground text-xs flex items-center gap-1.5">
+                  <DollarSign className="h-3.5 w-3.5 text-rentcot-blue" />
+                  <span>Charging & Commercial Billing Model</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div
+                    onClick={() => setFormPricingModel("per_unit")}
+                    className={`p-2.5 rounded-lg border cursor-pointer transition-all ${
+                      formPricingModel === "per_unit"
+                        ? "border-blue-500 bg-blue-500/10 dark:bg-blue-950/30 ring-1 ring-blue-500/40"
+                        : "border-border bg-card hover:bg-muted/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1">
+                        <Layers className="h-3.5 w-3.5 text-blue-600" />
+                        <span>Charge Per Unit Flat</span>
+                      </span>
+                      {formPricingModel === "per_unit" && <CheckCircle2 className="h-3.5 w-3.5 text-blue-600 shrink-0" />}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                      Fixed rate for entire room/unit per night up to max pax.
+                    </p>
+                  </div>
+
+                  <div
+                    onClick={() => setFormPricingModel("per_person")}
+                    className={`p-2.5 rounded-lg border cursor-pointer transition-all ${
+                      formPricingModel === "per_person"
+                        ? "border-purple-500 bg-purple-500/10 dark:bg-purple-950/30 ring-1 ring-purple-500/40"
+                        : "border-border bg-card hover:bg-muted/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1">
+                        <Users className="h-3.5 w-3.5 text-purple-600" />
+                        <span>Charge Per Person</span>
+                      </span>
+                      {formPricingModel === "per_person" && <CheckCircle2 className="h-3.5 w-3.5 text-purple-600 shrink-0" />}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                      Owner charges per head / guest per night (min pax, meals).
+                    </p>
+                  </div>
+                </div>
+
+                {formPricingModel === "per_person" && (
+                  <div className="pt-2 border-t border-purple-500/20 space-y-2">
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div className="space-y-1">
+                        <label className="font-semibold text-foreground">Per Head Weekday (₹)</label>
+                        <input
+                          type="number"
+                          min="100"
+                          value={formPerPersonRate}
+                          onChange={(e) => setFormPerPersonRate(Number(e.target.value))}
+                          className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold text-purple-700 dark:text-purple-300"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="font-semibold text-foreground">Min Billable Guests</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="20"
+                          value={formMinChargeablePax}
+                          onChange={(e) => setFormMinChargeablePax(Number(e.target.value))}
+                          className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between pt-1">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formIncludesMeals}
+                          onChange={(e) => setFormIncludesMeals(e.target.checked)}
+                          className="rounded text-purple-600"
+                        />
+                        <span className="text-xs font-medium text-foreground">Package Includes Meals / Activities</span>
+                      </label>
+                    </div>
+                    {formIncludesMeals && (
+                      <input
+                        type="text"
+                        value={formMealInclusions}
+                        onChange={(e) => setFormMealInclusions(e.target.value)}
+                        placeholder="e.g., Farm Breakfast Buffet & Evening Hi-Tea"
+                        className="w-full p-2 rounded-lg border border-border bg-background text-xs"
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="font-semibold text-foreground">Standard Rate (₹ / Night)</label>
+                  <label className="font-semibold text-foreground">
+                    {formPricingModel === "per_person" ? "Per-Person Weekday Rate (₹)" : "Standard Rate (₹ / Night)"}
+                  </label>
                   <input
                     type="number"
-                    min="500"
-                    step="100"
-                    value={formRate}
-                    onChange={(e) => setFormRate(Number(e.target.value))}
+                    min="100"
+                    step="50"
+                    value={formPricingModel === "per_person" ? formPerPersonRate : formRate}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (formPricingModel === "per_person") {
+                        setFormPerPersonRate(val);
+                        setFormRate(val);
+                      } else {
+                        setFormRate(val);
+                      }
+                    }}
                     className="w-full p-2.5 rounded-lg border border-border bg-background text-xs font-mono font-bold"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-foreground">Weekend Rate (₹ / Night)</label>
+                  <label className="font-semibold text-foreground">
+                    {formPricingModel === "per_person" ? "Per-Person Weekend Rate (₹)" : "Weekend Rate (₹ / Night)"}
+                  </label>
                   <input
                     type="number"
-                    min="500"
-                    step="100"
+                    min="100"
+                    step="50"
                     value={formWeekendRate}
                     onChange={(e) => setFormWeekendRate(Number(e.target.value))}
                     className="w-full p-2.5 rounded-lg border border-border bg-background text-xs font-mono font-bold"
@@ -2198,7 +2456,7 @@ export default function UnitsPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveTent} className="space-y-4 text-xs">
+            <form onSubmit={handleSaveTentForOwner} className="space-y-4 text-xs">
               {/* Property & Owner Selection */}
               <div className="p-3 rounded-xl bg-muted/40 border border-border space-y-2">
                 <label className="font-bold text-foreground flex items-center gap-1.5">
@@ -2239,61 +2497,87 @@ export default function UnitsPage() {
                 </div>
               </div>
 
-              {/* DUAL PRICING MODEL SELECTOR */}
+              {/* 3-WAY PRICING MODEL SELECTOR */}
               <div className="space-y-2">
                 <label className="font-bold text-foreground block">
-                  Outdoor Charging / Pricing Engine Model <span className="text-rose-500">*</span>
+                  Outdoor Charging & Pricing Model <span className="text-rose-500">*</span>
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-2.5">
+                  {/* Option 1: Per Person */}
+                  <div
+                    onClick={() => setTentFormPricingModel("per_person")}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                      tentFormPricingModel === "per_person"
+                        ? "border-purple-500 bg-purple-500/10 dark:bg-purple-950/30 ring-2 ring-purple-500/40 shadow-2xs"
+                        : "border-border bg-card hover:bg-muted/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1">
+                        <Users className="h-3.5 w-3.5 text-purple-600" />
+                        <span>Charge Per Person</span>
+                      </span>
+                      {tentFormPricingModel === "per_person" && (
+                        <CheckCircle2 className="h-4 w-4 text-purple-600 shrink-0" />
+                      )}
+                    </div>
+                    <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider block">
+                      Per Head Package
+                    </span>
+                    <p className="text-[10px] text-muted-foreground mt-1 leading-snug">
+                      Owner bills per guest per night (includes stay + optional buffet meals/activities).
+                    </p>
+                  </div>
+
+                  {/* Option 2: Per Unit */}
                   <div
                     onClick={() => setTentFormPricingModel("per_unit")}
                     className={`p-3 rounded-xl border cursor-pointer transition-all ${
                       tentFormPricingModel === "per_unit"
-                        ? "border-purple-500 bg-purple-50/20 dark:bg-purple-950/20 ring-1 ring-purple-500 shadow-2xs"
+                        ? "border-blue-500 bg-blue-500/10 dark:bg-blue-950/30 ring-2 ring-blue-500/40 shadow-2xs"
                         : "border-border bg-card hover:bg-muted/40"
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
-                        <Tent className="h-4 w-4 text-purple-600" />
-                        <span>Charge Per Unit Flat</span>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1">
+                        <Tent className="h-3.5 w-3.5 text-blue-600" />
+                        <span>Charge Per Unit</span>
                       </span>
-                      <input
-                        type="radio"
-                        name="pricing_model"
-                        checked={tentFormPricingModel === "per_unit"}
-                        onChange={() => setTentFormPricingModel("per_unit")}
-                        className="text-purple-600"
-                      />
+                      {tentFormPricingModel === "per_unit" && (
+                        <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0" />
+                      )}
                     </div>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      Fixed nightly rate for the entire physical tent (glamping dome, swiss cottage tent) regardless of 1 to max occupants.
+                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">
+                      Entire Tent Flat
+                    </span>
+                    <p className="text-[10px] text-muted-foreground mt-1 leading-snug">
+                      Fixed nightly flat rate for the entire physical tent unit regardless of guests.
                     </p>
                   </div>
 
+                  {/* Option 3: Single Tent */}
                   <div
                     onClick={() => setTentFormPricingModel("single_tent")}
                     className={`p-3 rounded-xl border cursor-pointer transition-all ${
                       tentFormPricingModel === "single_tent"
-                        ? "border-amber-500 bg-amber-50/20 dark:bg-amber-950/20 ring-1 ring-amber-500 shadow-2xs"
+                        ? "border-amber-500 bg-amber-500/10 dark:bg-amber-950/30 ring-2 ring-amber-500/40 shadow-2xs"
                         : "border-border bg-card hover:bg-muted/40"
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
-                        <Users className="h-4 w-4 text-amber-600" />
-                        <span>Charge Single Tent / Per Head</span>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1">
+                        <Layers className="h-3.5 w-3.5 text-amber-600" />
+                        <span>Single Pitch Slot</span>
                       </span>
-                      <input
-                        type="radio"
-                        name="pricing_model"
-                        checked={tentFormPricingModel === "single_tent"}
-                        onChange={() => setTentFormPricingModel("single_tent")}
-                        className="text-amber-600"
-                      />
+                      {tentFormPricingModel === "single_tent" && (
+                        <CheckCircle2 className="h-4 w-4 text-amber-600 shrink-0" />
+                      )}
                     </div>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      Charged per individual camper or single tent pitch slot per night (ideal for BYOT lawns, backpackers & group treks).
+                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">
+                      Individual BYOT
+                    </span>
+                    <p className="text-[10px] text-muted-foreground mt-1 leading-snug">
+                      Flat charge for single pitch slot (BYOT lawns, solo trekkers & backpackers).
                     </p>
                   </div>
                 </div>
@@ -2367,8 +2651,91 @@ export default function UnitsPage() {
               </div>
 
               {/* Dynamic Rates based on Pricing Model */}
-              {tentFormPricingModel === "per_unit" ? (
-                <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-purple-50/20 dark:bg-purple-950/10 border border-purple-200 dark:border-purple-900">
+              {tentFormPricingModel === "per_person" ? (
+                <div className="space-y-3 p-3.5 rounded-xl bg-purple-500/5 border border-purple-500/20">
+                  <div className="grid grid-cols-3 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="font-semibold text-foreground">Per Person Weekday (₹)</label>
+                      <input
+                        type="number"
+                        min="100"
+                        step="50"
+                        value={tentFormPerPersonRate}
+                        onChange={(e) => setTentFormPerPersonRate(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold text-purple-700 dark:text-purple-300"
+                      />
+                      <span className="text-[10px] text-muted-foreground">Mon - Thu per head</span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="font-semibold text-foreground">Per Person Weekend (₹)</label>
+                      <input
+                        type="number"
+                        min="100"
+                        step="50"
+                        value={tentFormWeekendRate}
+                        onChange={(e) => setTentFormWeekendRate(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold text-purple-600"
+                      />
+                      <span className="text-[10px] text-muted-foreground">Fri - Sun per head</span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="font-semibold text-foreground">Min Billable Guests</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={tentFormMinPax}
+                        onChange={(e) => setTentFormMinPax(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold"
+                      />
+                      <span className="text-[10px] text-muted-foreground">Min guests charged</span>
+                    </div>
+                  </div>
+
+                  {/* Meal Package Inclusions */}
+                  <div className="pt-2 border-t border-purple-500/20 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={tentFormMealsIncluded}
+                          onChange={(e) => setTentFormMealsIncluded(e.target.checked)}
+                          className="rounded text-purple-600"
+                        />
+                        <span className="text-xs font-semibold text-foreground">
+                          Include Buffet Meals & Campfire in Per-Person Charge
+                        </span>
+                      </label>
+                      <Badge variant="outline" className="text-[10px] border-purple-500/30 text-purple-600">
+                        {tentFormMealsIncluded ? "All-Inclusive Package" : "Pitch / Stay Only"}
+                      </Badge>
+                    </div>
+                    {tentFormMealsIncluded && (
+                      <input
+                        type="text"
+                        value={tentFormMealDescription}
+                        onChange={(e) => setTentFormMealDescription(e.target.value)}
+                        placeholder="e.g., Welcome Drink, Campfire BBQ, Dinner Buffet & Morning Breakfast"
+                        className="w-full p-2 rounded-lg border border-border bg-background text-xs"
+                      />
+                    )}
+                  </div>
+
+                  {/* Calculation Preview Banner */}
+                  <div className="p-2.5 rounded-lg bg-background border border-purple-500/30 flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground flex items-center gap-1.5">
+                      <Users className="h-3.5 w-3.5 text-purple-600" />
+                      <span>Live Booking Price Preview (2 Guests):</span>
+                    </span>
+                    <span className="font-mono font-bold text-purple-700 dark:text-purple-300">
+                      2 × ₹{tentFormPerPersonRate.toLocaleString()} = ₹{(tentFormPerPersonRate * 2).toLocaleString()} / night
+                    </span>
+                  </div>
+                </div>
+              ) : tentFormPricingModel === "per_unit" ? (
+                <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted/40 border border-border">
                   <div className="space-y-1">
                     <label className="font-semibold text-foreground">Weekday Flat Rate (₹ / night)</label>
                     <input
@@ -2377,9 +2744,9 @@ export default function UnitsPage() {
                       step="100"
                       value={tentFormRate}
                       onChange={(e) => setTentFormRate(Number(e.target.value))}
-                      className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold"
+                      className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold text-blue-600"
                     />
-                    <span className="text-[10px] text-muted-foreground">Covers up to max capacity</span>
+                    <span className="text-[10px] text-muted-foreground">Entire tent flat rate per night</span>
                   </div>
 
                   <div className="space-y-1">
@@ -2390,7 +2757,7 @@ export default function UnitsPage() {
                       step="100"
                       value={tentFormWeekendRate}
                       onChange={(e) => setTentFormWeekendRate(Number(e.target.value))}
-                      className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold"
+                      className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold text-blue-700"
                     />
                     <span className="text-[10px] text-muted-foreground">Fri - Sun peak pricing</span>
                   </div>
@@ -2398,7 +2765,7 @@ export default function UnitsPage() {
               ) : (
                 <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-amber-50/20 dark:bg-amber-950/10 border border-amber-200 dark:border-amber-900">
                   <div className="space-y-1">
-                    <label className="font-semibold text-foreground">Single Tent / Head (₹ / camper)</label>
+                    <label className="font-semibold text-foreground">Single Pitch Rate (₹ / night)</label>
                     <input
                       type="number"
                       min="300"
@@ -2407,15 +2774,20 @@ export default function UnitsPage() {
                       onChange={(e) => setTentFormPerPersonRate(Number(e.target.value))}
                       className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold text-amber-700 dark:text-amber-300"
                     />
-                    <span className="text-[10px] text-muted-foreground">Multiplied by total campers</span>
+                    <span className="text-[10px] text-muted-foreground">Flat rate per single pitch slot</span>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="font-semibold text-foreground">Calculated Pitch Base (₹ / nt)</label>
-                    <div className="p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold text-foreground">
-                      ₹{(tentFormPerPersonRate * tentFormAdults).toLocaleString()} (for {tentFormAdults} adults)
-                    </div>
-                    <span className="text-[10px] text-muted-foreground">At full adult capacity</span>
+                    <label className="font-semibold text-foreground">Weekend Single Pitch (₹ / night)</label>
+                    <input
+                      type="number"
+                      min="300"
+                      step="50"
+                      value={tentFormWeekendRate}
+                      onChange={(e) => setTentFormWeekendRate(Number(e.target.value))}
+                      className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold text-amber-800 dark:text-amber-400"
+                    />
+                    <span className="text-[10px] text-muted-foreground">Weekend single slot flat rate</span>
                   </div>
                 </div>
               )}

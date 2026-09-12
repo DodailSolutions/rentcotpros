@@ -43,6 +43,8 @@ import {
   X,
   Check,
   MapPin,
+  Layers,
+  Users,
   Copy,
   Printer,
   FileText,
@@ -306,6 +308,7 @@ const initialReservations: RichReservation[] = [
     source: "direct_walkin",
     status: "checked_in",
     paymentStatus: "paid",
+    pricingMode: "per_person",
     baseRate: 1200, // per person rate
     addonsTotal: 900,
     taxAmount: 972,
@@ -350,6 +353,7 @@ const initialReservations: RichReservation[] = [
     source: "agoda",
     status: "confirmed",
     paymentStatus: "paid",
+    pricingMode: "per_person",
     baseRate: 800, // per camper rate
     addonsTotal: 1200,
     taxAmount: 912,
@@ -596,6 +600,7 @@ export default function BookingsPage() {
   const [newPets, setNewPets] = useState(0);
   const [newChannel, setNewChannel] = useState<BookingChannel>("direct_walkin");
   const [newMealPlan, setNewMealPlan] = useState<MealPlanType>("cp");
+  const [newPricingMode, setNewPricingMode] = useState<"per_unit" | "per_person">("per_unit");
   const [newBaseRate, setNewBaseRate] = useState(7500);
   const [newPaidUpfront, setNewPaidUpfront] = useState(5000);
   const [newPaymentMethod, setNewPaymentMethod] = useState<"cash" | "upi" | "card">("upi");
@@ -761,7 +766,11 @@ export default function BookingsPage() {
     const d2 = new Date(newCheckOut);
     const diffDays = Math.max(1, Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)));
 
-    const baseCost = Number(newBaseRate) * diffDays;
+    const adultsCount = Math.max(1, Number(newAdults));
+    const baseCost =
+      newPricingMode === "per_person"
+        ? Number(newBaseRate) * adultsCount * diffDays
+        : Number(newBaseRate) * diffDays;
     const tax = Math.round(baseCost * 0.12);
     const total = baseCost + tax;
     const paid = Math.min(total, Number(newPaidUpfront));
@@ -791,6 +800,7 @@ export default function BookingsPage() {
       source: newChannel,
       status: "confirmed",
       paymentStatus: bal === 0 ? "paid" : paid > 0 ? "partially_paid" : "pending",
+      pricingMode: newPricingMode,
       baseRate: Number(newBaseRate),
       addonsTotal: 0,
       taxAmount: tax,
@@ -1855,9 +1865,19 @@ export default function BookingsPage() {
 
                 <div className="space-y-1.5 text-muted-foreground">
                   <div className="flex justify-between">
-                    <span>Base Accommodation ({selectedReservation.nights} nights @ ₹{selectedReservation.baseRate.toLocaleString()}):</span>
+                    <span>
+                      Base Accommodation ({selectedReservation.nights} nights @ ₹{selectedReservation.baseRate.toLocaleString()}
+                      {selectedReservation.pricingMode === "per_person" || selectedReservation.id === "RES-9088"
+                        ? ` × ${selectedReservation.adults} guests`
+                        : ""}
+                      ):
+                    </span>
                     <strong className="text-foreground font-mono">
-                      ₹{(selectedReservation.baseRate * selectedReservation.nights).toLocaleString()}
+                      ₹{(
+                        (selectedReservation.pricingMode === "per_person" || selectedReservation.id === "RES-9088"
+                          ? selectedReservation.baseRate * selectedReservation.adults
+                          : selectedReservation.baseRate) * selectedReservation.nights
+                      ).toLocaleString()}
                     </strong>
                   </div>
 
@@ -2119,6 +2139,70 @@ export default function BookingsPage() {
                 </select>
               </div>
 
+              {/* Reservation Billing Model Selector */}
+              <div className="space-y-1.5 p-3 rounded-xl bg-muted/40 border border-border">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-foreground text-xs flex items-center gap-1.5">
+                    <IndianRupee className="h-3.5 w-3.5 text-rentcot-blue" />
+                    <span>Reservation Billing Model</span>
+                  </label>
+                  <span className="text-[10px] text-muted-foreground">
+                    Owner can charge flat unit rate or per person
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2.5 pt-1">
+                  <div
+                    onClick={() => setNewPricingMode("per_unit")}
+                    className={`p-2.5 rounded-lg border cursor-pointer transition-all ${
+                      newPricingMode === "per_unit"
+                        ? "border-blue-500 bg-blue-500/10 dark:bg-blue-950/30 ring-1 ring-blue-500/40"
+                        : "border-border bg-card hover:bg-muted/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1">
+                        <Layers className="h-3.5 w-3.5 text-blue-600" />
+                        <span>Charge Per Unit Flat</span>
+                      </span>
+                      {newPricingMode === "per_unit" && <ShieldCheck className="h-3.5 w-3.5 text-blue-600 shrink-0" />}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                      Fixed flat rate for the entire unit per night.
+                    </p>
+                  </div>
+
+                  <div
+                    onClick={() => setNewPricingMode("per_person")}
+                    className={`p-2.5 rounded-lg border cursor-pointer transition-all ${
+                      newPricingMode === "per_person"
+                        ? "border-purple-500 bg-purple-500/10 dark:bg-purple-950/30 ring-1 ring-purple-500/40"
+                        : "border-border bg-card hover:bg-muted/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1">
+                        <Users className="h-3.5 w-3.5 text-purple-600" />
+                        <span>Charge Per Person</span>
+                      </span>
+                      {newPricingMode === "per_person" && <ShieldCheck className="h-3.5 w-3.5 text-purple-600 shrink-0" />}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                      Rate multiplies by {newAdults} guest{newAdults > 1 ? "s" : ""} per night.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Calculation Preview */}
+                <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Estimated Base Total:</span>
+                  <span className="font-mono font-bold text-purple-700 dark:text-purple-300">
+                    {newPricingMode === "per_person"
+                      ? `${newAdults} Guests × ₹${newBaseRate.toLocaleString()} × ${Math.max(1, Math.round((new Date(newCheckOut).getTime() - new Date(newCheckIn).getTime()) / (1000 * 60 * 60 * 24)))} nt = ₹${(newBaseRate * Math.max(1, newAdults) * Math.max(1, Math.round((new Date(newCheckOut).getTime() - new Date(newCheckIn).getTime()) / (1000 * 60 * 60 * 24)))).toLocaleString()}`
+                      : `₹${newBaseRate.toLocaleString()} × ${Math.max(1, Math.round((new Date(newCheckOut).getTime() - new Date(newCheckIn).getTime()) / (1000 * 60 * 60 * 24)))} nt = ₹${(newBaseRate * Math.max(1, Math.round((new Date(newCheckOut).getTime() - new Date(newCheckIn).getTime()) / (1000 * 60 * 60 * 24)))).toLocaleString()}`}
+                  </span>
+                </div>
+              </div>
+
               {/* Unit / Venue & Base Rate */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
@@ -2133,12 +2217,14 @@ export default function BookingsPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-foreground">Nightly / Slot Base Rate (₹)</label>
+                  <label className="font-semibold text-foreground">
+                    {newPricingMode === "per_person" ? "Per-Person Rate (₹ / head / nt)" : "Nightly / Slot Base Rate (₹)"}
+                  </label>
                   <input
                     type="number"
                     required
-                    min="500"
-                    step="100"
+                    min="100"
+                    step="50"
                     value={newBaseRate}
                     onChange={(e) => setNewBaseRate(Number(e.target.value))}
                     className="w-full p-2.5 rounded-lg border border-border bg-background text-xs font-mono font-bold"

@@ -72,8 +72,11 @@ export interface RichUnit {
   // Owner & Outdoor Camping/Tent Management
   owner_name?: string;
   owner_phone?: string;
-  pricing_model?: "per_unit" | "single_tent"; // "per_unit" = Entire tent flat rate; "single_tent" = Per-person / single tent slot
-  per_person_rate?: number; // Active when pricing_model === "single_tent"
+  pricing_model?: "per_unit" | "per_person" | "single_tent" | "flat_rate"; // "per_unit" = Entire unit flat rate; "per_person" = Charged per head/camper; "single_tent" = Single tent slot
+  per_person_rate?: number; // Active when pricing_model === "per_person" or "single_tent"
+  min_chargeable_pax?: number; // Minimum adults to bill
+  package_includes_meals?: boolean;
+  meal_inclusions?: string;
   tent_type?: "glamping_dome" | "swiss_canvas" | "alpine_tent" | "safari_bell" | "byot_pitch";
   washroom_type?: "attached_private" | "shared_bathhouse";
   ground_type?: "wooden_deck" | "grass_pitch" | "stone_plinth";

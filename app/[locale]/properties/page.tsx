@@ -103,20 +103,25 @@ export interface RichPropertyItem {
     phone: string;
     email: string;
     payoutSplit: string; // e.g. "85% Owner / 15% Rentcot"
-    tentPricingPreference: "per_unit" | "single_tent" | "hybrid";
+    pricingPreference?: "per_person" | "per_unit" | "hybrid";
+    tentPricingPreference?: "per_unit" | "single_tent" | "hybrid"; // backwards compatibility
+    perPersonDefaultRate?: number;
+    mealInclusionsNote?: string;
     bankAccountOrUpi?: string;
   };
   tentsCount: number;
-  tentsPricingModelSummary: string; // e.g. "150 Per Unit Flat • 50 Single Tent"
+  tentsPricingModelSummary: string; // e.g. "150 Per Unit Flat • 50 Per Person"
   tentsList: {
     id: string;
     name: string;
     code: string;
     category: "glamping_dome" | "swiss_canvas" | "alpine_tent" | "safari_bell" | "byot_pitch";
-    pricingModel: "per_unit" | "single_tent";
-    rate: number;
+    pricingModel: "per_person" | "per_unit" | "single_tent";
+    rate: number; // For per_person, this is per-person/head rate
     weekendRate: number;
     maxPax: number;
+    minPax?: number;
+    mealPackage?: string;
     status: "available" | "occupied" | "cleaning";
   }[];
 }
@@ -169,11 +174,14 @@ const initialProperties: RichPropertyItem[] = [
       phone: "+91 98480 88990",
       email: "kv.rao@heritageestates.in",
       payoutSplit: "85% Owner / 15% Rentcot",
-      tentPricingPreference: "per_unit",
+      pricingPreference: "hybrid",
+      tentPricingPreference: "hybrid",
+      perPersonDefaultRate: 1500,
+      mealInclusionsNote: "Farm Organic Thali + Campfire Dinner Included",
       bankAccountOrUpi: "kvrao@icici",
     },
     tentsCount: 2,
-    tentsPricingModelSummary: "2 Tents (Charged Per Unit Flat: ₹4,500/nt)",
+    tentsPricingModelSummary: "2 Tents (Per Unit Flat & Per Person Day Packages)",
     tentsList: [
       {
         id: "tent-gv-1",
@@ -191,10 +199,12 @@ const initialProperties: RichPropertyItem[] = [
         name: "Orchard Bell Tent 02",
         code: "BELL-02",
         category: "safari_bell",
-        pricingModel: "per_unit",
-        rate: 4500,
-        weekendRate: 5500,
-        maxPax: 3,
+        pricingModel: "per_person",
+        rate: 1500,
+        weekendRate: 1800,
+        maxPax: 4,
+        minPax: 2,
+        mealPackage: "Farm Organic Thali + Campfire Kit Included",
         status: "occupied",
       },
     ],
@@ -246,11 +256,14 @@ const initialProperties: RichPropertyItem[] = [
       phone: "+91 98490 12345",
       email: "rajesh@ecocampadventures.in",
       payoutSplit: "80% Owner / 20% Rentcot",
-      tentPricingPreference: "hybrid",
+      pricingPreference: "per_person",
+      tentPricingPreference: "single_tent",
+      perPersonDefaultRate: 1200,
+      mealInclusionsNote: "Campfire Kit + Buffet Dinner & Breakfast Included",
       bankAccountOrUpi: "rajeshsharma@hdfcbank",
     },
     tentsCount: 200,
-    tentsPricingModelSummary: "150 Per Unit Flat • 50 Single Tent/Per-Head",
+    tentsPricingModelSummary: "Owner Charges Per Person (₹1,200/head with meals) • 50 Per Unit Domes",
     tentsList: [
       {
         id: "tent-ww-1",
@@ -268,10 +281,12 @@ const initialProperties: RichPropertyItem[] = [
         name: "Geodesic Glamping Dome 02",
         code: "DOME-02",
         category: "glamping_dome",
-        pricingModel: "per_unit",
-        rate: 5500,
-        weekendRate: 6500,
+        pricingModel: "per_person",
+        rate: 1800,
+        weekendRate: 2200,
         maxPax: 4,
+        minPax: 2,
+        mealPackage: "Luxury Glamping + BBQ Dinner + Morning Buffet",
         status: "occupied",
       },
       {
@@ -290,10 +305,12 @@ const initialProperties: RichPropertyItem[] = [
         name: "Alpine 2-Man Trekker Tent 01",
         code: "ALP-01",
         category: "alpine_tent",
-        pricingModel: "single_tent",
+        pricingModel: "per_person",
         rate: 1200,
         weekendRate: 1500,
         maxPax: 2,
+        minPax: 1,
+        mealPackage: "Campfire Dinner + Trekker Breakfast Included",
         status: "available",
       },
       {
@@ -301,10 +318,12 @@ const initialProperties: RichPropertyItem[] = [
         name: "BYOT Lawn Pitch Slot 01",
         code: "BYOT-01",
         category: "byot_pitch",
-        pricingModel: "single_tent",
+        pricingModel: "per_person",
         rate: 800,
         weekendRate: 950,
         maxPax: 4,
+        minPax: 1,
+        mealPackage: "Ground Pitch + Access to Bathhouse & Morning Chai",
         status: "available",
       },
     ],
@@ -357,7 +376,10 @@ const initialProperties: RichPropertyItem[] = [
       phone: "+91 99080 77661",
       email: "sunita@lakeviewgroup.in",
       payoutSplit: "82% Owner / 18% Rentcot",
+      pricingPreference: "per_unit",
       tentPricingPreference: "per_unit",
+      perPersonDefaultRate: 4500,
+      mealInclusionsNote: "Luxury Breakfast & High Tea Included",
       bankAccountOrUpi: "sunita.lakeview@okaxis",
     },
     tentsCount: 0,
@@ -390,12 +412,15 @@ export default function PropertiesPage() {
   const [tentFormName, setTentFormName] = useState("Lakeside Geodesic Dome A-03");
   const [tentFormCode, setTentFormCode] = useState("DOME-03");
   const [tentFormCategory, setTentFormCategory] = useState<"glamping_dome" | "swiss_canvas" | "alpine_tent" | "safari_bell" | "byot_pitch">("glamping_dome");
-  const [tentFormPricingModel, setTentFormPricingModel] = useState<"per_unit" | "single_tent">("per_unit");
+  const [tentFormPricingModel, setTentFormPricingModel] = useState<"per_person" | "per_unit" | "single_tent">("per_person");
   const [tentFormFlatRate, setTentFormFlatRate] = useState(5500);
   const [tentFormFlatWeekendRate, setTentFormFlatWeekendRate] = useState(6500);
   const [tentFormPerPersonRate, setTentFormPerPersonRate] = useState(1200);
   const [tentFormPerPersonWeekendRate, setTentFormPerPersonWeekendRate] = useState(1500);
   const [tentFormMaxPax, setTentFormMaxPax] = useState(3);
+  const [tentFormMinPax, setTentFormMinPax] = useState(1);
+  const [tentFormMealsIncluded, setTentFormMealsIncluded] = useState(true);
+  const [tentFormMealDescription, setTentFormMealDescription] = useState("Campfire Dinner & Morning Buffet Included");
   const [tentFormZone, setTentFormZone] = useState("Zone A: Lakeside Deck");
   const [tentFormWashroom, setTentFormWashroom] = useState<"attached_private" | "shared_bathhouse">("attached_private");
   const [tentFormGround, setTentFormGround] = useState<"wooden_deck" | "grass_pitch" | "stone_plinth">("wooden_deck");
@@ -587,6 +612,9 @@ export default function PropertiesPage() {
           phone: "+91 98480 00000",
           email: "owner@rentcotestate.com",
           payoutSplit: "80% Owner / 20% Rentcot",
+          pricingPreference: "per_person",
+          perPersonDefaultRate: 1200,
+          mealInclusionsNote: "Campfire BBQ & Breakfast Included",
           tentPricingPreference: "per_unit",
         },
         tentsCount: 0,
@@ -602,15 +630,27 @@ export default function PropertiesPage() {
     setTargetPropertyForTent(p);
     const nextNum = (p.tentsCount || 0) + 1;
     const pad = nextNum < 10 ? `0${nextNum}` : `${nextNum}`;
+    const defaultModel =
+      p.owner.pricingPreference === "per_person"
+        ? "per_person"
+        : p.owner.pricingPreference === "per_unit"
+        ? "per_unit"
+        : p.type === "Campsite & Glamping"
+        ? "per_person"
+        : "per_unit";
+
     if (p.type === "Campsite & Glamping") {
       setTentFormName(`Geodesic Glamping Dome ${pad}`);
       setTentFormCode(`DOME-${pad}`);
       setTentFormCategory("glamping_dome");
-      setTentFormPricingModel(p.owner.tentPricingPreference === "single_tent" ? "single_tent" : "per_unit");
+      setTentFormPricingModel(defaultModel);
       setTentFormFlatRate(5500);
       setTentFormFlatWeekendRate(6500);
-      setTentFormPerPersonRate(1200);
-      setTentFormPerPersonWeekendRate(1500);
+      setTentFormPerPersonRate(p.owner.perPersonDefaultRate || 1200);
+      setTentFormPerPersonWeekendRate(Math.round((p.owner.perPersonDefaultRate || 1200) * 1.25));
+      setTentFormMinPax(2);
+      setTentFormMealsIncluded(true);
+      setTentFormMealDescription(p.owner.mealInclusionsNote || "Campfire Kit + Buffet Dinner & Breakfast Included");
       setTentFormZone("Zone A: Lakeside Deck");
       setTentFormWashroom("attached_private");
       setTentFormGround("wooden_deck");
@@ -618,16 +658,59 @@ export default function PropertiesPage() {
       setTentFormName(`Orchard Glamping Bell Tent ${pad}`);
       setTentFormCode(`BELL-${pad}`);
       setTentFormCategory("safari_bell");
-      setTentFormPricingModel("per_unit");
+      setTentFormPricingModel(defaultModel);
       setTentFormFlatRate(4500);
       setTentFormFlatWeekendRate(5500);
-      setTentFormPerPersonRate(1000);
-      setTentFormPerPersonWeekendRate(1300);
+      setTentFormPerPersonRate(p.owner.perPersonDefaultRate || 1500);
+      setTentFormPerPersonWeekendRate(Math.round((p.owner.perPersonDefaultRate || 1500) * 1.2));
+      setTentFormMinPax(2);
+      setTentFormMealsIncluded(true);
+      setTentFormMealDescription(p.owner.mealInclusionsNote || "Farm Thali + Evening Campfire Package");
       setTentFormZone("Orchard Lawn Garden");
       setTentFormWashroom("attached_private");
       setTentFormGround("grass_pitch");
     }
     setIsAddTentModalOpen(true);
+  };
+
+  const handleToggleOwnerPricing = (propertyId: string, newPref: "per_person" | "per_unit" | "hybrid") => {
+    setProperties((prev) =>
+      prev.map((p) => {
+        if (p.id === propertyId) {
+          return {
+            ...p,
+            owner: {
+              ...p.owner,
+              pricingPreference: newPref,
+            },
+          };
+        }
+        return p;
+      })
+    );
+    if (dossierProperty && dossierProperty.id === propertyId) {
+      setDossierProperty((prev) =>
+        prev
+          ? {
+              ...prev,
+              owner: {
+                ...prev.owner,
+                pricingPreference: newPref,
+              },
+            }
+          : null
+      );
+    }
+    setTentActionToast(
+      `Owner pricing preference updated to: ${
+        newPref === "per_person"
+          ? "Charge Per Person (Per Head / Camper)"
+          : newPref === "per_unit"
+          ? "Charge Per Unit (Entire Accommodation Flat Rate)"
+          : "Hybrid (Per Unit for Villas, Per Person for Tents)"
+      }!`
+    );
+    setTimeout(() => setTentActionToast(null), 5000);
   };
 
   const handleSaveTentToProperty = (e: React.FormEvent) => {
@@ -640,9 +723,20 @@ export default function PropertiesPage() {
       code: tentFormCode,
       category: tentFormCategory,
       pricingModel: tentFormPricingModel,
-      rate: tentFormPricingModel === "per_unit" ? Number(tentFormFlatRate) : Number(tentFormPerPersonRate),
-      weekendRate: tentFormPricingModel === "per_unit" ? Number(tentFormFlatWeekendRate) : Number(tentFormPerPersonWeekendRate),
+      rate:
+        tentFormPricingModel === "per_unit"
+          ? Number(tentFormFlatRate)
+          : Number(tentFormPerPersonRate),
+      weekendRate:
+        tentFormPricingModel === "per_unit"
+          ? Number(tentFormFlatWeekendRate)
+          : Number(tentFormPerPersonWeekendRate),
       maxPax: Number(tentFormMaxPax),
+      minPax: tentFormPricingModel === "per_person" ? Number(tentFormMinPax) : 1,
+      mealPackage:
+        tentFormPricingModel === "per_person" && tentFormMealsIncluded
+          ? tentFormMealDescription
+          : undefined,
       status: "available" as const,
     };
 
@@ -651,9 +745,9 @@ export default function PropertiesPage() {
         if (p.id === targetPropertyForTent.id) {
           const updatedTentsList = [...(p.tentsList || []), newTent];
           const newTentsCount = p.tentsCount + 1;
+          const perPersonCount = updatedTentsList.filter((t) => t.pricingModel === "per_person" || t.pricingModel === "single_tent").length;
           const perUnitCount = updatedTentsList.filter((t) => t.pricingModel === "per_unit").length;
-          const singleTentCount = updatedTentsList.filter((t) => t.pricingModel === "single_tent").length;
-          const summary = `${newTentsCount} Tents (${perUnitCount} Per Unit Flat • ${singleTentCount} Single Tent/Per-Head)`;
+          const summary = `${newTentsCount} Tents (${perPersonCount} Charged Per Person • ${perUnitCount} Per Unit Flat)`;
 
           return {
             ...p,
@@ -673,9 +767,9 @@ export default function PropertiesPage() {
         if (!prev) return null;
         const updatedTentsList = [...(prev.tentsList || []), newTent];
         const newTentsCount = prev.tentsCount + 1;
+        const perPersonCount = updatedTentsList.filter((t) => t.pricingModel === "per_person" || t.pricingModel === "single_tent").length;
         const perUnitCount = updatedTentsList.filter((t) => t.pricingModel === "per_unit").length;
-        const singleTentCount = updatedTentsList.filter((t) => t.pricingModel === "single_tent").length;
-        const summary = `${newTentsCount} Tents (${perUnitCount} Per Unit Flat • ${singleTentCount} Single Tent/Per-Head)`;
+        const summary = `${newTentsCount} Tents (${perPersonCount} Charged Per Person • ${perUnitCount} Per Unit Flat)`;
         return {
           ...prev,
           unitsCount: prev.unitsCount + 1,
@@ -688,14 +782,17 @@ export default function PropertiesPage() {
 
     setTentActionToast(
       `Successfully added ${tentFormName} (${tentFormCode}) to ${targetPropertyForTent.name} (Owner: ${targetPropertyForTent.owner.name}) charged ${
-        tentFormPricingModel === "per_unit"
-          ? `Per Unit Flat (₹${Number(tentFormFlatRate).toLocaleString()}/nt)`
-          : `Single Tent (₹${Number(tentFormPerPersonRate).toLocaleString()}/head)`
+        tentFormPricingModel === "per_person"
+          ? `Per Person (₹${Number(tentFormPerPersonRate).toLocaleString()}/head/night)`
+          : tentFormPricingModel === "single_tent"
+          ? `Single Tent Slot (₹${Number(tentFormPerPersonRate).toLocaleString()}/slot)`
+          : `Per Unit Flat (₹${Number(tentFormFlatRate).toLocaleString()}/nt)`
       }!`
     );
     setTimeout(() => setTentActionToast(null), 6000);
     setIsAddTentModalOpen(false);
   };
+
 
   const handleToggleStatus = (id: string) => {
     setProperties((prev) =>
@@ -1638,16 +1735,17 @@ export default function PropertiesPage() {
               </div>
 
               {/* Estate Owner & Commercial Payout Profile */}
-              <div className="p-4 rounded-xl border border-border bg-card space-y-3 text-xs">
+              <div className="p-4 rounded-xl border border-border bg-card space-y-3.5 text-xs">
                 <div className="flex items-center justify-between border-b pb-2">
                   <span className="font-bold text-foreground flex items-center gap-1.5">
                     <Users className="h-4 w-4 text-emerald-600" />
-                    <span>Estate Owner Commercial Profile</span>
+                    <span>Estate Owner & Billing Policy Profile</span>
                   </span>
                   <Badge variant="outline" className="text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
                     {dossierProperty.owner.payoutSplit}
                   </Badge>
                 </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-0.5">
                     <span className="text-muted-foreground text-[10px] block">Owner / Landlord Name</span>
@@ -1661,6 +1759,87 @@ export default function PropertiesPage() {
                     <span className="font-mono text-foreground text-xs">{dossierProperty.owner.bankAccountOrUpi || "Direct NEFT / RTGS"}</span>
                     <span className="text-muted-foreground text-[10px] block truncate">{dossierProperty.owner.email}</span>
                   </div>
+                </div>
+
+                {/* Owner Charging Policy Switcher */}
+                <div className="p-3 rounded-lg bg-muted/40 border border-border/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] font-bold text-foreground flex items-center gap-1">
+                        <DollarSign className="h-3.5 w-3.5 text-emerald-600" />
+                        <span>Owner Billing Preference</span>
+                      </span>
+                      <span className="text-[10px] text-muted-foreground block">
+                        Estate owner can choose whether Rentcot bills per person or per physical unit
+                      </span>
+                    </div>
+                    <Badge
+                      className={`text-[10px] font-bold ${
+                        dossierProperty.owner.pricingPreference === "per_person"
+                          ? "bg-purple-600 text-white"
+                          : dossierProperty.owner.pricingPreference === "per_unit"
+                          ? "bg-blue-600 text-white"
+                          : "bg-emerald-600 text-white"
+                      }`}
+                    >
+                      {dossierProperty.owner.pricingPreference === "per_person"
+                        ? "👤 Charges Per Person"
+                        : dossierProperty.owner.pricingPreference === "per_unit"
+                        ? "🏷️ Charges Per Unit"
+                        : "🔀 Hybrid Model"}
+                    </Badge>
+                  </div>
+
+                  {/* Policy Switch Buttons */}
+                  <div className="grid grid-cols-3 gap-1.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleOwnerPricing(dossierProperty.id, "per_person")}
+                      className={`px-2 py-1.5 rounded-md text-[10px] font-bold border transition-all text-center ${
+                        dossierProperty.owner.pricingPreference === "per_person"
+                          ? "border-purple-500 bg-purple-500/15 text-purple-700 dark:text-purple-300 font-extrabold shadow-2xs"
+                          : "border-border bg-card text-muted-foreground hover:bg-muted/60"
+                      }`}
+                    >
+                      👤 Per Person
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleOwnerPricing(dossierProperty.id, "per_unit")}
+                      className={`px-2 py-1.5 rounded-md text-[10px] font-bold border transition-all text-center ${
+                        dossierProperty.owner.pricingPreference === "per_unit"
+                          ? "border-blue-500 bg-blue-500/15 text-blue-700 dark:text-blue-300 font-extrabold shadow-2xs"
+                          : "border-border bg-card text-muted-foreground hover:bg-muted/60"
+                      }`}
+                    >
+                      🏷️ Per Unit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleOwnerPricing(dossierProperty.id, "hybrid")}
+                      className={`px-2 py-1.5 rounded-md text-[10px] font-bold border transition-all text-center ${
+                        dossierProperty.owner.pricingPreference === "hybrid"
+                          ? "border-emerald-500 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-extrabold shadow-2xs"
+                          : "border-border bg-card text-muted-foreground hover:bg-muted/60"
+                      }`}
+                    >
+                      🔀 Hybrid
+                    </button>
+                  </div>
+
+                  {dossierProperty.owner.perPersonDefaultRate && (
+                    <div className="pt-1 text-[11px] text-muted-foreground flex items-center justify-between border-t border-border/50">
+                      <span>Default Per-Person Base Rate:</span>
+                      <span className="font-mono font-bold text-foreground">
+                        ₹{dossierProperty.owner.perPersonDefaultRate.toLocaleString()} / head / nt
+                      </span>
+                    </div>
+                  )}
+                  {dossierProperty.owner.mealInclusionsNote && (
+                    <div className="text-[10px] text-muted-foreground italic">
+                      ℹ️ Inclusions: {dossierProperty.owner.mealInclusionsNote}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2136,63 +2315,171 @@ export default function PropertiesPage() {
                   Select whether Rentcot and the owner charge for the entire physical unit or per individual tent / person
                 </p>
 
-                <div className="grid grid-cols-2 gap-3 pt-1">
-                  {/* Option 1: Per Unit (Entire Tent Flat Rate) */}
+                <div className="grid grid-cols-3 gap-2.5 pt-1">
+                  {/* Option 1: Per Person (Per Head / Camper Package) */}
                   <div
-                    onClick={() => setTentFormPricingModel("per_unit")}
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
-                      tentFormPricingModel === "per_unit"
-                        ? "border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 ring-2 ring-emerald-500/30"
+                    onClick={() => setTentFormPricingModel("per_person")}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                      tentFormPricingModel === "per_person"
+                        ? "border-purple-500 bg-purple-500/10 dark:bg-purple-950/30 ring-2 ring-purple-500/40"
                         : "border-border bg-card hover:bg-muted/40"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1">
+                        <Users className="h-3.5 w-3.5 text-purple-600" />
+                        <span>Charge Per Person</span>
+                      </span>
+                      {tentFormPricingModel === "per_person" && (
+                        <CheckCircle2 className="h-4 w-4 text-purple-600 shrink-0" />
+                      )}
+                    </div>
+                    <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider block">
+                      Per Head / Camper
+                    </span>
+                    <p className="text-[10px] text-muted-foreground mt-1 leading-snug">
+                      Owner bills per guest per night (includes tent stay + optional buffet meals/activities).
+                    </p>
+                  </div>
+
+                  {/* Option 2: Per Unit (Entire Tent Flat Rate) */}
+                  <div
+                    onClick={() => setTentFormPricingModel("per_unit")}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                      tentFormPricingModel === "per_unit"
+                        ? "border-emerald-500 bg-emerald-500/10 dark:bg-emerald-950/30 ring-2 ring-emerald-500/40"
+                        : "border-border bg-card hover:bg-muted/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1">
                         <Layers className="h-3.5 w-3.5 text-emerald-600" />
                         <span>Charge Per Unit</span>
                       </span>
                       {tentFormPricingModel === "per_unit" && (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
                       )}
                     </div>
                     <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">
                       Entire Tent Flat Rate
                     </span>
-                    <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
-                      Fixed nightly rate for the whole physical unit (dome, swiss tent) regardless of occupancy up to max pax.
+                    <p className="text-[10px] text-muted-foreground mt-1 leading-snug">
+                      Fixed nightly rate for the physical tent unit regardless of occupancy up to max pax.
                     </p>
                   </div>
 
-                  {/* Option 2: Single Tent / Per Head Rate */}
+                  {/* Option 3: Single Tent / Pitch Slot */}
                   <div
                     onClick={() => setTentFormPricingModel("single_tent")}
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                    className={`p-3 rounded-xl border cursor-pointer transition-all ${
                       tentFormPricingModel === "single_tent"
-                        ? "border-purple-500 bg-purple-50/20 dark:bg-purple-950/20 ring-2 ring-purple-500/30"
+                        ? "border-blue-500 bg-blue-500/10 dark:bg-blue-950/30 ring-2 ring-blue-500/40"
                         : "border-border bg-card hover:bg-muted/40"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
-                        <Users className="h-3.5 w-3.5 text-purple-600" />
-                        <span>Charge Single Tent</span>
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1">
+                        <Tent className="h-3.5 w-3.5 text-blue-600" />
+                        <span>Single Tent Pitch</span>
                       </span>
                       {tentFormPricingModel === "single_tent" && (
-                        <CheckCircle2 className="h-4 w-4 text-purple-600" />
+                        <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0" />
                       )}
                     </div>
-                    <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider block">
-                      Per Person / Single Slot
+                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">
+                      Individual Slot / BYOT
                     </span>
-                    <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
-                      Charged per individual camper / single pitch slot per night (ideal for BYOT lawns, backpackers & group treks).
+                    <p className="text-[10px] text-muted-foreground mt-1 leading-snug">
+                      Fixed rate for single ground slot or 1-person alpine pitch (e.g. backpackers & trekkers).
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* Dynamic Rates based on charging model */}
-              {tentFormPricingModel === "per_unit" ? (
+              {tentFormPricingModel === "per_person" ? (
+                <div className="space-y-3 p-3.5 rounded-xl bg-purple-500/5 border border-purple-500/20">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label className="font-semibold text-foreground">Per Person Weekday (₹)</label>
+                      <input
+                        type="number"
+                        required
+                        min={100}
+                        value={tentFormPerPersonRate}
+                        onChange={(e) => setTentFormPerPersonRate(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold text-purple-700 dark:text-purple-300"
+                      />
+                      <span className="text-[10px] text-muted-foreground">Mon - Thu per head</span>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="font-semibold text-foreground">Per Person Weekend (₹)</label>
+                      <input
+                        type="number"
+                        required
+                        min={100}
+                        value={tentFormPerPersonWeekendRate}
+                        onChange={(e) => setTentFormPerPersonWeekendRate(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold text-purple-600"
+                      />
+                      <span className="text-[10px] text-muted-foreground">Fri - Sun per head</span>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="font-semibold text-foreground">Min Chargeable Pax</label>
+                      <input
+                        type="number"
+                        required
+                        min={1}
+                        max={10}
+                        value={tentFormMinPax}
+                        onChange={(e) => setTentFormMinPax(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold"
+                      />
+                      <span className="text-[10px] text-muted-foreground">Minimum billable guests</span>
+                    </div>
+                  </div>
+
+                  {/* Meal Package Inclusions */}
+                  <div className="pt-2 border-t border-purple-500/20 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={tentFormMealsIncluded}
+                          onChange={(e) => setTentFormMealsIncluded(e.target.checked)}
+                          className="rounded text-purple-600"
+                        />
+                        <span className="text-xs font-semibold text-foreground">
+                          Include Meals / Campfire Package in Per-Person Rate
+                        </span>
+                      </label>
+                      <Badge variant="outline" className="text-[10px] border-purple-500/30 text-purple-600">
+                        {tentFormMealsIncluded ? "All-Inclusive Package" : "Room / Pitch Only"}
+                      </Badge>
+                    </div>
+                    {tentFormMealsIncluded && (
+                      <input
+                        type="text"
+                        value={tentFormMealDescription}
+                        onChange={(e) => setTentFormMealDescription(e.target.value)}
+                        placeholder="e.g. Welcome Drink, Hi-Tea, Campfire BBQ, Buffet Dinner & Breakfast"
+                        className="w-full p-2 rounded-lg border border-border bg-background text-xs"
+                      />
+                    )}
+                  </div>
+
+                  {/* Calculation Preview Banner */}
+                  <div className="p-2.5 rounded-lg bg-background border border-purple-500/30 flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground flex items-center gap-1.5">
+                      <Users className="h-3.5 w-3.5 text-purple-600" />
+                      <span>Live Booking Price Preview (2 Guests):</span>
+                    </span>
+                    <span className="font-mono font-bold text-purple-700 dark:text-purple-300">
+                      2 × ₹{tentFormPerPersonRate.toLocaleString()} = ₹{(tentFormPerPersonRate * 2).toLocaleString()} / night
+                    </span>
+                  </div>
+                </div>
+              ) : tentFormPricingModel === "per_unit" ? (
                 <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted/40 border border-border">
                   <div className="space-y-1">
                     <label className="font-semibold text-foreground">Nightly Flat Rate (₹ / Unit)</label>
@@ -2202,9 +2489,9 @@ export default function PropertiesPage() {
                       min={100}
                       value={tentFormFlatRate}
                       onChange={(e) => setTentFormFlatRate(Number(e.target.value))}
-                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold"
+                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold text-emerald-600"
                     />
-                    <span className="text-[10px] text-muted-foreground">Standard weekday flat tent charge</span>
+                    <span className="text-[10px] text-muted-foreground">Standard flat tent charge per night</span>
                   </div>
                   <div className="space-y-1">
                     <label className="font-semibold text-foreground">Weekend Flat Rate (₹ / Unit)</label>
@@ -2214,36 +2501,36 @@ export default function PropertiesPage() {
                       min={100}
                       value={tentFormFlatWeekendRate}
                       onChange={(e) => setTentFormFlatWeekendRate(Number(e.target.value))}
-                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold text-emerald-600"
+                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold text-emerald-700"
                     />
-                    <span className="text-[10px] text-muted-foreground">Fri - Sun premium rate</span>
+                    <span className="text-[10px] text-muted-foreground">Fri - Sun entire tent flat rate</span>
                   </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted/40 border border-border">
                   <div className="space-y-1">
-                    <label className="font-semibold text-foreground">Per Camper Rate (₹ / Person / Night)</label>
+                    <label className="font-semibold text-foreground">Single Pitch Rate (₹ / Night)</label>
                     <input
                       type="number"
                       required
                       min={100}
                       value={tentFormPerPersonRate}
                       onChange={(e) => setTentFormPerPersonRate(Number(e.target.value))}
-                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold"
+                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold text-blue-600"
                     />
-                    <span className="text-[10px] text-muted-foreground">Base single camper pitch rate</span>
+                    <span className="text-[10px] text-muted-foreground">Flat rate per single pitch slot</span>
                   </div>
                   <div className="space-y-1">
-                    <label className="font-semibold text-foreground">Weekend Per Camper (₹ / Person)</label>
+                    <label className="font-semibold text-foreground">Weekend Single Pitch (₹ / Night)</label>
                     <input
                       type="number"
                       required
                       min={100}
                       value={tentFormPerPersonWeekendRate}
                       onChange={(e) => setTentFormPerPersonWeekendRate(Number(e.target.value))}
-                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold text-purple-600"
+                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold text-blue-700"
                     />
-                    <span className="text-[10px] text-muted-foreground">Weekend / holiday per head rate</span>
+                    <span className="text-[10px] text-muted-foreground">Weekend single slot flat rate</span>
                   </div>
                 </div>
               )}
