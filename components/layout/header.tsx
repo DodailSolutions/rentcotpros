@@ -15,13 +15,19 @@ import {
   Tent,
   UserPlus,
   Globe,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 
 export function Header({
   onToggleSidebar,
+  onToggleCollapse,
+  isSidebarCollapsed,
   onOpenInviteModal,
 }: {
   onToggleSidebar?: () => void;
+  onToggleCollapse?: () => void;
+  isSidebarCollapsed?: boolean;
   onOpenInviteModal?: () => void;
 }) {
   const { t, locale } = useTranslation();
@@ -38,7 +44,7 @@ export function Header({
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-card/95 px-4 md:px-6 backdrop-blur supports-[backdrop-filter]:bg-card/75">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 md:gap-3">
         {/* Mobile menu trigger */}
         <button
           onClick={onToggleSidebar}
@@ -48,6 +54,23 @@ export function Header({
         >
           <Menu className="h-5 w-5" />
         </button>
+
+        {/* Desktop sidebar collapse/expand trigger */}
+        {onToggleCollapse && (
+          <button
+            onClick={onToggleCollapse}
+            type="button"
+            className="hidden md:flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-2xs"
+            title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isSidebarCollapsed ? (
+              <PanelLeftOpen className="h-4 w-4 rtl:rotate-180" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4 rtl:rotate-180" />
+            )}
+          </button>
+        )}
 
         {/* Official Brand Logo */}
         <Link href={`/${locale}/dashboard`} className="flex items-center gap-2" title="Rentcot Property OS Dashboard">
