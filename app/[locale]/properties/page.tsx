@@ -97,6 +97,28 @@ export interface RichPropertyItem {
   quietHours: string;
   amenities: string[];
   connectedChannels: { name: string; status: "synced" | "pending" }[];
+  // Owner & Tent Management
+  owner: {
+    name: string;
+    phone: string;
+    email: string;
+    payoutSplit: string; // e.g. "85% Owner / 15% Rentcot"
+    tentPricingPreference: "per_unit" | "single_tent" | "hybrid";
+    bankAccountOrUpi?: string;
+  };
+  tentsCount: number;
+  tentsPricingModelSummary: string; // e.g. "150 Per Unit Flat • 50 Single Tent"
+  tentsList: {
+    id: string;
+    name: string;
+    code: string;
+    category: "glamping_dome" | "swiss_canvas" | "alpine_tent" | "safari_bell" | "byot_pitch";
+    pricingModel: "per_unit" | "single_tent";
+    rate: number;
+    weekendRate: number;
+    maxPax: number;
+    status: "available" | "occupied" | "cleaning";
+  }[];
 }
 
 const initialProperties: RichPropertyItem[] = [
@@ -142,6 +164,40 @@ const initialProperties: RichPropertyItem[] = [
       { name: "Booking.com", status: "synced" },
       { name: "Direct Site", status: "synced" },
     ],
+    owner: {
+      name: "Dr. K. V. Rao",
+      phone: "+91 98480 88990",
+      email: "kv.rao@heritageestates.in",
+      payoutSplit: "85% Owner / 15% Rentcot",
+      tentPricingPreference: "per_unit",
+      bankAccountOrUpi: "kvrao@icici",
+    },
+    tentsCount: 2,
+    tentsPricingModelSummary: "2 Tents (Charged Per Unit Flat: ₹4,500/nt)",
+    tentsList: [
+      {
+        id: "tent-gv-1",
+        name: "Orchard Bell Tent 01",
+        code: "BELL-01",
+        category: "safari_bell",
+        pricingModel: "per_unit",
+        rate: 4500,
+        weekendRate: 5500,
+        maxPax: 3,
+        status: "available",
+      },
+      {
+        id: "tent-gv-2",
+        name: "Orchard Bell Tent 02",
+        code: "BELL-02",
+        category: "safari_bell",
+        pricingModel: "per_unit",
+        rate: 4500,
+        weekendRate: 5500,
+        maxPax: 3,
+        status: "occupied",
+      },
+    ],
   },
   {
     id: "prop-2",
@@ -184,6 +240,73 @@ const initialProperties: RichPropertyItem[] = [
       { name: "Airbnb", status: "synced" },
       { name: "MakeMyTrip", status: "synced" },
       { name: "Direct Site", status: "synced" },
+    ],
+    owner: {
+      name: "Rajesh Sharma",
+      phone: "+91 98490 12345",
+      email: "rajesh@ecocampadventures.in",
+      payoutSplit: "80% Owner / 20% Rentcot",
+      tentPricingPreference: "hybrid",
+      bankAccountOrUpi: "rajeshsharma@hdfcbank",
+    },
+    tentsCount: 200,
+    tentsPricingModelSummary: "150 Per Unit Flat • 50 Single Tent/Per-Head",
+    tentsList: [
+      {
+        id: "tent-ww-1",
+        name: "Geodesic Glamping Dome 01",
+        code: "DOME-01",
+        category: "glamping_dome",
+        pricingModel: "per_unit",
+        rate: 5500,
+        weekendRate: 6500,
+        maxPax: 3,
+        status: "available",
+      },
+      {
+        id: "tent-ww-2",
+        name: "Geodesic Glamping Dome 02",
+        code: "DOME-02",
+        category: "glamping_dome",
+        pricingModel: "per_unit",
+        rate: 5500,
+        weekendRate: 6500,
+        maxPax: 4,
+        status: "occupied",
+      },
+      {
+        id: "tent-ww-3",
+        name: "Swiss Canvas Tent 01",
+        code: "TENT-01",
+        category: "swiss_canvas",
+        pricingModel: "per_unit",
+        rate: 3800,
+        weekendRate: 4500,
+        maxPax: 3,
+        status: "available",
+      },
+      {
+        id: "tent-ww-4",
+        name: "Alpine 2-Man Trekker Tent 01",
+        code: "ALP-01",
+        category: "alpine_tent",
+        pricingModel: "single_tent",
+        rate: 1200,
+        weekendRate: 1500,
+        maxPax: 2,
+        status: "available",
+      },
+      {
+        id: "tent-ww-5",
+        name: "BYOT Lawn Pitch Slot 01",
+        code: "BYOT-01",
+        category: "byot_pitch",
+        pricingModel: "single_tent",
+        rate: 800,
+        weekendRate: 950,
+        maxPax: 4,
+        status: "available",
+      },
     ],
   },
   {
@@ -229,6 +352,17 @@ const initialProperties: RichPropertyItem[] = [
       { name: "Expedia", status: "synced" },
       { name: "Direct Site", status: "synced" },
     ],
+    owner: {
+      name: "Sunita Devi",
+      phone: "+91 99080 77661",
+      email: "sunita@lakeviewgroup.in",
+      payoutSplit: "82% Owner / 18% Rentcot",
+      tentPricingPreference: "per_unit",
+      bankAccountOrUpi: "sunita.lakeview@okaxis",
+    },
+    tentsCount: 0,
+    tentsPricingModelSummary: "0 Tents (Ready to add Glamping Domes on Lawn)",
+    tentsList: [],
   },
 ];
 
@@ -249,6 +383,26 @@ export default function PropertiesPage() {
   const [dossierProperty, setDossierProperty] = useState<RichPropertyItem | null>(null);
   const [shareModalProperty, setShareModalProperty] = useState<RichPropertyItem | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Add Tent to Owner Property Modal States
+  const [isAddTentModalOpen, setIsAddTentModalOpen] = useState(false);
+  const [targetPropertyForTent, setTargetPropertyForTent] = useState<RichPropertyItem | null>(null);
+  const [tentFormName, setTentFormName] = useState("Lakeside Geodesic Dome A-03");
+  const [tentFormCode, setTentFormCode] = useState("DOME-03");
+  const [tentFormCategory, setTentFormCategory] = useState<"glamping_dome" | "swiss_canvas" | "alpine_tent" | "safari_bell" | "byot_pitch">("glamping_dome");
+  const [tentFormPricingModel, setTentFormPricingModel] = useState<"per_unit" | "single_tent">("per_unit");
+  const [tentFormFlatRate, setTentFormFlatRate] = useState(5500);
+  const [tentFormFlatWeekendRate, setTentFormFlatWeekendRate] = useState(6500);
+  const [tentFormPerPersonRate, setTentFormPerPersonRate] = useState(1200);
+  const [tentFormPerPersonWeekendRate, setTentFormPerPersonWeekendRate] = useState(1500);
+  const [tentFormMaxPax, setTentFormMaxPax] = useState(3);
+  const [tentFormZone, setTentFormZone] = useState("Zone A: Lakeside Deck");
+  const [tentFormWashroom, setTentFormWashroom] = useState<"attached_private" | "shared_bathhouse">("attached_private");
+  const [tentFormGround, setTentFormGround] = useState<"wooden_deck" | "grass_pitch" | "stone_plinth">("wooden_deck");
+  const [tentFormHasPower, setTentFormHasPower] = useState(true);
+  const [tentFormHasAC, setTentFormHasAC] = useState(true);
+  const [tentFormCampfireAllowed, setTentFormCampfireAllowed] = useState(true);
+  const [tentActionToast, setTentActionToast] = useState<string | null>(null);
 
   // Form State for Add / Edit
   const [formName, setFormName] = useState("");
@@ -428,10 +582,119 @@ export default function PropertiesPage() {
         connectedChannels: [
           { name: "Direct Site", status: "synced" },
         ],
+        owner: {
+          name: "Estate Owner",
+          phone: "+91 98480 00000",
+          email: "owner@rentcotestate.com",
+          payoutSplit: "80% Owner / 20% Rentcot",
+          tentPricingPreference: "per_unit",
+        },
+        tentsCount: 0,
+        tentsPricingModelSummary: "0 Tents Configured",
+        tentsList: [],
       };
       setProperties((prev) => [...prev, created]);
       setIsAddModalOpen(false);
     }
+  };
+
+  const handleOpenAddTentModal = (p: RichPropertyItem) => {
+    setTargetPropertyForTent(p);
+    const nextNum = (p.tentsCount || 0) + 1;
+    const pad = nextNum < 10 ? `0${nextNum}` : `${nextNum}`;
+    if (p.type === "Campsite & Glamping") {
+      setTentFormName(`Geodesic Glamping Dome ${pad}`);
+      setTentFormCode(`DOME-${pad}`);
+      setTentFormCategory("glamping_dome");
+      setTentFormPricingModel(p.owner.tentPricingPreference === "single_tent" ? "single_tent" : "per_unit");
+      setTentFormFlatRate(5500);
+      setTentFormFlatWeekendRate(6500);
+      setTentFormPerPersonRate(1200);
+      setTentFormPerPersonWeekendRate(1500);
+      setTentFormZone("Zone A: Lakeside Deck");
+      setTentFormWashroom("attached_private");
+      setTentFormGround("wooden_deck");
+    } else {
+      setTentFormName(`Orchard Glamping Bell Tent ${pad}`);
+      setTentFormCode(`BELL-${pad}`);
+      setTentFormCategory("safari_bell");
+      setTentFormPricingModel("per_unit");
+      setTentFormFlatRate(4500);
+      setTentFormFlatWeekendRate(5500);
+      setTentFormPerPersonRate(1000);
+      setTentFormPerPersonWeekendRate(1300);
+      setTentFormZone("Orchard Lawn Garden");
+      setTentFormWashroom("attached_private");
+      setTentFormGround("grass_pitch");
+    }
+    setIsAddTentModalOpen(true);
+  };
+
+  const handleSaveTentToProperty = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!targetPropertyForTent || !tentFormName.trim() || !tentFormCode.trim()) return;
+
+    const newTent = {
+      id: `tent-${Date.now()}`,
+      name: tentFormName,
+      code: tentFormCode,
+      category: tentFormCategory,
+      pricingModel: tentFormPricingModel,
+      rate: tentFormPricingModel === "per_unit" ? Number(tentFormFlatRate) : Number(tentFormPerPersonRate),
+      weekendRate: tentFormPricingModel === "per_unit" ? Number(tentFormFlatWeekendRate) : Number(tentFormPerPersonWeekendRate),
+      maxPax: Number(tentFormMaxPax),
+      status: "available" as const,
+    };
+
+    setProperties((prev) =>
+      prev.map((p) => {
+        if (p.id === targetPropertyForTent.id) {
+          const updatedTentsList = [...(p.tentsList || []), newTent];
+          const newTentsCount = p.tentsCount + 1;
+          const perUnitCount = updatedTentsList.filter((t) => t.pricingModel === "per_unit").length;
+          const singleTentCount = updatedTentsList.filter((t) => t.pricingModel === "single_tent").length;
+          const summary = `${newTentsCount} Tents (${perUnitCount} Per Unit Flat • ${singleTentCount} Single Tent/Per-Head)`;
+
+          return {
+            ...p,
+            unitsCount: p.unitsCount + 1,
+            tentsCount: newTentsCount,
+            tentsPricingModelSummary: summary,
+            tentsList: updatedTentsList,
+          };
+        }
+        return p;
+      })
+    );
+
+    // If dossier is currently open for this property, update it as well
+    if (dossierProperty && dossierProperty.id === targetPropertyForTent.id) {
+      setDossierProperty((prev) => {
+        if (!prev) return null;
+        const updatedTentsList = [...(prev.tentsList || []), newTent];
+        const newTentsCount = prev.tentsCount + 1;
+        const perUnitCount = updatedTentsList.filter((t) => t.pricingModel === "per_unit").length;
+        const singleTentCount = updatedTentsList.filter((t) => t.pricingModel === "single_tent").length;
+        const summary = `${newTentsCount} Tents (${perUnitCount} Per Unit Flat • ${singleTentCount} Single Tent/Per-Head)`;
+        return {
+          ...prev,
+          unitsCount: prev.unitsCount + 1,
+          tentsCount: newTentsCount,
+          tentsPricingModelSummary: summary,
+          tentsList: updatedTentsList,
+        };
+      });
+    }
+
+    setTentActionToast(
+      `Successfully added ${tentFormName} (${tentFormCode}) to ${targetPropertyForTent.name} (Owner: ${targetPropertyForTent.owner.name}) charged ${
+        tentFormPricingModel === "per_unit"
+          ? `Per Unit Flat (₹${Number(tentFormFlatRate).toLocaleString()}/nt)`
+          : `Single Tent (₹${Number(tentFormPerPersonRate).toLocaleString()}/head)`
+      }!`
+    );
+    setTimeout(() => setTentActionToast(null), 6000);
+    setIsAddTentModalOpen(false);
   };
 
   const handleToggleStatus = (id: string) => {
@@ -696,6 +959,22 @@ export default function PropertiesPage() {
       {/* Visual Real-Time Availability Radar Component */}
       <VisualAvailabilityRadar />
 
+      {/* Action Feedback Toast */}
+      {tentActionToast && (
+        <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+            <span className="font-semibold">{tentActionToast}</span>
+          </div>
+          <button
+            onClick={() => setTentActionToast(null)}
+            className="text-emerald-700 dark:text-emerald-300 hover:opacity-75"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       {/* Properties Section Header & Filter Toolbar */}
       <div className="space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-muted/40 p-3 sm:p-3.5 rounded-2xl border border-border">
@@ -755,36 +1034,48 @@ export default function PropertiesPage() {
               className="h-8 text-xs px-2.5 rounded-xl border border-border bg-background text-foreground font-medium"
             >
               <option value="ALL">All Statuses</option>
-              <option value="active">Active (Open)</option>
+              <option value="active">Active Only</option>
               <option value="seasonal_closure">Seasonal Closure</option>
             </select>
 
-            {/* View Switcher: Grid, Table, Analytics */}
-            <div className="inline-flex p-0.5 rounded-xl bg-muted border border-border text-xs">
+            <select
+              value={amenityFilter}
+              onChange={(e) => setAmenityFilter(e.target.value)}
+              className="h-8 text-xs px-2.5 rounded-xl border border-border bg-background text-foreground font-medium"
+            >
+              <option value="ALL">All Amenities</option>
+              <option value="Private Pool">Private Pool</option>
+              <option value="Campfire Pits">Campfire Pits</option>
+              <option value="Pet Friendly">Pet Friendly</option>
+              <option value="100% DG Power">DG Backup</option>
+            </select>
+
+            {/* View Mode Switcher */}
+            <div className="flex items-center bg-background border border-border rounded-xl p-0.5">
               <button
                 onClick={() => setActiveViewMode("grid")}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  activeViewMode === "grid" ? "bg-background text-foreground shadow-2xs font-bold" : "text-muted-foreground"
+                className={`p-1.5 rounded-lg text-xs transition-colors ${
+                  activeViewMode === "grid" ? "bg-muted text-foreground font-bold shadow-xs" : "text-muted-foreground"
                 }`}
-                title="Grid Cards View"
+                title="Grid View"
               >
                 <LayoutGrid className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={() => setActiveViewMode("table")}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  activeViewMode === "table" ? "bg-background text-foreground shadow-2xs font-bold" : "text-muted-foreground"
+                className={`p-1.5 rounded-lg text-xs transition-colors ${
+                  activeViewMode === "table" ? "bg-muted text-foreground font-bold shadow-xs" : "text-muted-foreground"
                 }`}
-                title="Table Ledger View"
+                title="Table View"
               >
                 <List className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={() => setActiveViewMode("analytics")}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  activeViewMode === "analytics" ? "bg-background text-foreground shadow-2xs font-bold" : "text-muted-foreground"
+                className={`p-1.5 rounded-lg text-xs transition-colors ${
+                  activeViewMode === "analytics" ? "bg-muted text-foreground font-bold shadow-xs" : "text-muted-foreground"
                 }`}
-                title="Performance Comparison View"
+                title="Performance View"
               >
                 <BarChart3 className="h-3.5 w-3.5" />
               </button>
@@ -893,6 +1184,41 @@ export default function PropertiesPage() {
                         </div>
                       </div>
 
+                      {/* Property Owner & Payout Commercials */}
+                      <div className="flex items-center justify-between text-xs py-1.5 px-3 bg-muted/30 rounded-xl border border-border/80">
+                        <div className="flex items-center gap-1.5 text-[11px] truncate">
+                          <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          <span className="text-muted-foreground">Owner:</span>
+                          <span className="font-bold text-foreground truncate">{p.owner.name}</span>
+                          <span className="text-[10px] text-muted-foreground font-mono">({p.owner.payoutSplit})</span>
+                        </div>
+                        <a
+                          href={`tel:${p.owner.phone}`}
+                          className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold hover:underline shrink-0"
+                        >
+                          {p.owner.phone}
+                        </a>
+                      </div>
+
+                      {/* Outdoor Tents & Pricing Model Breakdown */}
+                      <div className="flex items-center justify-between text-xs py-1.5 px-3 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                        <div className="flex items-center gap-1.5 text-[11px] truncate">
+                          <Tent className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <span className="font-bold text-foreground">{p.tentsCount} Tents/Pitches</span>
+                          <span className="text-[10px] text-muted-foreground truncate hidden sm:inline">• {p.tentsPricingModelSummary}</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleOpenAddTentModal(p)}
+                          className="h-6 px-2 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/10 shrink-0"
+                          title="Add a tent to this property"
+                        >
+                          <Plus className="h-2.5 w-2.5 mr-0.5" />
+                          <span>Add Tent</span>
+                        </Button>
+                      </div>
+
                       {/* Connected Distribution OTA Channels */}
                       <div className="flex items-center justify-between text-[11px] pt-1">
                         <span className="text-muted-foreground flex items-center gap-1">
@@ -970,6 +1296,17 @@ export default function PropertiesPage() {
                       <Button
                         size="sm"
                         variant="outline"
+                        onClick={() => handleOpenAddTentModal(p)}
+                        className="h-8 px-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
+                        title="Add a tent or dome to this owner's property"
+                      >
+                        <Tent className="h-3.5 w-3.5 mr-1" />
+                        <span>Add Tent</span>
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={() => setDossierProperty(p)}
                         className="h-8 px-2 text-xs font-semibold"
                         title="View complete property 360 dossier"
@@ -1022,13 +1359,14 @@ export default function PropertiesPage() {
               <thead className="bg-muted/70 text-muted-foreground uppercase text-[10px] font-bold border-b border-border">
                 <tr>
                   <th className="p-3.5">Property & Location</th>
+                  <th className="p-3.5">Estate Owner</th>
+                  <th className="p-3.5">Tents & Pitches</th>
                   <th className="p-3.5">Category</th>
                   <th className="p-3.5">Keys</th>
                   <th className="p-3.5">Occupancy</th>
                   <th className="p-3.5">ADR</th>
                   <th className="p-3.5">RevPAR</th>
                   <th className="p-3.5">Est. Monthly</th>
-                  <th className="p-3.5">Manager</th>
                   <th className="p-3.5">Status</th>
                   <th className="p-3.5 text-right">Actions</th>
                 </tr>
@@ -1040,6 +1378,17 @@ export default function PropertiesPage() {
                       <div className="font-bold text-foreground text-sm">{p.name}</div>
                       <div className="text-[11px] text-muted-foreground">{p.location}, {p.cityState}</div>
                     </td>
+                    <td className="p-3.5">
+                      <div className="font-bold text-foreground text-xs">{p.owner.name}</div>
+                      <div className="text-[10px] text-muted-foreground font-mono">{p.owner.phone} • {p.owner.payoutSplit}</div>
+                    </td>
+                    <td className="p-3.5">
+                      <div className="flex items-center gap-1 font-bold text-foreground text-xs">
+                        <Tent className="h-3 w-3 text-emerald-600 shrink-0" />
+                        <span>{p.tentsCount} Tents</span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">{p.tentsPricingModelSummary}</div>
+                    </td>
                     <td className="p-3.5 font-semibold text-foreground">{p.type}</td>
                     <td className="p-3.5 font-mono font-bold">{p.unitsCount}</td>
                     <td className="p-3.5 font-mono font-bold text-emerald-600">{p.occupancy}%</td>
@@ -1047,15 +1396,21 @@ export default function PropertiesPage() {
                     <td className="p-3.5 font-mono font-bold">₹{p.revPar.toLocaleString()}</td>
                     <td className="p-3.5 font-mono font-bold">₹{(p.monthlyEstRevenue / 100000).toFixed(1)}L</td>
                     <td className="p-3.5">
-                      <div className="font-medium text-foreground">{p.managerName}</div>
-                      <div className="text-[11px] text-muted-foreground font-mono">{p.managerPhone}</div>
-                    </td>
-                    <td className="p-3.5">
                       <Badge className={p.status === "active" ? "bg-emerald-600 font-bold" : "bg-muted text-muted-foreground"}>
                         {p.status === "active" ? "Open" : "Closed"}
                       </Badge>
                     </td>
                     <td className="p-3.5 text-right space-x-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleOpenAddTentModal(p)}
+                        className="text-[11px] h-7 px-2 font-semibold text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
+                        title="Add a tent to this property"
+                      >
+                        <Plus className="h-2.5 w-2.5 mr-0.5" />
+                        Tent
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
@@ -1280,6 +1635,105 @@ export default function PropertiesPage() {
                 <Badge className="bg-emerald-600 text-white text-[10px] font-bold">
                   Verified Active
                 </Badge>
+              </div>
+
+              {/* Estate Owner & Commercial Payout Profile */}
+              <div className="p-4 rounded-xl border border-border bg-card space-y-3 text-xs">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <span className="font-bold text-foreground flex items-center gap-1.5">
+                    <Users className="h-4 w-4 text-emerald-600" />
+                    <span>Estate Owner Commercial Profile</span>
+                  </span>
+                  <Badge variant="outline" className="text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
+                    {dossierProperty.owner.payoutSplit}
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-0.5">
+                    <span className="text-muted-foreground text-[10px] block">Owner / Landlord Name</span>
+                    <span className="font-bold text-foreground text-xs">{dossierProperty.owner.name}</span>
+                    <a href={`tel:${dossierProperty.owner.phone}`} className="text-emerald-600 dark:text-emerald-400 font-mono text-[11px] block hover:underline">
+                      {dossierProperty.owner.phone}
+                    </a>
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="text-muted-foreground text-[10px] block">Settlement Account / UPI</span>
+                    <span className="font-mono text-foreground text-xs">{dossierProperty.owner.bankAccountOrUpi || "Direct NEFT / RTGS"}</span>
+                    <span className="text-muted-foreground text-[10px] block truncate">{dossierProperty.owner.email}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Outdoor Tents & Physical Roster */}
+              <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 space-y-3 text-xs">
+                <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2">
+                  <div>
+                    <span className="font-bold text-foreground flex items-center gap-1.5">
+                      <Tent className="h-4 w-4 text-emerald-600" />
+                      <span>Outdoor Tents & Glamping Pitches</span>
+                    </span>
+                    <p className="text-[11px] text-muted-foreground">{dossierProperty.tentsPricingModelSummary}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => handleOpenAddTentModal(dossierProperty)}
+                    className="h-7 px-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    <span>Add Tent</span>
+                  </Button>
+                </div>
+
+                {dossierProperty.tentsList && dossierProperty.tentsList.length > 0 ? (
+                  <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                    {dossierProperty.tentsList.map((t) => (
+                      <div
+                        key={t.id}
+                        className="p-2.5 rounded-lg bg-card border border-border flex items-center justify-between gap-2"
+                      >
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono text-[11px] font-bold text-foreground">{t.code}</span>
+                            <span className="text-foreground text-xs font-medium">• {t.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                            <span>Max {t.maxPax} Pax</span>
+                            <span>•</span>
+                            <span>Rate: ₹{t.rate.toLocaleString()}{t.pricingModel === "per_unit" ? "/unit" : "/head"}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <Badge
+                            variant="outline"
+                            className={`text-[9px] font-bold ${
+                              t.pricingModel === "per_unit"
+                                ? "text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                                : "text-purple-700 dark:text-purple-300 border-purple-500/30"
+                            }`}
+                          >
+                            {t.pricingModel === "per_unit" ? "Per Unit Flat" : "Single Tent"}
+                          </Badge>
+                          <Badge
+                            className={
+                              t.status === "available"
+                                ? "bg-emerald-600 text-white text-[9px]"
+                                : t.status === "occupied"
+                                ? "bg-blue-600 text-white text-[9px]"
+                                : "bg-amber-600 text-white text-[9px]"
+                            }
+                          >
+                            {t.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-muted-foreground text-xs bg-card/60 rounded-lg border border-dashed border-border">
+                    No physical tents configured on this estate yet. Click "Add Tent" above to add glamping domes, swiss tents, or BYOT slots.
+                  </div>
+                )}
               </div>
 
               {/* Amenities List */}
@@ -1624,6 +2078,312 @@ export default function PropertiesPage() {
                   className="bg-rentcot-blue hover:bg-rentcot-blue/90 text-white text-xs font-bold h-9"
                 >
                   {editingProperty ? "Save Changes" : "Create & Launch Property"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD TENT TO OWNER'S PROPERTY */}
+      {isAddTentModalOpen && targetPropertyForTent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/30 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                  <Tent className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">
+                    Add Tent to {targetPropertyForTent.name}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Owner: <strong className="text-foreground">{targetPropertyForTent.owner.name}</strong> • Split: {targetPropertyForTent.owner.payoutSplit}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAddTentModalOpen(false)}
+                className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Owner Payout & Commercial Profile Card */}
+            <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-emerald-600" />
+                <div>
+                  <span className="font-bold text-foreground">{targetPropertyForTent.owner.name}</span>
+                  <span className="text-[11px] text-muted-foreground block">{targetPropertyForTent.owner.phone} • {targetPropertyForTent.owner.email}</span>
+                </div>
+              </div>
+              <Badge variant="outline" className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
+                {targetPropertyForTent.owner.payoutSplit}
+              </Badge>
+            </div>
+
+            <form onSubmit={handleSaveTentToProperty} className="space-y-4 text-xs">
+              {/* Core Requirement: Select Charging Model */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-foreground text-xs flex items-center gap-1.5">
+                  <DollarSign className="h-3.5 w-3.5 text-rentcot-blue" />
+                  <span>Tent Charging & Billing Model</span>
+                </label>
+                <p className="text-[11px] text-muted-foreground">
+                  Select whether Rentcot and the owner charge for the entire physical unit or per individual tent / person
+                </p>
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  {/* Option 1: Per Unit (Entire Tent Flat Rate) */}
+                  <div
+                    onClick={() => setTentFormPricingModel("per_unit")}
+                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      tentFormPricingModel === "per_unit"
+                        ? "border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 ring-2 ring-emerald-500/30"
+                        : "border-border bg-card hover:bg-muted/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
+                        <Layers className="h-3.5 w-3.5 text-emerald-600" />
+                        <span>Charge Per Unit</span>
+                      </span>
+                      {tentFormPricingModel === "per_unit" && (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      )}
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">
+                      Entire Tent Flat Rate
+                    </span>
+                    <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
+                      Fixed nightly rate for the whole physical unit (dome, swiss tent) regardless of occupancy up to max pax.
+                    </p>
+                  </div>
+
+                  {/* Option 2: Single Tent / Per Head Rate */}
+                  <div
+                    onClick={() => setTentFormPricingModel("single_tent")}
+                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      tentFormPricingModel === "single_tent"
+                        ? "border-purple-500 bg-purple-50/20 dark:bg-purple-950/20 ring-2 ring-purple-500/30"
+                        : "border-border bg-card hover:bg-muted/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5 text-purple-600" />
+                        <span>Charge Single Tent</span>
+                      </span>
+                      {tentFormPricingModel === "single_tent" && (
+                        <CheckCircle2 className="h-4 w-4 text-purple-600" />
+                      )}
+                    </div>
+                    <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider block">
+                      Per Person / Single Slot
+                    </span>
+                    <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
+                      Charged per individual camper / single pitch slot per night (ideal for BYOT lawns, backpackers & group treks).
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dynamic Rates based on charging model */}
+              {tentFormPricingModel === "per_unit" ? (
+                <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted/40 border border-border">
+                  <div className="space-y-1">
+                    <label className="font-semibold text-foreground">Nightly Flat Rate (₹ / Unit)</label>
+                    <input
+                      type="number"
+                      required
+                      min={100}
+                      value={tentFormFlatRate}
+                      onChange={(e) => setTentFormFlatRate(Number(e.target.value))}
+                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold"
+                    />
+                    <span className="text-[10px] text-muted-foreground">Standard weekday flat tent charge</span>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-semibold text-foreground">Weekend Flat Rate (₹ / Unit)</label>
+                    <input
+                      type="number"
+                      required
+                      min={100}
+                      value={tentFormFlatWeekendRate}
+                      onChange={(e) => setTentFormFlatWeekendRate(Number(e.target.value))}
+                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold text-emerald-600"
+                    />
+                    <span className="text-[10px] text-muted-foreground">Fri - Sun premium rate</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted/40 border border-border">
+                  <div className="space-y-1">
+                    <label className="font-semibold text-foreground">Per Camper Rate (₹ / Person / Night)</label>
+                    <input
+                      type="number"
+                      required
+                      min={100}
+                      value={tentFormPerPersonRate}
+                      onChange={(e) => setTentFormPerPersonRate(Number(e.target.value))}
+                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold"
+                    />
+                    <span className="text-[10px] text-muted-foreground">Base single camper pitch rate</span>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-semibold text-foreground">Weekend Per Camper (₹ / Person)</label>
+                    <input
+                      type="number"
+                      required
+                      min={100}
+                      value={tentFormPerPersonWeekendRate}
+                      onChange={(e) => setTentFormPerPersonWeekendRate(Number(e.target.value))}
+                      className="w-full p-2 rounded-lg border border-border bg-background text-sm font-mono font-bold text-purple-600"
+                    />
+                    <span className="text-[10px] text-muted-foreground">Weekend / holiday per head rate</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Tent Identifier & Name */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-foreground">Tent / Pitch #</label>
+                  <input
+                    type="text"
+                    required
+                    value={tentFormCode}
+                    onChange={(e) => setTentFormCode(e.target.value)}
+                    className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono font-bold uppercase"
+                  />
+                </div>
+                <div className="col-span-2 space-y-1">
+                  <label className="font-semibold text-foreground">Tent Display Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={tentFormName}
+                    onChange={(e) => setTentFormName(e.target.value)}
+                    className="w-full p-2 rounded-lg border border-border bg-background text-xs font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* Tent Category & Zone */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-foreground">Tent Construction Style</label>
+                  <select
+                    value={tentFormCategory}
+                    onChange={(e) => setTentFormCategory(e.target.value as any)}
+                    className="w-full p-2 rounded-lg border border-border bg-background text-xs"
+                  >
+                    <option value="glamping_dome">Geodesic Glamping Dome</option>
+                    <option value="swiss_canvas">Swiss Canvas Cottage Tent</option>
+                    <option value="alpine_tent">Alpine Dome Adventure Tent</option>
+                    <option value="safari_bell">Luxury Safari Bell Tent</option>
+                    <option value="byot_pitch">BYOT Grass Pitch Slot</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-foreground">Zone / Lawn Section</label>
+                  <input
+                    type="text"
+                    value={tentFormZone}
+                    onChange={(e) => setTentFormZone(e.target.value)}
+                    className="w-full p-2 rounded-lg border border-border bg-background text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Capacity, Washroom, Ground Foundation */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-foreground">Max Pax Capacity</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={tentFormMaxPax}
+                    onChange={(e) => setTentFormMaxPax(Number(e.target.value))}
+                    className="w-full p-2 rounded-lg border border-border bg-background text-xs font-bold"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-foreground">Washroom Setup</label>
+                  <select
+                    value={tentFormWashroom}
+                    onChange={(e) => setTentFormWashroom(e.target.value as any)}
+                    className="w-full p-2 rounded-lg border border-border bg-background text-xs"
+                  >
+                    <option value="attached_private">Attached Ensuite Bath</option>
+                    <option value="shared_bathhouse">Shared Eco-Bathhouse</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-foreground">Ground Foundation</label>
+                  <select
+                    value={tentFormGround}
+                    onChange={(e) => setTentFormGround(e.target.value as any)}
+                    className="w-full p-2 rounded-lg border border-border bg-background text-xs"
+                  >
+                    <option value="wooden_deck">Elevated Wooden Deck</option>
+                    <option value="grass_pitch">Grass Lawn Pitch</option>
+                    <option value="stone_plinth">Stone / Cement Plinth</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Facilities Toggles */}
+              <div className="grid grid-cols-3 gap-2 pt-1 border-t border-border/60">
+                <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-muted/40 border border-border hover:bg-muted/70">
+                  <input
+                    type="checkbox"
+                    checked={tentFormHasPower}
+                    onChange={(e) => setTentFormHasPower(e.target.checked)}
+                    className="rounded text-emerald-600"
+                  />
+                  <span className="text-[11px] font-medium">Power Socket (230V)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-muted/40 border border-border hover:bg-muted/70">
+                  <input
+                    type="checkbox"
+                    checked={tentFormHasAC}
+                    onChange={(e) => setTentFormHasAC(e.target.checked)}
+                    className="rounded text-emerald-600"
+                  />
+                  <span className="text-[11px] font-medium">AC / Cooler</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-muted/40 border border-border hover:bg-muted/70">
+                  <input
+                    type="checkbox"
+                    checked={tentFormCampfireAllowed}
+                    onChange={(e) => setTentFormCampfireAllowed(e.target.checked)}
+                    className="rounded text-emerald-600"
+                  />
+                  <span className="text-[11px] font-medium">Campfire Allowed</span>
+                </label>
+              </div>
+
+              {/* Submit / Cancel Buttons */}
+              <div className="pt-3 border-t border-border flex items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddTentModalOpen(false)}
+                  className="h-9 px-4 text-xs font-semibold"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="h-9 px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs"
+                >
+                  <Plus className="h-3.5 w-3.5 mr-1" />
+                  <span>Save & Allocate Tent to Property</span>
                 </Button>
               </div>
             </form>

@@ -18,6 +18,15 @@ export interface PropertyCommercials {
   commissionRatePercent?: number;
 }
 
+export interface PropertyOwner {
+  name: string;
+  phone: string;
+  email: string;
+  payoutSplit: string; // e.g. "80% Owner / 20% Rentcot"
+  tentPricingPreference?: "per_unit" | "single_tent" | "hybrid";
+  bankAccountOrUpi?: string;
+}
+
 export interface PropertyOperations {
   managerName: string;
   managerPhone: string;

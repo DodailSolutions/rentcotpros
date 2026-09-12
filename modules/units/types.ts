@@ -69,6 +69,14 @@ export interface RichUnit {
   maintenance_notes?: string;
   current_guest?: UnitCurrentGuest;
   image_url: string;
+  // Owner & Outdoor Camping/Tent Management
+  owner_name?: string;
+  owner_phone?: string;
+  pricing_model?: "per_unit" | "single_tent"; // "per_unit" = Entire tent flat rate; "single_tent" = Per-person / single tent slot
+  per_person_rate?: number; // Active when pricing_model === "single_tent"
+  tent_type?: "glamping_dome" | "swiss_canvas" | "alpine_tent" | "safari_bell" | "byot_pitch";
+  washroom_type?: "attached_private" | "shared_bathhouse";
+  ground_type?: "wooden_deck" | "grass_pitch" | "stone_plinth";
 }
 
 export interface UnitType {
