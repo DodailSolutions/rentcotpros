@@ -54,6 +54,8 @@ import {
   Calendar,
   Tent,
   Home,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import {
   POSItem,
@@ -895,13 +897,13 @@ export default function POSPage() {
 
   // Registered Guest Profiles with Headcount Tracking (Adults & Kids)
   const [registeredGuests, setRegisteredGuests] = useState<POSGuestProfile[]>(initialGuestProfiles);
-  const [selectedGuestId, setSelectedGuestId] = useState<string>(initialGuestProfiles[0].id);
+  const [selectedGuestId, setSelectedGuestId] = useState<string>("walk_in");
 
   // Invoicing target: Charge to in-house room folio vs direct counter settlement
-  const [chargeTarget, setChargeTarget] = useState<"room" | "direct">("room");
+  const [chargeTarget, setChargeTarget] = useState<"room" | "direct">("direct");
   const [selectedRoom, setSelectedRoom] = useState<string>(initialGuestProfiles[0].roomOrPitch);
-  const [guestName, setGuestName] = useState<string>(initialGuestProfiles[0].guestName);
-  const [guestPhone, setGuestPhone] = useState<string>(initialGuestProfiles[0].guestPhone);
+  const [guestName, setGuestName] = useState<string>("Walk-In Guest");
+  const [guestPhone, setGuestPhone] = useState<string>("");
 
   // Main POS View: "catalog" (F&B Dining & Activities) vs "rooms" (Real-Time Room & Camp Availability)
   const [posMainTab, setPosMainTab] = useState<"catalog" | "rooms">("catalog");
@@ -912,10 +914,13 @@ export default function POSPage() {
   const [roomStatusFilter, setRoomStatusFilter] = useState<string>("all");
   const [roomSearchQuery, setRoomSearchQuery] = useState<string>("");
 
-  // Guest Headcount (Number of Guests / Adults, Kids, and Pets)
-  const [adultsCount, setAdultsCount] = useState<number>(initialGuestProfiles[0].adultsCount);
-  const [kidsCount, setKidsCount] = useState<number>(initialGuestProfiles[0].kidsCount);
-  const [petsCount, setPetsCount] = useState<number>(initialGuestProfiles[0].petsCount || 0);
+  // Guest Headcount (Number of Guests / Adults, Kids, and Pets) - default 1 Adult, 0 Kids, 0 Pets for clean start
+  const [adultsCount, setAdultsCount] = useState<number>(1);
+  const [kidsCount, setKidsCount] = useState<number>(0);
+  const [petsCount, setPetsCount] = useState<number>(0);
+
+  // Group Headcount Feasts & Passes Collapsible Banner
+  const [showHeadcountPackages, setShowHeadcountPackages] = useState<boolean>(false);
 
   // Add / Register Guest Modal State
   const [isAddGuestModalOpen, setIsAddGuestModalOpen] = useState<boolean>(false);
@@ -1082,6 +1087,38 @@ export default function POSPage() {
       } else {
         setIsB2B(false);
       }
+    }
+  };
+
+  // Helper when switching between Direct Walk-In and In-House Room
+  const handleSwitchChargeTarget = (target: "room" | "direct") => {
+    setChargeTarget(target);
+    if (target === "room") {
+      const activeRoom = registeredGuests.find((g) => g.type === "in_house") || registeredGuests[0];
+      if (activeRoom) {
+        setSelectedRoom(activeRoom.roomOrPitch);
+        setSelectedGuestId(activeRoom.id);
+        setGuestName(activeRoom.guestName);
+        setGuestPhone(activeRoom.guestPhone);
+        setAdultsCount(activeRoom.adultsCount || 2);
+        setKidsCount(activeRoom.kidsCount || 0);
+        setPetsCount(activeRoom.petsCount || 0);
+        if (activeRoom.isCorporate) {
+          setIsB2B(true);
+          setB2bCompanyName(activeRoom.companyName || "");
+          setB2bCompanyGstin(activeRoom.companyGstin || "");
+        } else {
+          setIsB2B(false);
+        }
+      }
+    } else {
+      setSelectedGuestId("walk_in");
+      setGuestName("Walk-In Guest");
+      setGuestPhone("");
+      setAdultsCount(1);
+      setKidsCount(0);
+      setPetsCount(0);
+      setIsB2B(false);
     }
   };
 
@@ -2139,72 +2176,72 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                 </Button>
               </div>
 
-              {/* Headcount Package Quick Billing Banner (Adults & Kids in INR ₹) */}
-              <div className="p-3.5 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent space-y-2.5 shadow-2xs">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              {/* Group Feasts & Buffet Passes (Collapsible / Sleek) */}
+              <div className="rounded-xl border border-primary/20 bg-card overflow-hidden shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => setShowHeadcountPackages(!showHeadcountPackages)}
+                  className="w-full p-2.5 px-3 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent flex items-center justify-between hover:bg-primary/15 transition-colors text-left"
+                >
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary shrink-0">
-                      <Users className="h-4 w-4" />
+                    <div className="h-7 w-7 rounded-lg bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                      <Users className="h-3.5 w-3.5" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                        <span>Charge Per Guest (Adults &amp; Kids Packages)</span>
-                        <span className="text-[10px] bg-emerald-500/15 text-emerald-700 font-mono px-1.5 py-0.2 rounded font-semibold">
-                          INR (₹)
-                        </span>
+                      <div className="text-xs font-bold text-foreground flex items-center gap-2">
+                        <span>🍱 Group Feasts &amp; Buffet Passes (Per Head)</span>
+                        <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30">
+                          6 Available
+                        </Badge>
                       </div>
                       <p className="text-[11px] text-muted-foreground">
-                        Target: <strong className="text-foreground">{guestName}</strong> • {adultsCount} Adult{adultsCount !== 1 ? "s" : ""}, {kidsCount} Kid{kidsCount !== 1 ? "s" : ""}{petsCount > 0 ? `, ${petsCount} Pet${petsCount > 1 ? "s" : ""}` : ""} (Total: {adultsCount + kidsCount} Pax)
+                        Buffet meals, BBQ dinners &amp; passes auto-calculated for {adultsCount} Adult{adultsCount !== 1 ? "s" : ""}{kidsCount > 0 ? `, ${kidsCount} Kid${kidsCount !== 1 ? "s" : ""}` : ""}
                       </p>
                     </div>
                   </div>
 
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setIsAddGuestModalOpen(true)}
-                    className="text-[11px] h-7 gap-1 font-semibold border-border bg-background hover:bg-muted"
-                  >
-                    <UserPlus className="h-3.5 w-3.5 text-primary" />
-                    <span>+ Add / Switch Guest</span>
-                  </Button>
-                </div>
+                  <div className="flex items-center gap-1 text-xs text-primary font-semibold">
+                    <span>{showHeadcountPackages ? "Hide Packages" : "View Packages"}</span>
+                    {showHeadcountPackages ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                  </div>
+                </button>
 
-                {/* Quick Headcount Package Cards Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-0.5">
-                  {headcountPackages.map((pkg) => {
-                    const calculatedTotal = (pkg.adultRate * adultsCount) + (pkg.kidRate * kidsCount);
-                    return (
-                      <div
-                        key={pkg.id}
-                        className="p-2.5 rounded-lg border border-border/70 bg-card hover:border-primary/50 transition-all space-y-1.5 flex flex-col justify-between shadow-2xs"
-                      >
-                        <div>
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="font-bold text-xs text-foreground truncate" title={pkg.name}>
-                              {pkg.name}
-                            </span>
-                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-muted text-muted-foreground shrink-0 font-medium">
-                              {pkg.badge}
-                            </span>
-                          </div>
-                          <div className="text-[10px] text-muted-foreground mt-0.5">
-                            Adult: <strong className="text-foreground">₹{pkg.adultRate}</strong> • Kid: <strong className="text-foreground">₹{pkg.kidRate}</strong>
-                          </div>
-                        </div>
-
-                        <Button
-                          size="sm"
-                          onClick={() => handleChargeHeadcountPackage(pkg)}
-                          className="w-full text-[11px] h-7 font-bold bg-primary hover:bg-primary/90 text-primary-foreground gap-1 justify-between shadow-2xs"
+                {showHeadcountPackages && (
+                  <div className="p-3 pt-2 grid grid-cols-1 sm:grid-cols-3 gap-2 border-t border-border/60 bg-muted/20 animate-in fade-in">
+                    {headcountPackages.map((pkg) => {
+                      const calculatedTotal = (pkg.adultRate * adultsCount) + (pkg.kidRate * kidsCount);
+                      return (
+                        <div
+                          key={pkg.id}
+                          className="p-2.5 rounded-lg border border-border/70 bg-card hover:border-primary/50 transition-all space-y-1.5 flex flex-col justify-between shadow-2xs"
                         >
-                          <span>+ {adultsCount}A + {kidsCount}K</span>
-                          <span className="font-mono">₹{calculatedTotal.toLocaleString()}</span>
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
+                          <div>
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="font-bold text-xs text-foreground truncate" title={pkg.name}>
+                                {pkg.name}
+                              </span>
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-muted text-muted-foreground shrink-0 font-medium">
+                                {pkg.badge}
+                              </span>
+                            </div>
+                            <div className="text-[10px] text-muted-foreground mt-0.5">
+                              Adult: <strong className="text-foreground">₹{pkg.adultRate}</strong> • Kid: <strong className="text-foreground">₹{pkg.kidRate}</strong>
+                            </div>
+                          </div>
+
+                          <Button
+                            size="sm"
+                            onClick={() => handleChargeHeadcountPackage(pkg)}
+                            className="w-full text-[11px] h-7 font-bold bg-primary hover:bg-primary/90 text-primary-foreground gap-1 justify-between shadow-2xs"
+                          >
+                            <span>+ {adultsCount}A {kidsCount > 0 ? `+ ${kidsCount}K` : ""}</span>
+                            <span className="font-mono">₹{calculatedTotal.toLocaleString()}</span>
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Category Filter Tabs */}
@@ -2264,6 +2301,7 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                     const inCart = cart.find((c) => c.item.id === item.id);
                     const kidPrice = item.kidPrice !== undefined ? item.kidPrice : Math.round(item.price * 0.5);
                     const headcountTotal = (item.price * adultsCount) + (kidPrice * kidsCount);
+                    const isVeg = item.name.toLowerCase().includes("veg") && !item.name.toLowerCase().includes("non-veg");
 
                     return (
                       <Card
@@ -2277,6 +2315,16 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                           <div className="space-y-1">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+                                {item.category === "food" && (
+                                  <span
+                                    className={`inline-flex items-center justify-center h-3.5 w-3.5 rounded-xs border shrink-0 ${
+                                      isVeg ? "border-emerald-600" : "border-red-600"
+                                    }`}
+                                    title={isVeg ? "Pure Vegetarian" : "Non-Vegetarian"}
+                                  >
+                                    <span className={`h-1.5 w-1.5 rounded-full ${isVeg ? "bg-emerald-600" : "bg-red-600"}`} />
+                                  </span>
+                                )}
                                 <span className="font-bold text-xs sm:text-sm text-foreground leading-tight truncate">
                                   {item.name}
                                 </span>
@@ -2313,26 +2361,27 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="h-7 w-7 p-0 rounded-lg border-border hover:border-primary hover:bg-primary hover:text-white transition-colors"
+                                    className="h-7 px-2 text-xs rounded-lg border-border hover:border-primary hover:bg-primary hover:text-white transition-colors gap-1 font-semibold"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       addToCart(item);
                                     }}
                                   >
                                     <Plus className="h-3.5 w-3.5" />
+                                    <span>Add</span>
                                   </Button>
                                 )}
                               </div>
                             </div>
 
                             {item.description && (
-                              <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                              <p className="text-[11px] text-muted-foreground line-clamp-1 leading-relaxed">
                                 {item.description}
                               </p>
                             )}
 
                             <div className="flex items-center gap-2 pt-1">
-                              <span className="text-base font-extrabold text-rentcot-blue">
+                              <span className="text-base font-extrabold text-rentcot-blue font-mono">
                                 ₹{item.price.toLocaleString()}
                               </span>
                               {item.kidPrice && (
@@ -2349,23 +2398,23 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                             </div>
                           </div>
 
-                          <div className="pt-2 border-t border-border/50 flex items-center justify-between gap-1">
-                            <span className="text-[10px] text-muted-foreground">
-                              1-Click Bill for Guests:
-                            </span>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleChargeItemForGuests(item);
-                              }}
-                              className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-colors shrink-0"
-                              title={`Charge for ${adultsCount} Adults + ${kidsCount} Kids in INR (₹)`}
-                            >
-                              <Users className="h-3 w-3" />
-                              <span>Charge {adultsCount}A + {kidsCount}K (₹{headcountTotal.toLocaleString()})</span>
-                            </button>
-                          </div>
+                          {/* Only show per-head group addition if item is explicitly perPerson or has kid price with multiple pax */}
+                          {(item.isPerPerson || (item.kidPrice && (adultsCount + kidsCount > 1))) && (
+                            <div className="pt-1.5 border-t border-border/50 flex items-center justify-between gap-1 text-[10px]">
+                              <span className="text-muted-foreground">Group billing:</span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleChargeItemForGuests(item);
+                                }}
+                                className="inline-flex items-center gap-1 font-bold px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-colors"
+                              >
+                                <Users className="h-3 w-3" />
+                                <span>Add for {adultsCount}A{kidsCount > 0 ? `+${kidsCount}K` : ""} (₹{headcountTotal.toLocaleString()})</span>
+                              </button>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     );
@@ -2733,208 +2782,229 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
             </CardHeader>
 
             <CardContent className="p-4 space-y-4">
-              {/* Active Guest & Headcount Stepper Controller */}
-              <div className="p-3 rounded-xl border border-primary/20 bg-muted/30 space-y-2.5">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="h-8 w-8 rounded-lg bg-rentcot-blue/10 flex items-center justify-center text-rentcot-blue shrink-0">
-                      <UserCheck className="h-4 w-4" />
+              {/* Step 1: Customer & Destination Switcher (Direct Walk-In vs In-House Room) */}
+              <div className="p-3 rounded-xl border border-border bg-muted/30 space-y-3">
+                <div className="grid grid-cols-2 gap-1.5 p-1 bg-background rounded-lg border border-border">
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchChargeTarget("direct")}
+                    className={`py-1.5 px-2 rounded-md text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                      chargeTarget === "direct"
+                        ? "bg-primary text-primary-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Banknote className="h-3.5 w-3.5" />
+                    <span>Direct Walk-In</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchChargeTarget("room")}
+                    className={`py-1.5 px-2 rounded-md text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                      chargeTarget === "room"
+                        ? "bg-primary text-primary-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <BedDouble className="h-3.5 w-3.5" />
+                    <span>In-House Room</span>
+                  </button>
+                </div>
+
+                {chargeTarget === "direct" ? (
+                  /* Direct Walk-In Guest Details & Compact 1-Row Pax Steppers */
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] text-muted-foreground font-semibold block mb-0.5">
+                          Guest Name
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Walk-In Guest"
+                          value={guestName}
+                          onChange={(e) => setGuestName(e.target.value)}
+                          className="w-full p-2 text-xs rounded-lg border border-border bg-background text-foreground focus:ring-1 focus:ring-primary"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-muted-foreground font-semibold block mb-0.5">
+                          Phone (WhatsApp bill)
+                        </label>
+                        <input
+                          type="tel"
+                          placeholder="+91 98480..."
+                          value={guestPhone}
+                          onChange={(e) => setGuestPhone(e.target.value)}
+                          className="w-full p-2 text-xs rounded-lg border border-border bg-background text-foreground font-mono focus:ring-1 focus:ring-primary"
+                        />
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
-                        <span>{guestName}</span>
-                        <span className="text-[10px] text-muted-foreground font-normal truncate">
-                          ({chargeTarget === "room" ? selectedRoom : "Direct Counter"})
+
+                    {/* Compact 1-Row Pax Stepper */}
+                    <div className="p-2 rounded-lg bg-background border border-border/80 flex items-center justify-between gap-1 text-xs">
+                      {/* Adults */}
+                      <div className="flex items-center gap-1">
+                        <span className="text-[11px] text-muted-foreground font-medium">Adults:</span>
+                        <div className="flex items-center gap-0.5 bg-muted rounded p-0.5">
+                          <button
+                            type="button"
+                            onClick={() => setAdultsCount((p) => Math.max(1, p - 1))}
+                            className="h-5 w-5 rounded bg-background flex items-center justify-center font-bold text-xs hover:bg-card"
+                          >
+                            -
+                          </button>
+                          <span className="w-5 text-center font-bold text-xs">{adultsCount}</span>
+                          <button
+                            type="button"
+                            onClick={() => setAdultsCount((p) => p + 1)}
+                            className="h-5 w-5 rounded bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Kids */}
+                      <div className="flex items-center gap-1">
+                        <span className="text-[11px] text-muted-foreground font-medium">Kids:</span>
+                        <div className="flex items-center gap-0.5 bg-muted rounded p-0.5">
+                          <button
+                            type="button"
+                            onClick={() => setKidsCount((p) => Math.max(0, p - 1))}
+                            className="h-5 w-5 rounded bg-background flex items-center justify-center font-bold text-xs hover:bg-card"
+                          >
+                            -
+                          </button>
+                          <span className="w-5 text-center font-bold text-xs">{kidsCount}</span>
+                          <button
+                            type="button"
+                            onClick={() => setKidsCount((p) => p + 1)}
+                            className="h-5 w-5 rounded bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Pets */}
+                      <div className="flex items-center gap-1">
+                        <span className="text-[11px] text-muted-foreground font-medium">Pets:</span>
+                        <div className="flex items-center gap-0.5 bg-muted rounded p-0.5">
+                          <button
+                            type="button"
+                            onClick={() => setPetsCount((p) => Math.max(0, p - 1))}
+                            className="h-5 w-5 rounded bg-background flex items-center justify-center font-bold text-xs hover:bg-card"
+                          >
+                            -
+                          </button>
+                          <span className="w-5 text-center font-bold text-xs">{petsCount}</span>
+                          <button
+                            type="button"
+                            onClick={() => setPetsCount((p) => p + 1)}
+                            className="h-5 w-5 rounded bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Inline Pet Fee Quick Add Button */}
+                    {petsCount > 0 && (
+                      <div className="p-1.5 px-2.5 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-between text-xs animate-in fade-in">
+                        <span className="text-orange-900 text-[11px] flex items-center gap-1">
+                          <Dog className="h-3.5 w-3.5 text-orange-600 shrink-0" />
+                          <span>{petsCount} Pet{petsCount > 1 ? "s" : ""} registered</span>
                         </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const feeItem: POSItem = {
+                              id: `pet-fee-${Date.now()}`,
+                              name: `Pet Stay & Sanitation Fee (${petsCount} Pet${petsCount > 1 ? "s" : ""})`,
+                              category: "other",
+                              price: 500 * petsCount,
+                              taxRate: 0.18,
+                              sacCode: "9997",
+                              available: true,
+                              unit: `${petsCount} pet`,
+                              description: "Deep-clean sanitization fee for pet-friendly stay",
+                            };
+                            addToCart(feeItem);
+                          }}
+                          className="text-[10px] px-2 py-0.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-bold transition-colors shadow-2xs"
+                        >
+                          + Add ₹{(petsCount * 500).toLocaleString("en-IN")} Fee
+                        </button>
                       </div>
-                      <div className="text-[10px] text-muted-foreground font-mono">
-                        {guestPhone}
-                      </div>
-                    </div>
+                    )}
                   </div>
+                ) : (
+                  /* In-House Room Selection */
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-semibold text-muted-foreground block">
+                        Select In-House Villa, Cottage or Tent:
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddGuestModalOpen(true)}
+                        className="text-[10px] text-primary hover:underline font-semibold"
+                      >
+                        + New In-House Guest
+                      </button>
+                    </div>
 
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setIsAddGuestModalOpen(true)}
-                      className="h-7 px-2 text-[11px] text-primary border-primary/30 hover:bg-primary/10 font-semibold gap-1"
-                      title="Add or register a new guest in POS"
+                    <select
+                      value={selectedRoom}
+                      onChange={(e) => handleRoomChange(e.target.value)}
+                      className="w-full text-xs p-2 rounded-lg border border-border bg-background text-foreground font-medium focus:ring-1 focus:ring-primary"
                     >
-                      <UserPlus className="h-3.5 w-3.5" />
-                      <span>+ Add Guest</span>
-                    </Button>
-                  </div>
-                </div>
+                      {registeredGuests.map((r) => (
+                        <option key={r.id} value={r.roomOrPitch}>
+                          {r.roomOrPitch} — {r.guestName} ({r.folio})
+                        </option>
+                      ))}
+                    </select>
 
-                {/* Headcount Steppers: Adults, Kids & Pets in INR (₹) */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 border-t border-border/60">
-                  {/* Adults Count Stepper */}
-                  <div className="p-2 rounded-lg bg-background border border-border flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <Users className="h-3.5 w-3.5 text-rentcot-blue shrink-0" />
+                    <div className="p-2.5 rounded-lg bg-background border border-border/80 text-xs flex items-center justify-between">
                       <div>
-                        <div className="text-[9px] text-muted-foreground font-semibold uppercase leading-none">
-                          Adults
+                        <div className="font-bold text-foreground flex items-center gap-1.5">
+                          <span>{guestName}</span>
+                          <Badge variant="outline" className="text-[9px] font-mono border-primary/30 text-primary py-0">
+                            {registeredGuests.find((r) => r.roomOrPitch === selectedRoom)?.folio || "FOL-000"}
+                          </Badge>
                         </div>
-                        <div className="text-xs font-extrabold text-foreground">
-                          {adultsCount} Guest{adultsCount !== 1 ? "s" : ""}
+                        <div className="text-[10px] text-muted-foreground font-mono mt-0.5">
+                          {guestPhone || "No phone on file"}
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => setAdultsCount((prev) => Math.max(1, prev - 1))}
-                        className="h-6 w-6 rounded bg-muted hover:bg-muted/80 flex items-center justify-center text-foreground font-bold text-xs transition-colors"
-                        title="Decrease Adults"
-                      >
-                        <Minus className="h-3 w-3" />
-                      </button>
-                      <span className="font-extrabold text-xs min-w-[14px] text-center text-foreground">
-                        {adultsCount}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setAdultsCount((prev) => prev + 1)}
-                        className="h-6 w-6 rounded bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center font-bold text-xs transition-colors"
-                        title="Increase Adults"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </div>
 
-                  {/* Kids Count Stepper */}
-                  <div className="p-2 rounded-lg bg-background border border-border flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <Baby className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-                      <div>
-                        <div className="text-[9px] text-muted-foreground font-semibold uppercase leading-none">
-                          Kids
-                        </div>
-                        <div className="text-xs font-extrabold text-foreground">
-                          {kidsCount} Kid{kidsCount !== 1 ? "s" : ""}
-                        </div>
-                      </div>
+                      <Badge variant="secondary" className="text-[10px] font-medium">
+                        {adultsCount} Adults{kidsCount > 0 ? `, ${kidsCount} Kids` : ""}{petsCount > 0 ? `, ${petsCount} Pets` : ""}
+                      </Badge>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => setKidsCount((prev) => Math.max(0, prev - 1))}
-                        className="h-6 w-6 rounded bg-muted hover:bg-muted/80 flex items-center justify-center text-foreground font-bold text-xs transition-colors"
-                        title="Decrease Kids"
-                      >
-                        <Minus className="h-3 w-3" />
-                      </button>
-                      <span className="font-extrabold text-xs min-w-[14px] text-center text-foreground">
-                        {kidsCount}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setKidsCount((prev) => prev + 1)}
-                        className="h-6 w-6 rounded bg-amber-600 text-white hover:bg-amber-700 flex items-center justify-center font-bold text-xs transition-colors"
-                        title="Increase Kids"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Pets Count Stepper */}
-                  <div className="p-2 rounded-lg bg-background border border-border flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <Dog className="h-3.5 w-3.5 text-orange-600 shrink-0" />
-                      <div>
-                        <div className="text-[9px] text-muted-foreground font-semibold uppercase leading-none">
-                          Pets
-                        </div>
-                        <div className="text-xs font-extrabold text-foreground">
-                          {petsCount} Pet{petsCount !== 1 ? "s" : ""}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => setPetsCount((prev) => Math.max(0, prev - 1))}
-                        className="h-6 w-6 rounded bg-muted hover:bg-muted/80 flex items-center justify-center text-foreground font-bold text-xs transition-colors"
-                        title="Decrease Pets"
-                      >
-                        <Minus className="h-3 w-3" />
-                      </button>
-                      <span className="font-extrabold text-xs min-w-[14px] text-center text-foreground">
-                        {petsCount}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setPetsCount((prev) => prev + 1)}
-                        className="h-6 w-6 rounded bg-orange-600 text-white hover:bg-orange-700 flex items-center justify-center font-bold text-xs transition-colors"
-                        title="Increase Pets"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Pet Sanitation Quick Fee Button if pets registered */}
-                {petsCount > 0 && (
-                  <div className="p-2 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-between text-xs animate-in fade-in">
-                    <div className="flex items-center gap-1.5 text-orange-800 text-[11px]">
-                      <Dog className="h-3.5 w-3.5 text-orange-600 shrink-0" />
-                      <span><strong>{petsCount} Pet{petsCount > 1 ? "s" : ""}</strong> Registered (₹500/pet fee)</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const feeItem: POSItem = {
-                          id: `pet-fee-${Date.now()}`,
-                          name: `Pet Stay & Sanitation Fee (${petsCount} Pet${petsCount > 1 ? "s" : ""})`,
-                          category: "other",
-                          price: 500 * petsCount,
-                          taxRate: 0.18,
-                          sacCode: "9997",
-                          available: true,
-                          unit: `${petsCount} pet`,
-                          description: "Deep-clean sanitization fee for pet-friendly stay",
-                        };
-                        addToCart(feeItem);
-                      }}
-                      className="px-2 py-0.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-bold text-[10px] shrink-0 transition-colors shadow-2xs"
-                    >
-                      + Add Pet Fee (₹{(petsCount * 500).toLocaleString("en-IN")})
-                    </button>
                   </div>
                 )}
-
-                <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-0.5 px-0.5">
-                  <span className="flex items-center gap-1">
-                    <span>Total Billable:</span>
-                    <strong className="text-foreground font-bold">
-                      {adultsCount + kidsCount} Guests ({adultsCount}A, {kidsCount}K){petsCount > 0 ? ` • ${petsCount} Pet${petsCount > 1 ? "s" : ""}` : ""}
-                    </strong>
-                  </span>
-                  <span className="font-semibold text-emerald-600 font-mono">Deals in INR (₹)</span>
-                </div>
               </div>
 
+              {/* Step 2: Cart Items List */}
               {cart.length === 0 ? (
-                <div className="py-16 text-center text-muted-foreground space-y-2">
-                  <ShoppingBag className="h-10 w-10 mx-auto opacity-30 text-muted-foreground" />
-                  <div className="text-sm font-semibold text-foreground">Folio is currently empty</div>
-                  <div className="text-xs text-muted-foreground max-w-xs mx-auto">
-                    Click any food item, per-guest package, campfire kit, or adventure ride on the left to add charges to the bill.
+                <div className="py-12 text-center text-muted-foreground space-y-2 border border-dashed border-border rounded-xl">
+                  <ShoppingBag className="h-8 w-8 mx-auto opacity-30 text-muted-foreground" />
+                  <div className="text-xs font-semibold text-foreground">Folio is currently empty</div>
+                  <div className="text-[11px] text-muted-foreground max-w-xs mx-auto">
+                    Click any food item, buffet package, campfire kit, or room on the left to add to bill.
                   </div>
                 </div>
               ) : (
                 <>
-                  {/* Cart Items List */}
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  <div className="space-y-1.5 max-h-[260px] overflow-y-auto pr-1 border-t border-b border-border py-2">
                     {cart.map(({ item, quantity }) => (
                       <div
                         key={item.id}
-                        className="flex items-center justify-between text-xs py-2 border-b border-border/60"
+                        className="flex items-center justify-between text-xs py-1.5 px-2 rounded-lg bg-muted/20 border border-border/50"
                       >
                         <div className="flex-1 pr-2 min-w-0">
                           <div className="font-semibold text-foreground truncate flex items-center gap-1">
@@ -2945,20 +3015,21 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                               </span>
                             )}
                           </div>
-                          <div className="text-muted-foreground font-mono text-[11px] flex items-center gap-1">
+                          <div className="text-muted-foreground font-mono text-[10px] flex items-center gap-1">
                             <span>{quantity} × ₹{item.price.toLocaleString()}</span>
                             <span>•</span>
                             <span>SAC {item.sacCode} ({(item.taxRate * 100).toFixed(0)}% GST)</span>
                           </div>
                         </div>
+
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className="font-extrabold text-foreground">
+                          <span className="font-extrabold text-foreground font-mono">
                             ₹{(quantity * item.price).toLocaleString()}
                           </span>
                           <button
                             onClick={() => clearCartItem(item.id)}
                             className="text-muted-foreground hover:text-destructive p-1 transition-colors"
-                            title="Remove"
+                            title="Remove item"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -2967,151 +3038,46 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                     ))}
                   </div>
 
-                  {/* Destination: In-House Room Folio vs Direct Settlement */}
-                  <div className="space-y-2 pt-2 border-t border-border">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-foreground">Settlement Target:</span>
-                      <span className="text-[11px] text-muted-foreground">
-                        {chargeTarget === "room" ? "Add to Guest Tab" : "Counter Settle"}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setChargeTarget("room")}
-                        className={`flex items-center justify-center gap-1.5 p-2 rounded-lg text-xs font-semibold border transition-colors ${
-                          chargeTarget === "room"
-                            ? "border-primary bg-primary/10 text-primary shadow-2xs"
-                            : "border-border text-muted-foreground hover:bg-muted"
-                        }`}
-                      >
-                        <BedDouble className="h-3.5 w-3.5" />
-                        <span>Room Folio Charge</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setChargeTarget("direct")}
-                        className={`flex items-center justify-center gap-1.5 p-2 rounded-lg text-xs font-semibold border transition-colors ${
-                          chargeTarget === "direct"
-                            ? "border-primary bg-primary/10 text-primary shadow-2xs"
-                            : "border-border text-muted-foreground hover:bg-muted"
-                        }`}
-                      >
-                        <Banknote className="h-3.5 w-3.5" />
-                        <span>Direct Settle (GST)</span>
-                      </button>
-                    </div>
-
-                    {chargeTarget === "room" ? (
-                      <div className="space-y-1.5 pt-1">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[11px] font-semibold text-muted-foreground block">
-                            Select In-House Villa / Cottage / Tent:
-                          </label>
-                          <button
-                            type="button"
-                            onClick={() => setIsAddGuestModalOpen(true)}
-                            className="text-[10px] text-primary hover:underline font-semibold"
-                          >
-                            + Add New Stay Guest
-                          </button>
-                        </div>
-                        <select
-                          value={selectedRoom}
-                          onChange={(e) => handleRoomChange(e.target.value)}
-                          className="w-full text-xs p-2 rounded-lg border border-border bg-background text-foreground focus:ring-1 focus:ring-primary"
-                        >
-                          {registeredGuests.map((r) => (
-                            <option key={r.id} value={r.roomOrPitch}>
-                              {r.roomOrPitch} — {r.guestName} ({r.folio}) • {r.adultsCount} Adults, {r.kidsCount} Kids
-                            </option>
-                          ))}
-                        </select>
-                        <div className="flex items-center justify-between text-[11px] text-muted-foreground px-1">
-                          <span>Guest: <strong className="text-foreground">{guestName}</strong></span>
-                          <span>Ph: {guestPhone}</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-2 pt-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] text-muted-foreground font-semibold">
-                            Walk-In Guest Details
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => setIsAddGuestModalOpen(true)}
-                            className="text-[10px] text-primary hover:underline font-semibold"
-                          >
-                            + Register Walk-In Guest
-                          </button>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="text-[10px] text-muted-foreground font-semibold block mb-0.5">
-                              Guest Name
-                            </label>
-                            <input
-                              type="text"
-                              placeholder="Walk-in Guest"
-                              value={guestName}
-                              onChange={(e) => setGuestName(e.target.value)}
-                              className="w-full p-2 text-xs rounded-lg border border-border bg-background text-foreground"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[10px] text-muted-foreground font-semibold block mb-0.5">
-                              Phone (WhatsApp bill)
-                            </label>
-                            <input
-                              type="text"
-                              placeholder="+91 98480..."
-                              value={guestPhone}
-                              onChange={(e) => setGuestPhone(e.target.value)}
-                              className="w-full p-2 text-xs rounded-lg border border-border bg-background text-foreground"
-                            />
-                          </div>
+                  {/* Step 3: Payment & Settlement */}
+                  <div className="space-y-3 pt-1">
+                    {/* If Direct Walk-in: Settlement Method Selector */}
+                    {chargeTarget === "direct" ? (
+                      <div className="space-y-2">
+                        <label className="text-[10px] text-muted-foreground font-semibold block">
+                          Payment Method
+                        </label>
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {[
+                            { id: "upi", label: "UPI QR", icon: QrCode },
+                            { id: "card", label: "Card POS", icon: CreditCard },
+                            { id: "cash", label: "Cash", icon: Banknote },
+                            { id: "split", label: "Split", icon: Split },
+                          ].map((m) => {
+                            const Icon = m.icon;
+                            const isSel = paymentMethod === m.id;
+                            return (
+                              <button
+                                key={m.id}
+                                onClick={() => {
+                                  setPaymentMethod(m.id as any);
+                                  if (m.id === "split" && splitCash === 0 && splitUpi === 0 && splitCard === 0) {
+                                    handleEqualSplit("cash_upi");
+                                  }
+                                }}
+                                className={`flex flex-col items-center justify-center p-2 rounded-lg border text-[10px] font-semibold transition-colors ${
+                                  isSel
+                                    ? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
+                                    : "border-border text-muted-foreground hover:bg-muted"
+                                }`}
+                              >
+                                <Icon className="h-4 w-4 mb-1" />
+                                <span>{m.label}</span>
+                              </button>
+                            );
+                          })}
                         </div>
 
-                        {/* Payment Mode Selector */}
-                        <div className="space-y-1 pt-1">
-                          <label className="text-[10px] text-muted-foreground font-semibold block">
-                            Direct Settlement Method
-                          </label>
-                          <div className="grid grid-cols-4 gap-1.5">
-                            {[
-                              { id: "upi", label: "UPI QR", icon: QrCode },
-                              { id: "card", label: "Card POS", icon: CreditCard },
-                              { id: "cash", label: "Cash", icon: Banknote },
-                              { id: "split", label: "Split", icon: Split },
-                            ].map((m) => {
-                              const Icon = m.icon;
-                              const isSel = paymentMethod === m.id;
-                              return (
-                                <button
-                                  key={m.id}
-                                  onClick={() => {
-                                    setPaymentMethod(m.id as any);
-                                    if (m.id === "split" && splitCash === 0 && splitUpi === 0 && splitCard === 0) {
-                                      handleEqualSplit("cash_upi");
-                                    }
-                                  }}
-                                  className={`flex flex-col items-center justify-center p-2 rounded-lg border text-[10px] font-semibold transition-colors ${
-                                    isSel
-                                      ? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
-                                      : "border-border text-muted-foreground hover:bg-muted"
-                                  }`}
-                                >
-                                  <Icon className="h-4 w-4 mb-1" />
-                                  <span>{m.label}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Split Tender Engine UI */}
+                        {/* Split Tender Engine UI if split is selected */}
                         {paymentMethod === "split" && (
                           <div className="p-3 bg-muted/40 rounded-xl border border-primary/20 space-y-2.5 text-xs">
                             <div className="flex items-center justify-between">
@@ -3266,117 +3232,120 @@ Modern Multi-Tenant Hospitality OS for Resorts, Farmhouses & Camping Retreats
                             </div>
                           </div>
                         )}
+
+                        {/* Corporate B2B GST Invoicing Toggle */}
+                        <div className="p-2 rounded-lg border border-border bg-muted/20 space-y-1.5">
+                          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground">
+                            <input
+                              type="checkbox"
+                              checked={isB2B}
+                              onChange={(e) => setIsB2B(e.target.checked)}
+                              className="rounded border-border text-primary focus:ring-primary"
+                            />
+                            <Briefcase className="h-3.5 w-3.5 text-primary" />
+                            <span>Corporate / B2B GST Invoice (ITC Claim)</span>
+                          </label>
+
+                          {isB2B && (
+                            <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/60">
+                              <input
+                                type="text"
+                                placeholder="Company Name"
+                                value={b2bCompanyName}
+                                onChange={(e) => setB2bCompanyName(e.target.value)}
+                                className="p-1.5 text-xs rounded border border-border bg-background"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Company GSTIN"
+                                value={b2bCompanyGstin}
+                                onChange={(e) => setB2bCompanyGstin(e.target.value)}
+                                className="p-1.5 text-xs rounded border border-border bg-background font-mono"
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-
-                  {/* Corporate B2B GST Invoicing Toggle */}
-                  <div className="p-2.5 rounded-lg border border-border bg-muted/20 space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground">
-                      <input
-                        type="checkbox"
-                        checked={isB2B}
-                        onChange={(e) => setIsB2B(e.target.checked)}
-                        className="rounded border-border text-primary focus:ring-primary"
-                      />
-                      <Briefcase className="h-3.5 w-3.5 text-rentcot-blue" />
-                      <span>Corporate / B2B GST Invoice (ITC Claim)</span>
-                    </label>
-
-                    {isB2B && (
-                      <div className="space-y-2 pt-1 border-t border-border/60">
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="text-[10px] text-muted-foreground block">Company Legal Name</label>
-                            <input
-                              type="text"
-                              placeholder="e.g. TechCorp India Pvt Ltd"
-                              value={b2bCompanyName}
-                              onChange={(e) => setB2bCompanyName(e.target.value)}
-                              className="w-full p-1.5 text-xs rounded border border-border bg-background"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[10px] text-muted-foreground block">Company GSTIN</label>
-                            <input
-                              type="text"
-                              placeholder="36AAACT9482P1Z6"
-                              value={b2bCompanyGstin}
-                              onChange={(e) => setB2bCompanyGstin(e.target.value)}
-                              className="w-full p-1.5 text-xs rounded border border-border bg-background font-mono"
-                            />
+                    ) : (
+                      /* In-House Room Notice */
+                      <div className="p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-900 text-xs flex items-center gap-2">
+                        <BedDouble className="h-4 w-4 text-blue-700 shrink-0" />
+                        <div>
+                          <div className="font-bold">Posting to Room Folio</div>
+                          <div className="text-[10px] text-blue-800">
+                            Charges will be transferred to {guestName}'s room bill ({selectedRoom}) for checkout settlement.
                           </div>
                         </div>
                       </div>
                     )}
-                  </div>
 
-                  {/* Promotional Discount */}
-                  <div className="flex items-center justify-between pt-2 border-t border-border text-xs">
-                    <span className="text-muted-foreground flex items-center gap-1 font-medium">
-                      <Percent className="h-3.5 w-3.5 text-rentcot-blue" />
-                      <span>Discount:</span>
-                    </span>
-                    <div className="flex items-center gap-1">
-                      {[0, 5, 10, 15, 20].map((pct) => (
-                        <button
-                          key={pct}
-                          type="button"
-                          onClick={() => setDiscountPercent(pct)}
-                          className={`px-2 py-1 rounded text-[11px] font-semibold border transition-colors ${
-                            discountPercent === pct
-                              ? "bg-primary text-primary-foreground border-primary"
-                              : "border-border text-muted-foreground hover:bg-muted"
-                          }`}
-                        >
-                          {pct === 0 ? "None" : `${pct}%`}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Summary Totals */}
-                  <div className="space-y-1.5 pt-2 border-t border-border text-xs">
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Subtotal</span>
-                      <span>₹{subtotal.toLocaleString()}</span>
-                    </div>
-
-                    {discountAmount > 0 && (
-                      <div className="flex justify-between text-emerald-600 font-semibold">
-                        <span>Promotional Discount ({discountPercent}%)</span>
-                        <span>-₹{discountAmount.toLocaleString()}</span>
+                    {/* Promotional Discount */}
+                    <div className="flex items-center justify-between pt-1 border-t border-border text-xs">
+                      <span className="text-muted-foreground flex items-center gap-1 font-medium">
+                        <Percent className="h-3.5 w-3.5 text-primary" />
+                        <span>Discount:</span>
+                      </span>
+                      <div className="flex items-center gap-1">
+                        {[0, 5, 10, 15, 20].map((pct) => (
+                          <button
+                            key={pct}
+                            type="button"
+                            onClick={() => setDiscountPercent(pct)}
+                            className={`px-2 py-0.5 rounded text-[11px] font-semibold border transition-colors ${
+                              discountPercent === pct
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "border-border text-muted-foreground hover:bg-muted"
+                            }`}
+                          >
+                            {pct === 0 ? "None" : `${pct}%`}
+                          </button>
+                        ))}
                       </div>
-                    )}
-
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Applicable GST (CGST + SGST)</span>
-                      <span className="font-mono">₹{totalTax.toLocaleString()}</span>
                     </div>
 
-                    <div className="flex justify-between text-sm sm:text-base font-extrabold text-foreground pt-1.5 border-t border-border">
-                      <span>Grand Total</span>
-                      <span className="text-rentcot-blue">₹{grandTotal.toLocaleString()}</span>
+                    {/* Summary Totals */}
+                    <div className="space-y-1 pt-1 border-t border-border text-xs">
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Subtotal</span>
+                        <span>₹{subtotal.toLocaleString()}</span>
+                      </div>
+
+                      {discountAmount > 0 && (
+                        <div className="flex justify-between text-emerald-600 font-semibold">
+                          <span>Discount ({discountPercent}%)</span>
+                          <span>-₹{discountAmount.toLocaleString()}</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>GST (CGST + SGST)</span>
+                        <span className="font-mono">₹{totalTax.toLocaleString()}</span>
+                      </div>
+
+                      <div className="flex justify-between text-sm sm:text-base font-extrabold text-foreground pt-1 border-t border-border">
+                        <span>Grand Total</span>
+                        <span className="text-primary font-mono">₹{grandTotal.toLocaleString()}</span>
+                      </div>
+
+                      <div className="text-[10px] text-muted-foreground italic truncate">
+                        {numberToIndianWords(grandTotal)}
+                      </div>
                     </div>
 
-                    <div className="text-[10px] text-muted-foreground italic truncate">
-                      {numberToIndianWords(grandTotal)}
-                    </div>
+                    {/* Action Button */}
+                    <Button
+                      onClick={handleCheckoutAndGenerateInvoice}
+                      disabled={chargeTarget === "direct" && paymentMethod === "split" && !isSplitBalanced}
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground min-h-[44px] text-xs sm:text-sm font-bold gap-2 shadow-md"
+                    >
+                      <Receipt className="h-4 w-4" />
+                      <span>
+                        {chargeTarget === "room"
+                          ? `Post ₹${grandTotal.toLocaleString()} to Room Folio (${selectedRoom})`
+                          : `Settle ₹${grandTotal.toLocaleString()} & Generate GST Invoice`}
+                      </span>
+                    </Button>
                   </div>
-
-                  {/* Action Button */}
-                  <Button
-                    onClick={handleCheckoutAndGenerateInvoice}
-                    disabled={paymentMethod === "split" && !isSplitBalanced}
-                    className="w-full bg-rentcot-blue hover:bg-rentcot-blue/90 text-white min-h-[44px] text-xs sm:text-sm font-bold gap-2 shadow-sm"
-                  >
-                    <Receipt className="h-4 w-4" />
-                    <span>
-                      {chargeTarget === "room"
-                        ? `Post ₹${grandTotal.toLocaleString()} to Folio & Print Bill`
-                        : `Settle ₹${grandTotal.toLocaleString()} & Generate GST Invoice`}
-                    </span>
-                  </Button>
                 </>
               )}
             </CardContent>
