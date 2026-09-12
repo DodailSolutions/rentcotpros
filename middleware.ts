@@ -6,32 +6,39 @@ import { LOCALES, DEFAULT_LOCALE, isLocaleSupported } from "@/lib/i18n/config";
 const PUBLIC_FILE = /\.(.*)$/;
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  try {
+    const { pathname } = request.nextUrl;
 
-  // Skip public files, next static files, and api routes
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/static") ||
-    PUBLIC_FILE.test(pathname)
-  ) {
+    // Skip public files, next static files, and api routes
+    if (
+      pathname.startsWith("/_next") ||
+      pathname.startsWith("/api") ||
+      pathname.startsWith("/static") ||
+      pathname.startsWith("/robots.txt") ||
+      pathname.startsWith("/sitemap.xml") ||
+      PUBLIC_FILE.test(pathname)
+    ) {
+      return NextResponse.next();
+    }
+
+    // Check if pathname has a supported locale prefix
+    const pathnameLocale = pathname.split("/")[1];
+    const hasLocale = isLocaleSupported(pathnameLocale);
+
+    if (!hasLocale) {
+      // Check if user has a preferred locale in cookies
+      const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+      const targetLocale = (cookieLocale && isLocaleSupported(cookieLocale)) ? cookieLocale : DEFAULT_LOCALE;
+
+      const redirectUrl = new URL(`/${targetLocale}${pathname.startsWith("/") ? pathname : `/${pathname}`}`, request.url);
+      return NextResponse.redirect(redirectUrl);
+    }
+
     return await updateSession(request);
+  } catch (error) {
+    console.error("Middleware invocation error:", error);
+    return NextResponse.next();
   }
-
-  // Check if pathname has a supported locale prefix
-  const pathnameLocale = pathname.split("/")[1];
-  const hasLocale = isLocaleSupported(pathnameLocale);
-
-  if (!hasLocale) {
-    // Check if user has a preferred locale in cookies
-    const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
-    const targetLocale = (cookieLocale && isLocaleSupported(cookieLocale)) ? cookieLocale : DEFAULT_LOCALE;
-
-    const redirectUrl = new URL(`/${targetLocale}${pathname.startsWith("/") ? pathname : `/${pathname}`}`, request.url);
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  return await updateSession(request);
 }
 
 export const config = {
