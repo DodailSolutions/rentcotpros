@@ -1,0 +1,66 @@
+{
+  "common": {
+    "appName": "रेंटकॉट प्रॉपर्टी ओएस",
+    "tagline": "रिसॉर्ट, फार्महाउस और कैंपिंग प्रबंधन समाधान",
+    "loading": "लोड हो रहा है...",
+    "save": "परिवर्तन सहेजें",
+    "cancel": "रद्द करें",
+    "delete": "हटाएं",
+    "edit": "संपादित करें",
+    "create": "नया बनाएं",
+    "search": "खोजें...",
+    "status": "स्थिति",
+    "actions": "कार्रवाई",
+    "allProperties": "सभी संपत्तियां",
+    "selectProperty": "संपत्ति चुनें",
+    "notifications": "सूचनाएं",
+    "profile": "प्रोफ़ाइल",
+    "settings": "सेटिंग्स",
+    "logout": "लॉग आउट"
+  },
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "properties": "संपत्तियां",
+    "units": "इकाइयां और आवास",
+    "bookings": "आरक्षण",
+    "calendar": "कैलेंडर",
+    "pos": "फ्रंट-डेस्क पीओएस",
+    "housekeeping": "हाउसकीपिंग",
+    "inventory": "इन्वेंटरी और लिनन",
+    "events": "स्थल और कार्यक्रम",
+    "guests": "अतिथि प्रोफ़ाइल",
+    "hr": "स्टाफ और पेरोल",
+    "reports": "रिपोर्ट और विश्लेषण",
+    "billing": "बिलिंग और सदस्यता"
+  },
+  "unit_status": {
+    "clean": "साफ़",
+    "dirty": "गंदा",
+    "inspected": "निरीक्षित",
+    "occupied": "अधिभोगी",
+    "vacant": "खाली",
+    "out_of_service": "सेवा से बाहर"
+  },
+  "roles": {
+    "owner": "मालिक",
+    "manager": "प्रबंधक",
+    "frontdesk": "रिसेप्शनिस्ट",
+    "hr": "मानव संसाधन",
+    "housekeeping": "हाउसकीपिंग स्टाफ",
+    "event_coordinator": "इवेंट समन्वयक",
+    "guest": "अतिथि"
+  },
+  "dashboard": {
+    "todayArrivals": "आज के आगमन",
+    "todayDepartures": "आज की रवानगी",
+    "occupancyRate": "अधिभोग दर",
+    "activeGuests": "वर्तमान अतिथि",
+    "quickActions": "त्वरित डेस्क कार्य",
+    "newBooking": "नया आरक्षण",
+    "walkIn": "वॉक-इन बुकिंग",
+    "posOrder": "नया पीओएस ऑर्डर",
+    "roomTurnover": "कमरे की स्थिति",
+    "recentReservations": "हाल के आरक्षण",
+    "propertyOverview": "सक्रिय रिसॉर्ट और कैंप"
+  }
+}

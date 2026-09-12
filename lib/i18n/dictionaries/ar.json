@@ -1,0 +1,66 @@
+{
+  "common": {
+    "appName": "رينتكوت لإدارة المنتجعات",
+    "tagline": "نظام شامل لإدارة المنتجعات والمزارع ومناطق التخييم",
+    "loading": "جارٍ التحميل...",
+    "save": "حفظ التغييرات",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء جديد",
+    "search": "بحث...",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "allProperties": "جميع العقارات",
+    "selectProperty": "اختر العقار",
+    "notifications": "الإشعارات",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
+  },
+  "nav": {
+    "dashboard": "لوحة القيادة",
+    "properties": "العقارات",
+    "units": "الوحدات والغرف",
+    "bookings": "الحجوزات",
+    "calendar": "التقويم",
+    "pos": "نقاط البيع والاستقبال",
+    "housekeeping": "التدبير الفندقي",
+    "inventory": "المخزون والمفروشات",
+    "events": "الفعاليات والقاعات",
+    "guests": "سجلات النزلاء",
+    "hr": "الموظفين والرواتب",
+    "reports": "التقارير والتحليلات",
+    "billing": "الاشتراك والفوترة"
+  },
+  "unit_status": {
+    "clean": "نظيفة",
+    "dirty": "غير نظيفة",
+    "inspected": "تم الفحص",
+    "occupied": "مشغولة",
+    "vacant": "شاغرة",
+    "out_of_service": "خارج الخدمة"
+  },
+  "roles": {
+    "owner": "المالك",
+    "manager": "المدير العام",
+    "frontdesk": "موظف الاستقبال",
+    "hr": "الموارد البشرية",
+    "housekeeping": "فريق التدبير الفندقي",
+    "event_coordinator": "منسق الفعاليات",
+    "guest": "النزيل"
+  },
+  "dashboard": {
+    "todayArrivals": "وصول اليوم",
+    "todayDepartures": "مغادرة اليوم",
+    "occupancyRate": "نسبة الإشغال",
+    "activeGuests": "النزلاء المتواجدون",
+    "quickActions": "إجراءات سريعة",
+    "newBooking": "حجز جديد",
+    "walkIn": "تسجيل دخول فوري",
+    "posOrder": "طلب نقطة بيع جديد",
+    "roomTurnover": "حالة تجهيز الوحدات",
+    "recentReservations": "أحدث الحجوزات",
+    "propertyOverview": "المنتجعات والمخيمات النشطة"
+  }
+}

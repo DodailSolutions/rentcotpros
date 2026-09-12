@@ -1,0 +1,66 @@
+{
+  "common": {
+    "appName": "Rentcot Property OS",
+    "tagline": "All-in-one Resort, Farmhouse & Campsite Management",
+    "loading": "Loading...",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create New",
+    "search": "Search...",
+    "status": "Status",
+    "actions": "Actions",
+    "allProperties": "All Properties",
+    "selectProperty": "Select Property",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Log Out"
+  },
+  "nav": {
+    "dashboard": "Overview",
+    "properties": "Properties",
+    "units": "Units & Accommodations",
+    "bookings": "Reservations",
+    "calendar": "Calendar",
+    "pos": "Front-Desk POS",
+    "housekeeping": "Housekeeping",
+    "inventory": "Inventory & Linen",
+    "events": "Venues & Events",
+    "guests": "Guest Profiles",
+    "hr": "Staff & Payroll",
+    "reports": "Reports & Analytics",
+    "billing": "Subscription & Billing"
+  },
+  "unit_status": {
+    "clean": "Clean",
+    "dirty": "Dirty",
+    "inspected": "Inspected",
+    "occupied": "Occupied",
+    "vacant": "Vacant",
+    "out_of_service": "Out of Service"
+  },
+  "roles": {
+    "owner": "Owner",
+    "manager": "General Manager",
+    "frontdesk": "Front Desk / Receptionist",
+    "hr": "HR & Payroll",
+    "housekeeping": "Housekeeping & Maintenance",
+    "event_coordinator": "Event Coordinator",
+    "guest": "Guest"
+  },
+  "dashboard": {
+    "todayArrivals": "Today's Arrivals",
+    "todayDepartures": "Today's Departures",
+    "occupancyRate": "Occupancy Rate",
+    "activeGuests": "In-House Guests",
+    "quickActions": "Quick Desk Operations",
+    "newBooking": "New Booking",
+    "walkIn": "Express Walk-In",
+    "posOrder": "New POS Order",
+    "roomTurnover": "Housekeeping Board",
+    "recentReservations": "Recent Bookings",
+    "propertyOverview": "Active Properties & Campsites"
+  }
+}
