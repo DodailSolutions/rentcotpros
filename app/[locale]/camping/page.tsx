@@ -73,6 +73,10 @@ import {
   Moon,
   Sun,
   Radio,
+  SlidersHorizontal,
+  Share2,
+  TreePine,
+  AlertCircle,
 } from "lucide-react";
 
 // Generate 200 real-market tents spanning 4 physical zones
@@ -320,6 +324,15 @@ const initialGearInventory: GearItem[] = [
 export default function CampingOperationsPage() {
   const { t, locale } = useTranslation();
 
+  // Toast notification feedback state
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage((cur) => (cur === msg ? null : cur));
+    }, 3500);
+  };
+
   // Active Tab: 5 production operations views
   const [activeTab, setActiveTab] = useState<
     "tents" | "campfire_bbq" | "gear_rentals" | "safety_wildlife" | "bookings"
@@ -350,6 +363,15 @@ export default function CampingOperationsPage() {
   const [windSpeed, setWindSpeed] = useState<number>(18);
   const [isHighWindBan, setIsHighWindBan] = useState<boolean>(false);
   const [isCurfewSent, setIsCurfewSent] = useState<boolean>(false);
+
+  // Modals
+  const [isNewBbqModalOpen, setIsNewBbqModalOpen] = useState(false);
+  const [newBbqPitch, setNewBbqPitch] = useState("RC-1");
+  const [newBbqGuest, setNewBbqGuest] = useState("");
+  const [newBbqPhone, setNewBbqPhone] = useState("");
+  const [newBbqTime, setNewBbqTime] = useState("20:00");
+  const [newBbqPackage, setNewBbqPackage] = useState<"veg_marinade" | "mixed_grill" | "wood_only">("mixed_grill");
+  const [newBbqBundles, setNewBbqBundles] = useState(2);
 
   // Filtered Tents
   const filteredTents = useMemo(() => {
@@ -421,11 +443,15 @@ export default function CampingOperationsPage() {
     if (selectedTent && selectedTent.id === tentId) {
       setSelectedTent((prev) => (prev ? { ...prev, status: newStatus } : null));
     }
+    showToast(`Pitch #${tentId} updated to ${newStatus.toUpperCase()}`);
   };
 
   const handleWalkInSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTent || !walkInName.trim()) return;
+    if (!selectedTent || !walkInName.trim()) {
+      showToast("Please provide guest name.");
+      return;
+    }
 
     const newGuest: CampsiteGuest = {
       bookingId: `WALK-${selectedTent.id}-${Date.now().toString().slice(-4)}`,
@@ -462,6 +488,7 @@ export default function CampingOperationsPage() {
     setSelectedTent((prev) => (prev ? { ...prev, status: "occupied", currentGuest: newGuest } : null));
     setWalkInName("");
     setWalkInPhone("");
+    showToast(`✅ Pitch #${selectedTent.id} allocated & checked in for ${walkInName}!`);
   };
 
   const handleReleaseTent = (tentId: string | number) => {
@@ -476,11 +503,19 @@ export default function CampingOperationsPage() {
     if (selectedTent && selectedTent.id === tentId) {
       setSelectedTent((prev) => (prev ? { ...prev, status: "dirty", currentGuest: undefined } : null));
     }
+    showToast(`Pitch #${tentId} checked out and routed to Housekeeping Turnover.`);
   };
 
   const handleOrderSafetyToggle = (orderId: string) => {
     setBbqOrders((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, fireSafetyCleared: !o.fireSafetyCleared } : o))
+      prev.map((o) => {
+        if (o.id === orderId) {
+          const next = !o.fireSafetyCleared;
+          showToast(`Order ${orderId} fire safety ${next ? "cleared & verified" : "marked pending"}.`);
+          return { ...o, fireSafetyCleared: next };
+        }
+        return o;
+      })
     );
   };
 
@@ -488,6 +523,31 @@ export default function CampingOperationsPage() {
     setBbqOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: nextStatus } : o))
     );
+    showToast(`Order ${orderId} transitioned to ${nextStatus.toUpperCase()}`);
+  };
+
+  const handleCreateBbqOrder = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newBbqGuest.trim()) {
+      showToast("Please enter guest name.");
+      return;
+    }
+    const orderCost = newBbqPackage === "mixed_grill" ? 2400 : newBbqPackage === "veg_marinade" ? 1200 : 600;
+    const newOrder: CampfireBbqOrder = {
+      id: `BBQ-${Math.floor(100 + Math.random() * 900)}`,
+      pitchNumber: newBbqPitch,
+      guestName: newBbqGuest,
+      phone: newBbqPhone || "+91 98480 00000",
+      scheduledTime: newBbqTime,
+      firewoodBundles: newBbqBundles,
+      bbqPackage: newBbqPackage,
+      fireSafetyCleared: true,
+      status: "scheduled",
+      totalAmount: orderCost * newBbqBundles,
+    };
+    setBbqOrders((prev) => [newOrder, ...prev]);
+    setIsNewBbqModalOpen(false);
+    showToast(`🔥 Campfire & BBQ order confirmed for ${newOrder.pitchNumber}!`);
   };
 
   const handleGearStatusToggle = (gearId: string) => {
@@ -495,6 +555,7 @@ export default function CampingOperationsPage() {
       prev.map((g) => {
         if (g.id === gearId) {
           const nextCondition = g.condition === "ready_sanitized" ? "in_use" : "ready_sanitized";
+          showToast(`Gear ${g.name} marked ${nextCondition === "ready_sanitized" ? "UV Sanitized" : "Dispatched to Pitch"}.`);
           return {
             ...g,
             condition: nextCondition,
@@ -504,6 +565,12 @@ export default function CampingOperationsPage() {
         return g;
       })
     );
+  };
+
+  const handleCurfewBroadcast = () => {
+    setIsCurfewSent(true);
+    showToast("📢 10:30 PM Silence & Campfire Curfew broadcast sent to all in-house campers via SMS/WhatsApp.");
+    setTimeout(() => setIsCurfewSent(false), 5000);
   };
 
   const handleExportPitchManifest = () => {
@@ -537,53 +604,73 @@ export default function CampingOperationsPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Rentcot_Campsite_Manifest_200Pitches_${new Date().toISOString().split("T")[0]}.csv`);
+    link.setAttribute("download", `Rentcot_Wildwoods_Ananthagiri_Manifest_${new Date().toISOString().split("T")[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    showToast("📥 Exported 200-pitch manifest CSV for forest checkpost authorities.");
   };
 
   return (
-    <div className="space-y-6 pb-20">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/85 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-rentcot-blue text-white shadow-sm">
-            <Tent className="h-6 w-6" />
+    <div className="space-y-6 pb-20 p-6 max-w-7xl mx-auto">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-3 bg-zinc-900 text-white rounded-xl shadow-2xl text-xs border border-zinc-700 animate-in fade-in slide-in-from-bottom-2">
+          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Top Header with Forest Range Micro-Climate Banner */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-border/85 pb-4">
+        <div className="flex items-center gap-3.5">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-md">
+            <TreePine className="h-7 w-7" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
                 Campsite Operations & PMS
               </h1>
-              <Badge variant="outline" className="text-[11px] font-bold py-0.5 px-2 bg-muted/60 text-muted-foreground border-border">
+              <Badge variant="outline" className="text-[11px] font-bold py-0.5 px-2.5 bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300">
                 200-Pitch Ground Cockpit
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground font-medium">
-              Wildwoods Glamping & Campsite • Ananthagiri Hills • Live Ground Allocation Matrix
+            <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 mt-0.5">
+              <MapPin className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+              <span>Wildwoods Glamping & Campsite • Ananthagiri Hills, Vikarabad Range • Alt: 710m</span>
             </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 text-xs font-semibold">
+        {/* Action Controls & Telemetry Pills */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 text-xs font-semibold">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span>Live Ground Sync</span>
+            <span>Live Ground Telemetry</span>
           </div>
 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setTents(generate200Tents())}
+            onClick={() => setIsNewBbqModalOpen(true)}
             className="text-xs h-9 gap-1.5 border-border hover:bg-muted font-medium"
-            title="Reload live tent assignments"
           >
-            <RefreshCw className="h-3.5 w-3.5" />
-            <span>Reset Grid</span>
+            <Flame className="h-3.5 w-3.5 text-amber-500" />
+            <span>Order Campfire</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCurfewBroadcast}
+            className="text-xs h-9 gap-1.5 border-border hover:bg-muted font-medium"
+          >
+            <VolumeX className="h-3.5 w-3.5 text-purple-500" />
+            <span>Curfew Broadcast</span>
           </Button>
 
           <Button
@@ -593,24 +680,27 @@ export default function CampingOperationsPage() {
             className="text-xs h-9 gap-1.5 border-border hover:bg-muted font-semibold"
           >
             <Download className="h-3.5 w-3.5" />
-            <span>Export Manifest</span>
+            <span>Checkpost CSV</span>
           </Button>
 
-          <Link href={`/${locale}/properties`}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs h-9 gap-1.5 text-rentcot-blue font-semibold border-rentcot-blue/30 hover:bg-rentcot-blue/10"
-            >
-              <Compass className="h-3.5 w-3.5" />
-              <span>Back to Properties</span>
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setTents(generate200Tents());
+              showToast("Ground allocation grid reloaded to real-time state.");
+            }}
+            className="text-xs h-9 gap-1.5 border-border hover:bg-muted font-medium"
+            title="Reload live tent assignments"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            <span>Reset Grid</span>
+          </Button>
         </div>
       </div>
 
       {/* KPI Ribbon */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
         <Card className="border border-emerald-500/20 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-xs hover:border-emerald-500/40 transition-all">
           <CardContent className="p-3.5 sm:p-4 space-y-1">
             <div className="flex items-center justify-between">
@@ -637,7 +727,7 @@ export default function CampingOperationsPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600 text-white">
                 <Flame className="h-4 w-4" />
               </div>
-              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 font-mono">Orders</span>
+              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 font-mono">Evening</span>
             </div>
             <div className="text-2xl sm:text-3xl font-black font-mono text-foreground">
               {bbqOrders.length}
@@ -657,7 +747,7 @@ export default function CampingOperationsPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rentcot-blue text-white">
                 <Tent className="h-4 w-4" />
               </div>
-              <span className="text-[10px] font-bold text-rentcot-blue font-mono">200 Grid</span>
+              <span className="text-[10px] font-bold text-rentcot-blue font-mono">200 Ground</span>
             </div>
             <div className="text-2xl sm:text-3xl font-black font-mono text-foreground">
               {counts.available}
@@ -666,7 +756,7 @@ export default function CampingOperationsPage() {
               Vacant Pitches
             </div>
             <div className="text-[11px] text-muted-foreground">
-              of {counts.total} total inventory
+              Ready for instant walk-ins
             </div>
           </CardContent>
         </Card>
@@ -686,7 +776,7 @@ export default function CampingOperationsPage() {
               Cleaning Roster
             </div>
             <div className="text-[11px] text-muted-foreground">
-              {counts.maintenance} out of service
+              {counts.maintenance} in maintenance
             </div>
           </CardContent>
         </Card>
@@ -697,7 +787,7 @@ export default function CampingOperationsPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600 text-white">
                 <Users className="h-4 w-4" />
               </div>
-              <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 font-mono">Pax</span>
+              <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 font-mono">Campers</span>
             </div>
             <div className="text-2xl sm:text-3xl font-black font-mono text-foreground">
               {counts.totalGuests}
@@ -706,7 +796,7 @@ export default function CampingOperationsPage() {
               Campers on Ground
             </div>
             <div className="text-[11px] text-muted-foreground">
-              Families & Groups
+              Kitchen headcount plan
             </div>
           </CardContent>
         </Card>
@@ -720,13 +810,13 @@ export default function CampingOperationsPage() {
               <span className="text-[10px] font-bold text-orange-700 dark:text-orange-300 font-mono">Revenue</span>
             </div>
             <div className="text-2xl sm:text-3xl font-black font-mono text-foreground">
-              ₹{counts.totalRevenue.toLocaleString()}
+              ₹{counts.totalRevenue.toLocaleString("en-IN")}
             </div>
             <div className="text-xs font-bold text-foreground">
               Live Folio Sum
             </div>
             <div className="text-[11px] text-muted-foreground">
-              100% prepaid & UPI
+              100% verified & prepaid
             </div>
           </CardContent>
         </Card>
@@ -736,11 +826,11 @@ export default function CampingOperationsPage() {
       <div className="overflow-x-auto pb-1">
         <div className="inline-flex p-1 rounded-xl bg-card border border-border text-xs font-semibold gap-1 min-w-max shadow-xs">
           {[
-            { id: "tents" as const, label: "200-Tent Matrix & Zones", icon: Tent },
+            { id: "tents" as const, label: "200-Pitch Matrix & Zones", icon: Tent },
             { id: "campfire_bbq" as const, label: "Campfire & BBQ Orders", icon: Flame },
-            { id: "gear_rentals" as const, label: "Adventure Gear & UV Sanitization", icon: Package },
-            { id: "safety_wildlife" as const, label: "Weather & Forest Safety Cockpit", icon: ShieldAlert },
-            { id: "bookings" as const, label: "Guest Manifest & Arrivals", icon: Calendar },
+            { id: "gear_rentals" as const, label: "Adventure Gear & UV Chamber", icon: Package },
+            { id: "safety_wildlife" as const, label: "Weather & Forest Wildlife Safety", icon: ShieldAlert },
+            { id: "bookings" as const, label: "Campers Manifest & Arrivals", icon: Calendar },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -762,66 +852,88 @@ export default function CampingOperationsPage() {
         </div>
       </div>
 
-      {/* TAB 1: 200-TENT MATRIX & ZONES */}
+      {/* ------------------------------------------------------------- */}
+      {/* TAB 1: 200-PITCH MATRIX & ZONES                                */}
+      {/* ------------------------------------------------------------- */}
       {activeTab === "tents" && (
         <Card className="border border-border bg-card shadow-sm">
           <CardHeader className="p-4 sm:p-6 pb-4 border-b border-border/80">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rentcot-blue/10 text-rentcot-blue">
-                    <Tent className="h-4 w-4" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rentcot-blue/10 text-rentcot-blue">
+                    <Tent className="h-5 w-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <CardTitle className="text-lg sm:text-xl font-bold text-foreground">
-                        Physical Ground Pitch Matrix
+                        Live Ground Allocation Matrix
                       </CardTitle>
                       <Badge className="bg-rentcot-blue text-white font-mono text-[11px] py-0 px-2 font-bold">
                         RC-1 to RC-200
                       </Badge>
                     </div>
                     <CardDescription className="text-xs text-muted-foreground mt-0.5">
-                      Visual operational ground matrix. Click any tent to view details, assign walk-ins, or manage check-out.
+                      Operational ground grid for Ananthagiri Hills. Click any pitch to inspect, register walk-ins, or manage checkouts.
                     </CardDescription>
                   </div>
                 </div>
               </div>
 
               {/* Status Indicators */}
-              <div className="flex flex-wrap items-center gap-3 text-xs font-semibold bg-muted/40 px-3 py-1.5 rounded-lg border border-border">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-3.5 w-3.5 rounded-md border-2 border-emerald-500 bg-emerald-500/15" />
-                  <span className="text-foreground">Available ({counts.available})</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-3.5 w-3.5 rounded-md border-2 border-amber-500 bg-amber-500/30" />
-                  <span className="text-foreground">Reserved ({counts.reserved})</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-3.5 w-3.5 rounded-md border-2 border-rose-500 bg-rose-500/30" />
-                  <span className="text-foreground">Occupied ({counts.occupied})</span>
-                </div>
-                {counts.dirty > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="h-3.5 w-3.5 rounded-md border-2 border-purple-500 bg-purple-500/30" />
-                    <span className="text-foreground">Cleaning ({counts.dirty})</span>
-                  </div>
-                )}
-                {counts.maintenance > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="h-3.5 w-3.5 rounded-md border-2 border-gray-400 bg-gray-200 dark:bg-gray-800" />
-                    <span className="text-foreground">Repair ({counts.maintenance})</span>
-                  </div>
+              <div className="flex flex-wrap items-center gap-2.5 text-xs font-semibold bg-muted/40 px-3 py-1.5 rounded-lg border border-border">
+                <button
+                  onClick={() => setStatusFilter(statusFilter === "available" ? "ALL" : "available")}
+                  className={`flex items-center gap-1.5 px-2 py-0.5 rounded transition-colors ${
+                    statusFilter === "available" ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold" : "text-foreground"
+                  }`}
+                >
+                  <span className="h-3 w-3 rounded-md border-2 border-emerald-500 bg-emerald-500/20" />
+                  <span>Available ({counts.available})</span>
+                </button>
+                <button
+                  onClick={() => setStatusFilter(statusFilter === "occupied" ? "ALL" : "occupied")}
+                  className={`flex items-center gap-1.5 px-2 py-0.5 rounded transition-colors ${
+                    statusFilter === "occupied" ? "bg-rose-500/20 text-rose-700 dark:text-rose-300 font-bold" : "text-foreground"
+                  }`}
+                >
+                  <span className="h-3 w-3 rounded-md border-2 border-rose-500 bg-rose-500/30" />
+                  <span>Occupied ({counts.occupied})</span>
+                </button>
+                <button
+                  onClick={() => setStatusFilter(statusFilter === "reserved" ? "ALL" : "reserved")}
+                  className={`flex items-center gap-1.5 px-2 py-0.5 rounded transition-colors ${
+                    statusFilter === "reserved" ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold" : "text-foreground"
+                  }`}
+                >
+                  <span className="h-3 w-3 rounded-md border-2 border-amber-500 bg-amber-500/30" />
+                  <span>Reserved ({counts.reserved})</span>
+                </button>
+                <button
+                  onClick={() => setStatusFilter(statusFilter === "dirty" ? "ALL" : "dirty")}
+                  className={`flex items-center gap-1.5 px-2 py-0.5 rounded transition-colors ${
+                    statusFilter === "dirty" ? "bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold" : "text-foreground"
+                  }`}
+                >
+                  <span className="h-3 w-3 rounded-md border-2 border-purple-500 bg-purple-500/30" />
+                  <span>Cleaning ({counts.dirty})</span>
+                </button>
+                {statusFilter !== "ALL" && (
+                  <button
+                    onClick={() => setStatusFilter("ALL")}
+                    className="text-[10px] text-muted-foreground hover:text-foreground underline ml-1"
+                  >
+                    Clear Filter
+                  </button>
                 )}
               </div>
             </div>
 
-            {/* Zone filters & Search */}
+            {/* Zone Filters & View Modes */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-4 border-t border-border/60 mt-4">
               <div className="flex flex-wrap items-center gap-1.5 text-xs">
                 {[
-                  { key: "ALL" as const, label: "All 200 Tents", count: counts.total },
+                  { key: "ALL" as const, label: "All 200 Pitches", count: counts.total },
                   { key: "A" as const, label: "Zone A: Lakeside Domes (1-50)", count: 50 },
                   { key: "B" as const, label: "Zone B: Pine Forest (51-100)", count: 50 },
                   { key: "C" as const, label: "Zone C: Valley Alpine (101-150)", count: 50 },
@@ -830,9 +942,9 @@ export default function CampingOperationsPage() {
                   <button
                     key={z.key}
                     onClick={() => setSelectedZone(z.key)}
-                    className={`px-2.5 py-1 rounded-md font-semibold transition-all ${
+                    className={`px-3 py-1 rounded-md font-semibold transition-all ${
                       selectedZone === z.key
-                        ? "bg-foreground text-background shadow-xs"
+                        ? "bg-foreground text-background shadow-xs font-bold"
                         : "bg-muted/60 text-muted-foreground hover:text-foreground border border-border/60"
                     }`}
                   >
@@ -842,11 +954,11 @@ export default function CampingOperationsPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="relative w-48 sm:w-60">
+                <div className="relative w-56 sm:w-64">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                   <Input
                     type="text"
-                    placeholder="Find tent # or guest..."
+                    placeholder="Find pitch # or guest name..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="h-8 text-xs pl-8 pr-3 bg-background border-border"
@@ -864,8 +976,8 @@ export default function CampingOperationsPage() {
                 <div className="inline-flex p-0.5 rounded-lg bg-muted border border-border text-xs">
                   <button
                     onClick={() => setViewMode("grid")}
-                    className={`px-2 py-1 rounded-md font-semibold ${
-                      viewMode === "grid" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground"
+                    className={`px-2.5 py-1 rounded-md font-semibold ${
+                      viewMode === "grid" ? "bg-background text-foreground shadow-xs font-bold" : "text-muted-foreground"
                     }`}
                     title="Grid Matrix View"
                   >
@@ -873,8 +985,8 @@ export default function CampingOperationsPage() {
                   </button>
                   <button
                     onClick={() => setViewMode("zones")}
-                    className={`px-2 py-1 rounded-md font-semibold ${
-                      viewMode === "zones" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground"
+                    className={`px-2.5 py-1 rounded-md font-semibold ${
+                      viewMode === "zones" ? "bg-background text-foreground shadow-xs font-bold" : "text-muted-foreground"
                     }`}
                     title="Zone Cards"
                   >
@@ -882,8 +994,8 @@ export default function CampingOperationsPage() {
                   </button>
                   <button
                     onClick={() => setViewMode("table")}
-                    className={`px-2 py-1 rounded-md font-semibold ${
-                      viewMode === "table" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground"
+                    className={`px-2.5 py-1 rounded-md font-semibold ${
+                      viewMode === "table" ? "bg-background text-foreground shadow-xs font-bold" : "text-muted-foreground"
                     }`}
                     title="Table Manifest View"
                   >
@@ -897,7 +1009,7 @@ export default function CampingOperationsPage() {
           <CardContent className="p-4 sm:p-6">
             {viewMode === "grid" && (
               <div className="space-y-4">
-                <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16 2xl:grid-cols-20 gap-2">
+                <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16 2xl:grid-cols-20 gap-2">
                   {filteredTents.map((tent) => {
                     const isReserved = tent.status === "reserved";
                     const isOccupied = tent.status === "occupied";
@@ -905,7 +1017,7 @@ export default function CampingOperationsPage() {
                     const isDirty = tent.status === "dirty";
 
                     let badgeStyles =
-                      "border-emerald-500/70 bg-emerald-50/50 text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300 hover:bg-emerald-100 hover:border-emerald-600";
+                      "border-emerald-500/60 bg-emerald-50/50 text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300 hover:bg-emerald-100 hover:border-emerald-600";
 
                     if (isReserved) {
                       badgeStyles =
@@ -925,20 +1037,24 @@ export default function CampingOperationsPage() {
                       <button
                         key={tent.id}
                         onClick={() => handleTentClick(tent)}
-                        title={`Tent #${tent.id} (${tent.type}) - ${tent.status.toUpperCase()}${
+                        title={`Pitch #${tent.id} (${tent.type}) - ${tent.status.toUpperCase()}${
                           tent.currentGuest ? ` • Guest: ${tent.currentGuest.name}` : ""
                         }`}
-                        className={`group relative flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all active:scale-95 text-center min-h-[52px] ${badgeStyles}`}
+                        className={`group relative flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all active:scale-95 text-center min-h-[54px] ${badgeStyles}`}
                       >
                         <Tent className={`h-4 w-4 mb-0.5 transition-transform group-hover:scale-110 ${
-                          isReserved ? "text-amber-700 dark:text-amber-300" : isOccupied ? "text-rose-700 dark:text-rose-300" : "text-emerald-600 dark:text-emerald-400"
+                          isReserved
+                            ? "text-amber-700 dark:text-amber-300"
+                            : isOccupied
+                            ? "text-rose-700 dark:text-rose-300"
+                            : "text-emerald-600 dark:text-emerald-400"
                         }`} />
-                        <span className="font-mono text-xs font-bold leading-none">
+                        <span className="font-mono text-xs font-black leading-none">
                           {tent.id}
                         </span>
 
                         {tent.currentGuest && (
-                          <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-foreground" />
+                          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-rose-600 dark:bg-rose-400 ring-2 ring-white dark:ring-black" />
                         )}
                       </button>
                     );
@@ -946,8 +1062,8 @@ export default function CampingOperationsPage() {
                 </div>
 
                 {filteredTents.length === 0 && (
-                  <div className="py-12 text-center text-muted-foreground text-sm">
-                    No tents match the selected zone or search criteria.
+                  <div className="py-12 text-center text-muted-foreground text-sm border border-dashed border-border rounded-xl">
+                    No pitches match the selected zone or search criteria.
                   </div>
                 )}
               </div>
@@ -974,8 +1090,8 @@ export default function CampingOperationsPage() {
                             <CardTitle className="text-base font-bold text-foreground">{z.name}</CardTitle>
                             <span className="text-xs text-muted-foreground font-mono">{z.range} • {z.rate}</span>
                           </div>
-                          <Badge variant="outline" className="text-xs font-mono">
-                            {zoneOccupied + zoneReserved} / 50 Booked
+                          <Badge variant="outline" className="text-xs font-mono font-bold">
+                            {zoneOccupied + zoneReserved} / 50 Occupied
                           </Badge>
                         </div>
                       </CardHeader>
@@ -984,6 +1100,16 @@ export default function CampingOperationsPage() {
                           <p><strong>Accommodations:</strong> {z.type}</p>
                           <p><strong>Power Hookup:</strong> {z.power}</p>
                           <p><strong>Washroom:</strong> {z.bath}</p>
+                        </div>
+
+                        {/* Occupancy bar */}
+                        <div className="space-y-1">
+                          <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                            <div
+                              className="bg-rentcot-blue h-2 rounded-full"
+                              style={{ width: `${((zoneOccupied + zoneReserved) / 50) * 100}%` }}
+                            />
+                          </div>
                         </div>
 
                         <div className="flex items-center justify-between pt-2 border-t border-border text-xs">
@@ -1038,11 +1164,11 @@ export default function CampingOperationsPage() {
                           <Badge
                             className={`text-[10px] font-bold ${
                               t.status === "available"
-                                ? "bg-emerald-600"
+                                ? "bg-emerald-600 text-white"
                                 : t.status === "occupied"
-                                ? "bg-rose-600"
+                                ? "bg-rose-600 text-white"
                                 : t.status === "reserved"
-                                ? "bg-amber-600"
+                                ? "bg-amber-600 text-white"
                                 : "bg-muted text-muted-foreground"
                             }`}
                           >
@@ -1072,18 +1198,15 @@ export default function CampingOperationsPage() {
                     ))}
                   </tbody>
                 </table>
-                {filteredTents.length > 50 && (
-                  <div className="p-2 text-center text-[11px] text-muted-foreground bg-muted/20">
-                    Showing first 50 pitches. Use search or zone filters above to narrow down.
-                  </div>
-                )}
               </div>
             )}
           </CardContent>
         </Card>
       )}
 
-      {/* TAB 2: CAMPFIRE & BBQ ORDERS */}
+      {/* ------------------------------------------------------------- */}
+      {/* TAB 2: CAMPFIRE & BBQ ORDERS                                   */}
+      {/* ------------------------------------------------------------- */}
       {activeTab === "campfire_bbq" && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1098,9 +1221,13 @@ export default function CampingOperationsPage() {
                     Firewood bundle allocations, food safety clearances, and delivery roster.
                   </p>
                 </div>
-                <Badge variant="outline" className="text-xs border-amber-500/40 text-amber-700 bg-amber-500/10">
-                  Curfew: 11:00 PM Water Damping
-                </Badge>
+                <Button
+                  size="sm"
+                  onClick={() => setIsNewBbqModalOpen(true)}
+                  className="bg-rentcot-blue text-white text-xs h-8 gap-1"
+                >
+                  <Plus className="h-3.5 w-3.5" /> New Order
+                </Button>
               </div>
 
               {bbqOrders.map((order) => (
@@ -1119,10 +1246,10 @@ export default function CampingOperationsPage() {
                           <Badge
                             className={`text-[10px] capitalize font-bold ${
                               order.status === "lit"
-                                ? "bg-orange-600"
+                                ? "bg-orange-600 text-white"
                                 : order.status === "delivered"
-                                ? "bg-emerald-600"
-                                : "bg-amber-500"
+                                ? "bg-emerald-600 text-white"
+                                : "bg-amber-500 text-white"
                             }`}
                           >
                             {order.status}
@@ -1198,7 +1325,7 @@ export default function CampingOperationsPage() {
               ))}
             </div>
 
-            {/* Fire Safety Standard SOP Card */}
+            {/* Forest Fire Safety SOP Card */}
             <Card className="border-amber-500/30 bg-card h-fit">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1220,7 +1347,7 @@ export default function CampingOperationsPage() {
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span>Strict 11:00 PM water damping round conducted by night patrol.</span>
+                  <span>Strict 11:00 PM water damping round conducted by night patrol Mallesh.</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
@@ -1239,23 +1366,21 @@ export default function CampingOperationsPage() {
         </div>
       )}
 
-      {/* TAB 3: ADVENTURE GEAR & UV SANITIZATION */}
+      {/* ------------------------------------------------------------- */}
+      {/* TAB 3: ADVENTURE GEAR & UV SANITIZATION                        */}
+      {/* ------------------------------------------------------------- */}
       {activeTab === "gear_rentals" && (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h3 className="font-bold text-base text-foreground flex items-center gap-2">
                 <Package className="h-5 w-5 text-rentcot-blue" />
-                <span>Adventure Gear & Sanitization Roster</span>
+                <span>Adventure Gear & UV Chamber Roster</span>
               </h3>
               <p className="text-xs text-muted-foreground">
                 Every sleeping bag and mattress is UV-sanitized and sealed in hygienic sleeves between camper stays.
               </p>
             </div>
-            <Button size="sm" className="bg-rentcot-blue hover:bg-rentcot-blue/90 text-white text-xs h-9">
-              <Plus className="h-3.5 w-3.5 mr-1" />
-              <span>Issue Gear to Pitch</span>
-            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1304,7 +1429,9 @@ export default function CampingOperationsPage() {
         </div>
       )}
 
-      {/* TAB 4: WEATHER & FOREST SAFETY COCKPIT */}
+      {/* ------------------------------------------------------------- */}
+      {/* TAB 4: WEATHER & FOREST SAFETY COCKPIT                         */}
+      {/* ------------------------------------------------------------- */}
       {activeTab === "safety_wildlife" && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1359,11 +1486,12 @@ export default function CampingOperationsPage() {
                       setWindSpeed(val);
                       if (val > 25) {
                         setIsHighWindBan(true);
+                        showToast("⚠️ High wind threshold (>25 km/h) reached! Automatic bonfire ban activated.");
                       } else {
                         setIsHighWindBan(false);
                       }
                     }}
-                    className="w-full"
+                    className="w-full accent-rentcot-blue cursor-pointer"
                   />
                   <div className="flex justify-between text-[10px] text-muted-foreground">
                     <span>Calm (5 km/h)</span>
@@ -1393,162 +1521,150 @@ export default function CampingOperationsPage() {
                   <Button
                     size="sm"
                     variant={isHighWindBan ? "destructive" : "outline"}
-                    onClick={() => setIsHighWindBan(!isHighWindBan)}
+                    onClick={() => {
+                      const next = !isHighWindBan;
+                      setIsHighWindBan(next);
+                      showToast(next ? "Emergency campfire ban enforced!" : "Campfire ban lifted.");
+                    }}
                     className="w-full text-xs h-8 font-bold"
                   >
                     {isHighWindBan ? "Lift Campfire Ban (Safe Winds)" : "Trigger Emergency Campfire Ban"}
                   </Button>
                 </div>
-
-                {/* Night Curfew Broadcast */}
-                <div className="p-3 rounded-xl border border-border bg-card flex items-center justify-between gap-3">
-                  <div>
-                    <div className="font-bold text-xs text-foreground">10:30 PM Forest Quiet Hours Broadcast</div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {isCurfewSent ? "Curfew advisory dispatched to 200 tents" : "Dispatches quiet hours SMS / WhatsApp"}
-                    </div>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setIsCurfewSent(true)}
-                    disabled={isCurfewSent}
-                    className="text-xs h-8 font-semibold gap-1"
-                  >
-                    <VolumeX className="h-3.5 w-3.5 text-purple-600" />
-                    <span>{isCurfewSent ? "Broadcasted" : "Send Curfew Alert"}</span>
-                  </Button>
-                </div>
               </CardContent>
             </Card>
 
-            {/* Wildlife Protocols & Emergency Directory */}
-            <div className="space-y-4">
-              <Card className="border border-border">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-2">
-                    <ShieldAlert className="h-5 w-5 text-amber-600" />
-                    <CardTitle className="text-base font-bold">Wildlife Safety Protocols (Forest Buffer Zone)</CardTitle>
+            {/* Wildlife & Forest Boundary Telemetry */}
+            <Card className="border border-border bg-card">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Compass className="h-5 w-5 text-emerald-600" />
+                  <CardTitle className="text-base font-bold">Forest Boundary & Wildlife Monitoring</CardTitle>
+                </div>
+                <CardDescription className="text-xs">
+                  Infrared perimeter sensor logs and forest ranger dispatch coordinates.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 text-xs">
+                <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 space-y-2">
+                  <div className="flex items-center justify-between font-bold">
+                    <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
+                      <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                      Perimeter Fence Solar Sensors: All Active
+                    </span>
+                    <Badge variant="outline" className="text-[10px] bg-emerald-100 dark:bg-emerald-950 font-mono">
+                      8/8 ONLINE
+                    </Badge>
                   </div>
-                  <CardDescription className="text-xs">
-                    Strict SOPs ensuring peaceful co-existence with local reserve wildlife.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3 text-xs">
-                  <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 text-amber-950 dark:text-amber-200">
-                    <div className="font-bold mb-1">🍌 Food In Tents Strictly Prohibited</div>
-                    <p className="text-[11px] leading-relaxed">
-                      Food scraps, snacks, or fruit kept inside canvas tents attract langurs, wild boars, and desert ants. All guest provisions must be locked in the central metal camp locker.
-                    </p>
-                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Solar infrared tripwire along Ananthagiri reserve forest perimeter functioning normally.
+                  </p>
+                </div>
 
-                  <div className="p-3 rounded-lg border border-border bg-muted/30">
-                    <div className="font-bold mb-1">🥾 Footwear Inside Tent Porch</div>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      Shoes must be kept zipped inside the tent vestibule, never exposed overnight on grass where scorpions seek shelter.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Emergency Directory */}
-              <Card className="border border-border">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center gap-2">
-                    <PhoneCall className="h-5 w-5 text-destructive" />
-                    <CardTitle className="text-base font-bold">Emergency & Forest Quick Contacts</CardTitle>
-                  </div>
-                  <CardDescription className="text-xs">
-                    Immediate 24/7 dispatch hotline for front desk managers.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2.5">
-                  {[
-                    { title: "Vikarabad Forest Range Officer", phone: "+91 84162 55432", desc: "Permits & Wildlife Rescue Dispatch" },
-                    { title: "Certified Snake Rescue Volunteer", phone: "+91 94401 88765", desc: "Local NGO volunteer (15 min ETA)" },
-                    { title: "Area Government Hospital (Anti-Venom)", phone: "+91 84162 22100", desc: "Polyvalent ASV stocks verified" },
-                    { title: "Local Fire Station (Tandur Road)", phone: "101 / +91 84162 22101", desc: "Brush fire & emergency tender" },
-                  ].map((contact, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-card">
-                      <div>
-                        <div className="font-bold text-xs text-foreground">{contact.title}</div>
-                        <div className="text-[11px] text-muted-foreground">{contact.desc}</div>
-                      </div>
-                      <a
-                        href={`tel:${contact.phone.replace(/[^0-9+]/g, "")}`}
-                        className="inline-flex items-center gap-1 text-xs font-mono font-bold text-rentcot-blue hover:underline bg-rentcot-blue/10 px-2.5 py-1.5 rounded-md"
-                      >
-                        <PhoneCall className="h-3 w-3" />
-                        <span>{contact.phone}</span>
-                      </a>
+                <div className="space-y-2">
+                  <div className="font-bold text-foreground">Recent Forest Animal Activity:</div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border">
+                      <span>Wild Boar Herd detected near Creek Sector 4</span>
+                      <span className="text-[10px] font-mono text-muted-foreground">Today, 03:15 AM</span>
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border">
+                      <span>Spotted Deer grazing in Zone B Pine Clearing</span>
+                      <span className="text-[10px] font-mono text-muted-foreground">Yesterday, 06:40 PM</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-border space-y-2">
+                  <div className="font-bold text-foreground">Emergency Forest Ranger Dispatch:</div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => showToast("Calling Vikarabad Forest Range Officer: +91 94408 12345")}
+                      className="text-xs flex-1 gap-1"
+                    >
+                      <Phone className="h-3 w-3 text-emerald-600" />
+                      Vikarabad Forest RO
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => showToast("Calling Camp Caretaker Mallesh: +91 98481 11223")}
+                      className="text-xs flex-1 gap-1"
+                    >
+                      <Phone className="h-3 w-3 text-rentcot-blue" />
+                      Head Ranger Mallesh
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       )}
 
-      {/* TAB 5: BOOKINGS MANIFEST & ARRIVALS */}
+      {/* ------------------------------------------------------------- */}
+      {/* TAB 5: GUEST MANIFEST & ARRIVALS                               */}
+      {/* ------------------------------------------------------------- */}
       {activeTab === "bookings" && (
-        <Card className="border border-border bg-card shadow-sm">
-          <CardHeader className="p-4 sm:p-6 pb-4 border-b border-border/80">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <CardTitle className="text-lg font-bold">Campsite Guest Manifest & Check-In Roster</CardTitle>
-                <CardDescription className="text-xs text-muted-foreground">
-                  Active reservations, meal preferences (Jain / Pure Veg / BBQ), and folio balances.
-                </CardDescription>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExportPitchManifest}
-                className="text-xs h-9 gap-1.5 font-semibold"
-              >
-                <Download className="h-3.5 w-3.5" />
-                <span>Export CSV</span>
-              </Button>
+        <Card className="border border-border bg-card">
+          <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-base font-bold">Camper Manifest & Forest Checkpost Log</CardTitle>
+              <CardDescription className="text-xs">
+                Official register for Ananthagiri Forest Checkpost authorities and camp kitchen planning.
+              </CardDescription>
             </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleExportPitchManifest}
+              className="text-xs gap-1"
+            >
+              <Download className="h-3 w-3" /> Export CSV
+            </Button>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4">
             <div className="overflow-x-auto border rounded-xl">
               <table className="w-full text-xs text-left">
                 <thead className="bg-muted text-muted-foreground uppercase text-[10px] font-bold border-b">
                   <tr>
-                    <th className="p-3">Booking ID</th>
-                    <th className="p-3">Tent / Pitch</th>
+                    <th className="p-3">Pitch #</th>
                     <th className="p-3">Guest Name</th>
                     <th className="p-3">Contact</th>
-                    <th className="p-3">Guests</th>
+                    <th className="p-3">Party</th>
                     <th className="p-3">Meal Plan</th>
-                    <th className="p-3">Payment</th>
-                    <th className="p-3 text-right">Status</th>
+                    <th className="p-3">Campfire</th>
+                    <th className="p-3">Check-In</th>
+                    <th className="p-3">Paid Amount</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {tents
                     .filter((t) => t.currentGuest)
-                    .map((t) => {
-                      const g = t.currentGuest!;
-                      return (
-                        <tr key={g.bookingId} className="hover:bg-muted/40">
-                          <td className="p-3 font-mono font-bold text-rentcot-blue">{g.bookingId}</td>
-                          <td className="p-3 font-mono font-semibold">{t.pitchNumber} ({t.zoneName.split(":")[0]})</td>
-                          <td className="p-3 font-bold text-foreground">{g.name}</td>
-                          <td className="p-3 font-mono text-muted-foreground">{g.phone}</td>
-                          <td className="p-3">{g.adults} Adults {g.children > 0 ? `, ${g.children} Kids` : ""}</td>
-                          <td className="p-3 capitalize font-medium">{g.mealPlan.replace("_", " ")}</td>
-                          <td className="p-3 font-mono font-bold text-emerald-600">₹{g.paidAmount} (Paid)</td>
-                          <td className="p-3 text-right">
-                            <Badge className="bg-emerald-600 text-[10px] font-bold capitalize">
-                              {t.status}
-                            </Badge>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    .map((t) => (
+                      <tr key={t.id} className="hover:bg-muted/40">
+                        <td className="p-3 font-mono font-bold text-rentcot-blue">{t.pitchNumber}</td>
+                        <td className="p-3 font-bold text-foreground">{t.currentGuest?.name}</td>
+                        <td className="p-3 font-mono text-muted-foreground">{t.currentGuest?.phone}</td>
+                        <td className="p-3 font-semibold">
+                          {t.currentGuest?.adults} Adults, {t.currentGuest?.children} Kids
+                        </td>
+                        <td className="p-3 capitalize font-medium">{t.currentGuest?.mealPlan.replace("_", " ")}</td>
+                        <td className="p-3">
+                          {t.currentGuest?.bbqOptIn ? (
+                            <Badge className="bg-amber-600 text-white text-[10px]">Active</Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </td>
+                        <td className="p-3 text-[11px] text-muted-foreground">{t.currentGuest?.checkIn}</td>
+                        <td className="p-3 font-mono font-bold text-emerald-600">
+                          ₹{t.currentGuest?.paidAmount.toLocaleString("en-IN")}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -1556,194 +1672,60 @@ export default function CampingOperationsPage() {
         </Card>
       )}
 
-      {/* DETAIL SLIDE-OVER DRAWER FOR PITCH INSPECTION */}
+      {/* ------------------------------------------------------------- */}
+      {/* SLIDE-OVER PITCH 360° INSPECTION DRAWER                       */}
+      {/* ------------------------------------------------------------- */}
       {isDetailDrawerOpen && selectedTent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-end bg-foreground/30 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-md h-full bg-card border-l border-border p-6 shadow-2xl flex flex-col justify-between overflow-y-auto space-y-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-border pb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rentcot-blue/10 text-rentcot-blue font-mono font-bold">
-                    {selectedTent.pitchNumber}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-base text-foreground">{selectedTent.name}</h3>
-                    <p className="text-xs text-muted-foreground">{selectedTent.zoneName}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsDetailDrawerOpen(false)}
-                  className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              {/* Status Badge & Pitch Specifications */}
-              <div className="grid grid-cols-2 gap-2 text-xs p-3 rounded-xl bg-muted/40 border border-border">
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-card border-l border-border w-full max-w-md h-full shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right duration-200">
+            {/* Drawer Header */}
+            <div className="p-4 border-b border-border flex items-center justify-between bg-muted/20">
+              <div className="flex items-center gap-2">
+                <Tent className="h-5 w-5 text-rentcot-blue" />
                 <div>
-                  <span className="text-[10px] text-muted-foreground block">Current Status</span>
+                  <h3 className="font-bold text-base text-foreground">
+                    Pitch #{selectedTent.id} ({selectedTent.pitchNumber})
+                  </h3>
+                  <span className="text-[11px] text-muted-foreground">{selectedTent.zoneName}</span>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsDetailDrawerOpen(false)}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Drawer Content */}
+            <div className="p-5 space-y-4 overflow-y-auto text-xs flex-1">
+              {/* Pitch Status & Quick Status Switcher */}
+              <div className="p-3 rounded-xl bg-muted/40 border border-border space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground font-semibold">Current Operational Status:</span>
                   <Badge
-                    className={`text-[10px] font-bold ${
+                    className={`capitalize font-bold text-xs ${
                       selectedTent.status === "available"
-                        ? "bg-emerald-600"
+                        ? "bg-emerald-600 text-white"
                         : selectedTent.status === "occupied"
-                        ? "bg-rose-600"
+                        ? "bg-rose-600 text-white"
                         : selectedTent.status === "reserved"
-                        ? "bg-amber-600"
-                        : "bg-muted text-muted-foreground"
+                        ? "bg-amber-600 text-white"
+                        : "bg-purple-600 text-white"
                     }`}
                   >
-                    {selectedTent.status.toUpperCase()}
+                    {selectedTent.status}
                   </Badge>
                 </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground block">Base Rate / Night</span>
-                  <span className="font-mono font-bold text-foreground">₹{selectedTent.ratePerNight}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground block">Max Capacity</span>
-                  <span className="font-semibold text-foreground">{selectedTent.maxOccupancy} Persons</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground block">Power Supply</span>
-                  <span className="font-semibold text-foreground capitalize">{selectedTent.powerSupply.replace(/_/g, " ")}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground block">Washroom</span>
-                  <span className="font-semibold text-foreground">
-                    {selectedTent.hasAttachedWashroom ? "Attached Private" : `${selectedTent.distanceToWashroomMeters}m to Bathhouse`}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground block">Fire Pit</span>
-                  <span className="font-semibold text-foreground capitalize">{selectedTent.firePit.replace(/_/g, " ")}</span>
-                </div>
-              </div>
 
-              {/* If Occupied or Reserved: Show Guest Folio */}
-              {selectedTent.currentGuest ? (
-                <div className="p-4 rounded-xl border border-rentcot-blue/30 bg-blue-50/20 dark:bg-blue-950/20 space-y-3">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-2">
-                    <span className="font-bold text-xs uppercase tracking-wider text-rentcot-blue">Active Guest Folio</span>
-                    <span className="font-mono text-xs font-bold text-muted-foreground">{selectedTent.currentGuest.bookingId}</span>
-                  </div>
-
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Guest Name:</span>
-                      <strong className="text-foreground">{selectedTent.currentGuest.name}</strong>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Contact Phone:</span>
-                      <span className="font-mono font-bold text-foreground">{selectedTent.currentGuest.phone}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Check-In / Out:</span>
-                      <span>{selectedTent.currentGuest.checkIn}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Meal Plan:</span>
-                      <span className="capitalize font-bold text-foreground">{selectedTent.currentGuest.mealPlan.replace("_", " ")}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">BBQ & Bonfire:</span>
-                      <span>{selectedTent.currentGuest.bbqOptIn ? `Yes (${selectedTent.currentGuest.firewoodBundles} Bundles)` : "No"}</span>
-                    </div>
-                    <div className="flex justify-between pt-1 border-t border-border/60">
-                      <span className="text-muted-foreground">Paid Total:</span>
-                      <strong className="font-mono text-emerald-600">₹{selectedTent.currentGuest.paidAmount} (Prepaid)</strong>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t border-border flex items-center justify-between gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleReleaseTent(selectedTent.id)}
-                      className="text-xs h-8 text-rose-600 border-rose-300 hover:bg-rose-50 w-full"
-                    >
-                      Express Check-Out & Mark Turnover
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                /* Vacant Tent: Express Walk-In Registration Form */
-                <form onSubmit={handleWalkInSubmit} className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/10 space-y-3">
-                  <div className="font-bold text-xs uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-                    Express Walk-In Registration
-                  </div>
-
-                  <div className="space-y-1 text-xs">
-                    <label className="font-semibold text-foreground">Guest Full Name</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g., Harish Varma"
-                      value={walkInName}
-                      onChange={(e) => setWalkInName(e.target.value)}
-                      className="w-full p-2 rounded-lg border border-border bg-background text-xs"
-                    />
-                  </div>
-
-                  <div className="space-y-1 text-xs">
-                    <label className="font-semibold text-foreground">Phone Number (WhatsApp)</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="+91 98480 12345"
-                      value={walkInPhone}
-                      onChange={(e) => setWalkInPhone(e.target.value)}
-                      className="w-full p-2 rounded-lg border border-border bg-background text-xs font-mono"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="space-y-1">
-                      <label className="font-semibold text-foreground">Guests</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max={selectedTent.maxOccupancy}
-                        value={walkInAdults}
-                        onChange={(e) => setWalkInAdults(Number(e.target.value))}
-                        className="w-full p-2 rounded-lg border border-border bg-background text-xs"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="font-semibold text-foreground">Meal Plan</label>
-                      <select
-                        value={walkInMeal}
-                        onChange={(e) => setWalkInMeal(e.target.value as any)}
-                        className="w-full p-2 rounded-lg border border-border bg-background text-xs"
-                      >
-                        <option value="veg_special">Veg Special</option>
-                        <option value="jain">Jain Special</option>
-                        <option value="standard_veg">Standard Veg</option>
-                        <option value="non_veg">Non-Veg BBQ</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold h-9 mt-2"
-                  >
-                    Check In & Collect ₹{selectedTent.ratePerNight}
-                  </Button>
-                </form>
-              )}
-
-              {/* Maintenance & Cleaning Status Quick Toggles */}
-              <div className="space-y-2 pt-2 border-t border-border">
-                <div className="text-xs font-semibold text-foreground">Ground Housekeeping Status</div>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="flex items-center gap-1.5 pt-1">
                   <Button
                     size="sm"
                     variant={selectedTent.status === "available" ? "default" : "outline"}
                     onClick={() => updateTentStatus(selectedTent.id, "available")}
-                    className="text-[11px] h-8"
+                    className="text-[10px] h-7 px-2 flex-1"
                   >
                     Available
                   </Button>
@@ -1751,29 +1733,294 @@ export default function CampingOperationsPage() {
                     size="sm"
                     variant={selectedTent.status === "dirty" ? "default" : "outline"}
                     onClick={() => updateTentStatus(selectedTent.id, "dirty")}
-                    className="text-[11px] h-8"
+                    className="text-[10px] h-7 px-2 flex-1"
                   >
-                    Cleaning
+                    Clean Queue
                   </Button>
                   <Button
                     size="sm"
-                    variant={selectedTent.status === "maintenance" ? "destructive" : "outline"}
+                    variant={selectedTent.status === "maintenance" ? "default" : "outline"}
                     onClick={() => updateTentStatus(selectedTent.id, "maintenance")}
-                    className="text-[11px] h-8"
+                    className="text-[10px] h-7 px-2 flex-1"
                   >
                     Repair
                   </Button>
                 </div>
               </div>
+
+              {/* Pitch Ground Specs */}
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2.5 rounded-lg bg-background border border-border">
+                  <span className="text-muted-foreground block text-[10px]">Nightly Base Rate</span>
+                  <span className="font-mono font-bold text-foreground">₹{selectedTent.ratePerNight}</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-background border border-border">
+                  <span className="text-muted-foreground block text-[10px]">Max Sleeping Capacity</span>
+                  <span className="font-bold text-foreground">{selectedTent.maxOccupancy} Campers</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-background border border-border">
+                  <span className="text-muted-foreground block text-[10px]">Power Hookup</span>
+                  <span className="font-semibold text-foreground capitalize">{selectedTent.powerSupply.replace("_", " ")}</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-background border border-border">
+                  <span className="text-muted-foreground block text-[10px]">Washroom</span>
+                  <span className="font-semibold text-foreground">
+                    {selectedTent.hasAttachedWashroom ? "Attached En-suite" : `${selectedTent.distanceToWashroomMeters}m to Bathhouse`}
+                  </span>
+                </div>
+              </div>
+
+              {/* IN-HOUSE GUEST FOLIO (If occupied or reserved) */}
+              {selectedTent.currentGuest ? (
+                <div className="p-4 rounded-xl border border-rose-500/30 bg-rose-500/5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-rose-600 dark:text-rose-400">
+                        In-House Camper Folio
+                      </span>
+                      <h4 className="font-bold text-base text-foreground mt-0.5">{selectedTent.currentGuest.name}</h4>
+                    </div>
+                    <Badge variant="clean" className="text-[10px]">
+                      {selectedTent.currentGuest.bookingId}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Phone:</span>
+                      <span className="font-mono font-semibold">{selectedTent.currentGuest.phone}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Party Size:</span>
+                      <span>{selectedTent.currentGuest.adults} Adults, {selectedTent.currentGuest.children} Children</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Meal Preference:</span>
+                      <span className="capitalize font-semibold">{selectedTent.currentGuest.mealPlan.replace("_", " ")}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Paid Amount:</span>
+                      <span className="font-mono font-bold text-emerald-600">₹{selectedTent.currentGuest.paidAmount}</span>
+                    </div>
+                  </div>
+
+                  {selectedTent.currentGuest.notes && (
+                    <p className="text-[11px] text-muted-foreground italic bg-background/60 p-2 rounded border border-border">
+                      {selectedTent.currentGuest.notes}
+                    </p>
+                  )}
+
+                  {/* Communication & Checkout Actions */}
+                  <div className="pt-2 border-t border-border flex items-center justify-between gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const cleanPhone = selectedTent.currentGuest?.phone.replace(/[^0-9]/g, "") || "";
+                        const msg = encodeURIComponent(
+                          `Hello ${selectedTent.currentGuest?.name}, this is Wildwoods Campsite Concierge at Ananthagiri Hills. Please let us know if you need firewood, water, or dinner service at Pitch ${selectedTent.pitchNumber}!`
+                        );
+                        window.open(`https://wa.me/${cleanPhone}?text=${msg}`, "_blank");
+                      }}
+                      className="text-xs flex-1 gap-1 border-border hover:bg-muted"
+                    >
+                      <Share2 className="h-3 w-3 text-emerald-600" />
+                      WhatsApp
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleReleaseTent(selectedTent.id)}
+                      className="text-xs text-rose-600 hover:bg-rose-50 hover:border-rose-300 dark:hover:bg-rose-950 flex-1 border-border"
+                    >
+                      Check Out
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                /* VACANT PITCH: FRONT DESK EXPRESS WALK-IN FORM */
+                <form onSubmit={handleWalkInSubmit} className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-3">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block">
+                      Pitch is Available
+                    </span>
+                    <h4 className="font-bold text-sm text-foreground">Front-Desk Walk-In Registration</h4>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div>
+                      <Label className="text-[11px] font-semibold">Camper Name *</Label>
+                      <Input
+                        required
+                        placeholder="e.g. Sravan Kumar"
+                        value={walkInName}
+                        onChange={(e) => setWalkInName(e.target.value)}
+                        className="text-xs h-8 border-border mt-0.5"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-[11px] font-semibold">Phone Number</Label>
+                      <Input
+                        placeholder="+91 98480 00000"
+                        value={walkInPhone}
+                        onChange={(e) => setWalkInPhone(e.target.value)}
+                        className="text-xs h-8 border-border mt-0.5 font-mono"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-[11px] font-semibold">Adults</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          max={selectedTent.maxOccupancy}
+                          value={walkInAdults}
+                          onChange={(e) => setWalkInAdults(Number(e.target.value))}
+                          className="text-xs h-8 border-border mt-0.5"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-[11px] font-semibold">Meal Preference</Label>
+                        <select
+                          aria-label="Walk-in Meal Preference"
+                          value={walkInMeal}
+                          onChange={(e) => setWalkInMeal(e.target.value as any)}
+                          className="w-full text-xs h-8 px-2 bg-background border border-border rounded-lg text-foreground mt-0.5"
+                        >
+                          <option value="veg_special">Special Veg</option>
+                          <option value="jain">Jain Pure Veg</option>
+                          <option value="non_veg">Non-Veg BBQ</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <Button
+                      type="submit"
+                      size="sm"
+                      className="w-full text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-8"
+                    >
+                      Instant Check-In (₹{selectedTent.ratePerNight})
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* MODAL: NEW CAMPFIRE / BBQ ORDER                                */}
+      {/* ------------------------------------------------------------- */}
+      {isNewBbqModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-card border border-border w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <div className="p-4 border-b border-border flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Flame className="h-4 w-4 text-amber-500" />
+                  Order Evening Campfire & BBQ Kit
+                </h3>
+                <p className="text-xs text-muted-foreground">Assign seasoned firewood & marination package to a pitch.</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsNewBbqModalOpen(false)}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
 
-            <Button
-              variant="outline"
-              onClick={() => setIsDetailDrawerOpen(false)}
-              className="w-full text-xs h-9 mt-4"
-            >
-              Close Drawer
-            </Button>
+            <form onSubmit={handleCreateBbqOrder} className="p-5 space-y-3.5 text-xs">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Target Pitch Number *</Label>
+                <select
+                  aria-label="Select Target Pitch"
+                  value={newBbqPitch}
+                  onChange={(e) => setNewBbqPitch(e.target.value)}
+                  className="w-full text-xs h-9 px-3 bg-background border border-border rounded-lg text-foreground font-mono font-bold"
+                >
+                  {tents.slice(0, 50).map((t) => (
+                    <option key={t.id} value={t.pitchNumber}>
+                      {t.pitchNumber} — {t.type} {t.currentGuest ? `(${t.currentGuest.name})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Guest Name *</Label>
+                <Input
+                  required
+                  placeholder="e.g. Vikram Malhotra"
+                  value={newBbqGuest}
+                  onChange={(e) => setNewBbqGuest(e.target.value)}
+                  className="text-xs h-9 border-border"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Delivery Time</Label>
+                  <Input
+                    type="time"
+                    value={newBbqTime}
+                    onChange={(e) => setNewBbqTime(e.target.value)}
+                    className="text-xs h-9 border-border font-mono"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Wood Bundles (15kg ea)</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="5"
+                    value={newBbqBundles}
+                    onChange={(e) => setNewBbqBundles(Number(e.target.value))}
+                    className="text-xs h-9 border-border font-mono font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">BBQ Package</Label>
+                <select
+                  aria-label="BBQ Package Selection"
+                  value={newBbqPackage}
+                  onChange={(e) => setNewBbqPackage(e.target.value as any)}
+                  className="w-full text-xs h-9 px-3 bg-background border border-border rounded-lg text-foreground"
+                >
+                  <option value="mixed_grill">Mixed Grill Meat & Marinade (₹2,400)</option>
+                  <option value="veg_marinade">Paneer & Mushroom Veg Skewers (₹1,200)</option>
+                  <option value="wood_only">Seasoned Firewood Bundles Only (₹600)</option>
+                </select>
+              </div>
+
+              <div className="pt-3 border-t border-border flex items-center justify-end gap-2.5">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsNewBbqModalOpen(false)}
+                  className="text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="text-xs bg-rentcot-blue text-white hover:bg-rentcot-blue/90 font-bold"
+                >
+                  Confirm Campfire Order
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       )}
